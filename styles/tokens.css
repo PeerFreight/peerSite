@@ -1,0 +1,18 @@
+:root {
+  color-scheme: light;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system,
+                BlinkMacSystemFont, sans-serif;
+  --font-display: var(--font-sans);
+  --font-body:    var(--font-sans);
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: block;
+  src: url('/styles/fonts/manrope-latin.woff2') format('woff2-variations'),
+       url('/styles/fonts/manrope-latin.woff2') format('woff2');
+}
+
+em, i { font-style: normal; }

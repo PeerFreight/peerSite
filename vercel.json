@@ -1,0 +1,18 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "main": false
+    }
+  },
+  "builds": [
+    { "src": "site/**", "use": "@vercel/static" },
+    { "src": "logos/**", "use": "@vercel/static" },
+    { "src": "styles/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/", "dest": "/site/index.html" },
+    { "src": "/site/(.*)", "dest": "/site/$1" },
+    { "src": "/logos/(.*)", "dest": "/logos/$1" },
+    { "src": "/styles/(.*)", "dest": "/styles/$1" }
+  ]
+}
