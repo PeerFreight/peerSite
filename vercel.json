@@ -5,14 +5,43 @@
     }
   },
   "builds": [
-    { "src": "site/**", "use": "@vercel/static" },
-    { "src": "logos/**", "use": "@vercel/static" },
-    { "src": "styles/**", "use": "@vercel/static" }
+    {
+      "src": "site/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "logos/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "styles/**",
+      "use": "@vercel/static"
+    }
   ],
   "routes": [
-    { "src": "/", "dest": "/site/index.html" },
-    { "src": "/site/(.*)", "dest": "/site/$1" },
-    { "src": "/logos/(.*)", "dest": "/logos/$1" },
-    { "src": "/styles/(.*)", "dest": "/styles/$1" }
+    {
+      "src": "/",
+      "dest": "/site/index.html"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/site/robots.txt"
+    },
+    {
+      "src": "/sitemap.xml",
+      "dest": "/site/sitemap.xml"
+    },
+    {
+      "src": "/site/(.*)",
+      "dest": "/site/$1"
+    },
+    {
+      "src": "/logos/(.*)",
+      "dest": "/logos/$1"
+    },
+    {
+      "src": "/styles/(.*)",
+      "dest": "/styles/$1"
+    }
   ]
 }
