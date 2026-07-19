@@ -28,6 +28,10 @@
       "dest": "/site/carriers.html"
     },
     {
+      "src": "/quote",
+      "dest": "/site/quote.html"
+    },
+    {
       "src": "/robots.txt",
       "dest": "/site/robots.txt"
     },
