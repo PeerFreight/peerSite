@@ -24,6 +24,10 @@
       "dest": "/site/index.html"
     },
     {
+      "src": "/carriers",
+      "dest": "/site/carriers.html"
+    },
+    {
       "src": "/robots.txt",
       "dest": "/site/robots.txt"
     },
