@@ -13,7 +13,7 @@
   <link rel="apple-touch-icon" href="/site/favicon.png">
   <link rel="preload" href="/styles/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles/tokens.css?v=2">
-  <link rel="stylesheet" href="/site/newpeer.css?v=37">
+  <link rel="stylesheet" href="/site/newpeer.css?v=38">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -53,77 +53,146 @@
             </ul>
           </div>
 
-          <!-- Aaron: this form is not wired up yet. Point the action at your intake (email, form service, or CRM) and add server-side handling / spam protection. -->
-          <form class="form" action="#" method="post">
-            <div class="form__row">
-              <div class="field">
-                <label for="company">Company</label>
-                <input id="company" name="company" type="text" autocomplete="organization" required>
-              </div>
-              <div class="field">
-                <label for="name">Your name</label>
-                <input id="name" name="name" type="text" autocomplete="name" required>
-              </div>
+          <div>
+            <div class="form__success" id="form-success" hidden>
+              <h2>Request received.</h2>
+              <p>Your quote request is in our inbox. One of the owners will get back to you shortly, usually within the hour during business hours.</p>
+              <a class="btn btn--navy" href="/">
+                Back to home
+                <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+              </a>
             </div>
-            <div class="form__row">
-              <div class="field">
-                <label for="email">Email</label>
-                <input id="email" name="email" type="email" autocomplete="email" required>
+
+            <form class="form" id="quote-form" action="https://formsubmit.co/team@peer-freight.com" method="post">
+              <input type="hidden" name="_subject" value="New quote request — peer-freight.com">
+              <input type="hidden" name="_template" value="table">
+              <input type="hidden" name="_captcha" value="false">
+              <input type="hidden" name="_next" value="https://www.peer-freight.com/quote?sent=1">
+              <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+              <div class="form__row">
+                <div class="field">
+                  <label for="company">Company</label>
+                  <input id="company" name="company" type="text" autocomplete="organization" required>
+                </div>
+                <div class="field">
+                  <label for="name">Your name</label>
+                  <input id="name" name="name" type="text" autocomplete="name" required>
+                </div>
+              </div>
+              <div class="form__row">
+                <div class="field">
+                  <label for="email">Email</label>
+                  <input id="email" name="email" type="email" autocomplete="email" required>
+                </div>
+                <div class="field">
+                  <label for="phone">Phone (optional)</label>
+                  <input id="phone" name="phone" type="tel" autocomplete="tel">
+                </div>
+              </div>
+              <div class="form__row">
+                <div class="field">
+                  <label for="origin">Origin (city, state, ZIP)</label>
+                  <input id="origin" name="origin" type="text" placeholder="e.g. Stockton, CA 95206" required>
+                </div>
+                <div class="field">
+                  <label for="destination">Destination (city, state, ZIP)</label>
+                  <input id="destination" name="destination" type="text" placeholder="e.g. Reno, NV 89502" required>
+                </div>
+              </div>
+              <div class="form__row">
+                <div class="field">
+                  <label for="pickup">Pickup date</label>
+                  <input id="pickup" name="pickup" type="date" required>
+                </div>
+                <div class="field">
+                  <label for="delivery">Delivery date (optional)</label>
+                  <input id="delivery" name="delivery" type="date">
+                </div>
+              </div>
+              <div class="form__row">
+                <div class="field">
+                  <label for="equipment">Equipment</label>
+                  <select id="equipment" name="equipment" required>
+                    <option value="" selected disabled>Select equipment</option>
+                    <option>Dry van</option>
+                    <option>Reefer</option>
+                    <option>Flatbed</option>
+                    <option>Tanker</option>
+                    <option>Drayage / container</option>
+                    <option>Specialized / oversize</option>
+                    <option>Not sure yet</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="loadtype">Load type</label>
+                  <select id="loadtype" name="load_type">
+                    <option selected>Full truckload</option>
+                    <option>Partial / LTL</option>
+                    <option>Not sure yet</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form__row">
+                <div class="field">
+                  <label for="commodity">Commodity</label>
+                  <input id="commodity" name="commodity" type="text" placeholder="What are we hauling?" required>
+                </div>
+                <div class="field">
+                  <label for="weight">Weight</label>
+                  <input id="weight" name="weight" type="text" placeholder="e.g. 42,000 lbs" required>
+                </div>
+              </div>
+              <div class="form__row">
+                <div class="field">
+                  <label for="pieces">Pallets / piece count (optional)</label>
+                  <input id="pieces" name="pieces" type="text" placeholder="e.g. 24 pallets">
+                </div>
+                <div class="field">
+                  <label for="dims">Dimensions (optional)</label>
+                  <input id="dims" name="dimensions" type="text" placeholder="L × W × H, for flatbed or oversize">
+                </div>
+              </div>
+              <div class="form__row">
+                <div class="field">
+                  <label for="hazmat">Is this hazmat?</label>
+                  <select id="hazmat" name="hazmat">
+                    <option selected>No</option>
+                    <option>Yes</option>
+                    <option>Not sure</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="hazmat-details">Hazmat details (if yes)</label>
+                  <input id="hazmat-details" name="hazmat_details" type="text" placeholder="UN number, hazard class, packing group">
+                </div>
+              </div>
+              <div class="form__row">
+                <div class="field">
+                  <label for="temp">Temperature requirement (optional)</label>
+                  <input id="temp" name="temperature" type="text" placeholder="e.g. keep at 34–38°F">
+                </div>
+                <div class="field">
+                  <label for="frequency">How often does this ship?</label>
+                  <select id="frequency" name="frequency">
+                    <option selected>One-time load</option>
+                    <option>Weekly</option>
+                    <option>Monthly</option>
+                    <option>Ongoing lane</option>
+                  </select>
+                </div>
               </div>
               <div class="field">
-                <label for="phone">Phone (optional)</label>
-                <input id="phone" name="phone" type="tel" autocomplete="tel">
+                <label for="notes">Anything else we should know?</label>
+                <textarea id="notes" name="notes" placeholder="Accessorials (liftgate, tarps, team service), appointment requirements, reference numbers…"></textarea>
               </div>
-            </div>
-            <div class="form__row">
-              <div class="field">
-                <label for="origin">Origin (city, state)</label>
-                <input id="origin" name="origin" type="text" required>
-              </div>
-              <div class="field">
-                <label for="destination">Destination (city, state)</label>
-                <input id="destination" name="destination" type="text" required>
-              </div>
-            </div>
-            <div class="form__row">
-              <div class="field">
-                <label for="equipment">Equipment</label>
-                <select id="equipment" name="equipment">
-                  <option>Hazmat</option>
-                  <option>Tanker</option>
-                  <option>Reefer</option>
-                  <option>Dry van</option>
-                  <option>Flatbed</option>
-                  <option>Drayage</option>
-                  <option>Specialized</option>
-                  <option>Not sure yet</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="pickup">Pickup date</label>
-                <input id="pickup" name="pickup" type="date">
-              </div>
-            </div>
-            <div class="form__row">
-              <div class="field">
-                <label for="commodity">Commodity</label>
-                <input id="commodity" name="commodity" type="text">
-              </div>
-              <div class="field">
-                <label for="weight">Weight</label>
-                <input id="weight" name="weight" type="text" placeholder="e.g. 42,000 lbs">
-              </div>
-            </div>
-            <div class="field">
-              <label for="notes">Anything else we should know?</label>
-              <textarea id="notes" name="notes"></textarea>
-            </div>
-            <button class="btn btn--yellow" type="submit">
-              Send request
-              <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
-            </button>
-            <p class="form__note">We only use these details to quote and cover your load.</p>
-          </form>
+              <button class="btn btn--yellow" type="submit">
+                Send request
+                <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+              </button>
+              <p class="form__note">Your request goes straight to the owners' inbox. Shipping hazmat? Keep the SDS handy — we will ask for it to confirm the details.</p>
+            </form>
+          </div>
         </div>
       </div>
     </section>
@@ -149,6 +218,12 @@
       function onScroll() { header.classList.toggle('is-scrolled', window.scrollY > 8); }
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
+
+      // After FormSubmit redirects back with ?sent=1, show the confirmation instead of the form.
+      if (new URLSearchParams(location.search).get('sent') === '1') {
+        document.getElementById('form-success').hidden = false;
+        document.getElementById('quote-form').hidden = true;
+      }
     })();
   </script>
 </body>

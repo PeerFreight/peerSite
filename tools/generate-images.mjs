@@ -36,11 +36,12 @@ const SHOTS = [
     name: 'hero',
     file: 'site/freight-hero-terminal-morning.jpg',
     size: '1536x1024',
-    prompt: `Wide establishing shot of a worn white day cab semi truck coupled to a 53 foot dry van
-trailer at a large distribution terminal, low front three quarter angle. Early morning golden
-yellow sunrise light rakes across wet asphalt with long shadows; other trailers sit at dock doors
+    prompt: `Wide establishing shot of a worn semi truck coupled to a stainless steel chemical
+tanker trailer with orange diamond hazmat placards on the side and rear, parked at a large chemical
+distribution terminal, low front three quarter angle. Early morning golden yellow sunrise light
+rakes across wet asphalt with long shadows; storage tanks, pipe racks, and a few other trailers sit
 in the far background. The main truck sits right of center so the left third of the frame is open
-yard and sky for text overlay.`,
+yard and sky for text overlay. The placards are small, realistic, and correctly diamond-shaped.`,
   },
   {
     name: 'dock',
