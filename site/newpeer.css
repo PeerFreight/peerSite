@@ -223,16 +223,6 @@ p { margin: 0; }
 .hero__cta .btn--secondary svg { width: 15px; height: 15px; }
 .hero__cta .btn--secondary:hover { color: var(--accent); }
 
-/* Hero freight-mode chips (hazmat-led, showing breadth) */
-.hero__modes { margin-top: clamp(2rem, 3.5vw, 2.8rem); display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
-.hero__mode {
-  display: inline-flex; align-items: center;
-  padding: 0.38rem 0.95rem; border-radius: var(--r-pill);
-  border: 1px solid var(--line-dark); color: rgba(255, 255, 255, 0.82);
-  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
-  background: rgba(255, 255, 255, 0.06);
-}
-.hero__mode--hz { background: var(--gold-grad); box-shadow: var(--gold-edge); border-color: transparent; color: var(--navy); }
 
 /* ---------- Logo band (mentors and advisors) ---------- */
 .logo-band { background: var(--navy); padding: clamp(2rem, 4vw, 3rem) 0; }
