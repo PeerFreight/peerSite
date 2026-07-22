@@ -7,31 +7,33 @@
   <meta name="theme-color" content="#0e1d3a">
   <link rel="canonical" href="https://www.peer-freight.com/quote">
   <meta name="robots" content="noindex">
-  <title>Get a quote - Peer Freight</title>
+  <title>Get a Quote - Peer Freight</title>
 
   <link rel="icon" href="/site/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="/site/favicon.png">
   <link rel="preload" href="/styles/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles/tokens.css?v=2">
-  <link rel="stylesheet" href="/site/newpeer.css?v=33">
+  <link rel="stylesheet" href="/site/newpeer.css?v=34">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" aria-label="Peer Freight navigation">
-    <a class="brand" href="/" aria-label="Peer Freight home">
-      <img class="brand__mark" src="/site/peer-logo-mark.png" alt="" width="34" height="34">
-      <span class="brand__word"><span>Peer</span><span>Freight</span></span>
-    </a>
-    <nav class="nav" aria-label="Primary">
-      <a href="/">Home</a>
-      <a href="/carriers">For carriers</a>
-    </nav>
-    <a class="btn btn--white" href="/quote">Get a quote</a>
+    <div class="site-header__inner">
+      <a class="brand" href="/" aria-label="Peer Freight home">
+        <img class="brand__mark" src="/site/peer-logo-mark.png" alt="" width="34" height="34">
+        <span class="brand__word"><span>Peer</span> <span>Freight</span></span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/carriers">For Carriers</a>
+      </nav>
+      <a class="btn btn--white" href="/quote">Get a Quote</a>
+    </div>
   </header>
 
   <main id="main">
     <section class="subhero" aria-labelledby="quote-title" style="padding-bottom:clamp(2rem,4vw,3rem)">
-      <img class="subhero__bg" src="/site/freight-highway-schneider-sunset.jpg" alt="">
+      <img class="subhero__bg" src="/site/freight-highway-cornfield.jpg" alt="">
       <div class="wrap">
         <h1 class="display" id="quote-title" style="font-size:clamp(2.4rem,5vw,4rem)">Get a quote.</h1>
         <p class="lead">Tell us about your lane and we will come back with a rate that is backed by the real market, along with the comps behind it.</p>
@@ -88,9 +90,11 @@
                 <label for="equipment">Equipment</label>
                 <select id="equipment" name="equipment">
                   <option>Hazmat</option>
+                  <option>Tanker</option>
                   <option>Reefer</option>
                   <option>Dry van</option>
                   <option>Flatbed</option>
+                  <option>Drayage</option>
                   <option>Specialized</option>
                   <option>Not sure yet</option>
                 </select>
@@ -131,15 +135,11 @@
         <div class="footer__col">
           <p class="footer__h">Peer Freight</p>
           <a href="/">Home</a>
-          <a href="/carriers">For carriers</a>
-          <a href="/quote">Get a quote</a>
+          <a href="/carriers">For Carriers</a>
+          <a href="/quote">Get a Quote</a>
         </div>
         <div class="footer__cta">
-          <p>You get straight answers, fast coverage,<br>and owners who follow through.</p>
-          <a class="btn btn--yellow" href="/quote">
-            Get a quote
-            <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
-          </a>
+          <p>A hazmat freight brokerage run by two owners<br>you can actually reach.</p>
         </div>
         <div class="footer__social">
           <p class="footer__h">Backed by Y Combinator</p>
