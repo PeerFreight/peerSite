@@ -139,9 +139,24 @@ p { margin: 0; }
 }
 .btn__icon svg { width: 17px; height: 17px; }
 
-.btn--yellow { background: var(--gold-grad); color: var(--navy); box-shadow: var(--gold-edge); }
+/* Original gold look, with a sheen that sweeps across on hover */
+.btn--yellow {
+  color: var(--navy);
+  background-image:
+    linear-gradient(110deg, rgba(255,255,255,0) 38%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 62%),
+    var(--gold-grad);
+  background-repeat: no-repeat;
+  background-size: 220% 100%, 100% 100%;
+  background-position: 175% 0, 0 0;
+  box-shadow: var(--gold-edge);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-position 0.5s ease;
+}
 .btn--yellow .btn__icon { background: var(--navy); color: var(--accent); }
-.btn--yellow:hover { transform: translateY(-2px); box-shadow: var(--gold-edge), 0 14px 28px -18px rgba(14, 29, 58, 0.5); }
+.btn--yellow:hover {
+  transform: translateY(-2px);
+  background-position: -75% 0, 0 0;
+  box-shadow: var(--gold-edge), 0 14px 28px -18px rgba(14, 29, 58, 0.5);
+}
 
 .btn--navy { background: var(--navy); color: var(--accent); }
 .btn--navy .btn__icon { background: var(--accent); color: var(--navy); }
@@ -201,8 +216,8 @@ p { margin: 0; }
 .hero::after {
   content: ""; position: absolute; inset: 0; z-index: 1;
   background:
-    linear-gradient(90deg, rgba(6,15,32,0.86) 0%, rgba(6,15,32,0.55) 45%, rgba(6,15,32,0.28) 100%),
-    linear-gradient(0deg, rgba(6,15,32,0.75), rgba(6,15,32,0.15) 60%);
+    linear-gradient(90deg, rgba(6,15,32,0.84) 0%, rgba(6,15,32,0.45) 45%, rgba(6,15,32,0.10) 100%),
+    linear-gradient(0deg, rgba(6,15,32,0.60), rgba(6,15,32,0.08) 60%);
 }
 .hero .wrap { position: relative; z-index: 3; width: 100%; max-width: min(1400px, 96vw); }
 .hero__grid { display: grid; grid-template-columns: 1fr; }
@@ -248,7 +263,7 @@ p { margin: 0; }
 .section--paper { background: var(--paper); }
 .section--white { background: #fff; }
 .section--navy { background: var(--navy); color: #fff; }
-.section__head .lead { margin-top: 1rem; }
+.section__head .lead { margin-top: 1rem; max-width: none; }
 
 /* ---------- Who we serve ---------- */
 .serve__cards { margin-top: clamp(1.8rem, 3.5vw, 2.6rem); display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.4rem; }
