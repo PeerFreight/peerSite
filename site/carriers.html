@@ -27,7 +27,7 @@
   <link rel="apple-touch-icon" href="/site/favicon.png">
   <link rel="preload" href="/styles/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles/tokens.css?v=2">
-  <link rel="stylesheet" href="/site/newpeer.css?v=34">
+  <link rel="stylesheet" href="/site/newpeer.css?v=35">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -112,28 +112,25 @@
 
   <footer class="footer">
     <div class="wrap">
-      <div class="footer__grid">
-        <div class="footer__col">
-          <p class="footer__h">Peer Freight</p>
-          <a href="/">Home</a>
-          <a href="/carriers">For Carriers</a>
-          <a href="/quote">Get Set Up</a>
-        </div>
-        <div class="footer__cta">
-          <p>Get loaded and get paid fast.</p>
-        </div>
-        <div class="footer__social">
-          <p class="footer__h">Backed by Y Combinator</p>
-          <a href="https://www.ycombinator.com/" aria-label="Y Combinator"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18v18H3z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 13.5 8.5 7h1.9l2.1 4 2.1-4h1.9L13 13.5V17h-1z"/></svg></a>
-          <a href="https://www.linkedin.com/" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.94 8.5H4.5V19h2.44V8.5ZM5.72 4.5A1.42 1.42 0 1 0 5.72 7.34 1.42 1.42 0 0 0 5.72 4.5ZM19.5 19h-2.44v-5.13c0-1.22-.02-2.79-1.7-2.79-1.7 0-1.96 1.33-1.96 2.7V19h-2.44V8.5h2.34v1.43h.03c.33-.62 1.13-1.28 2.33-1.28 2.49 0 2.95 1.64 2.95 3.77V19Z"/></svg></a>
-        </div>
-      </div>
       <div class="footer__legal">
         <span>FMCSA broker authority active · USDOT 5766712 · $75K bonded (BMC-84) · TIA member · Licensed and insured</span>
-        <span>© 2026 Peer Freight</span>
+        <span class="footer__links">
+          <a href="https://www.ycombinator.com/" aria-label="Y Combinator"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18v18H3z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 13.5 8.5 7h1.9l2.1 4 2.1-4h1.9L13 13.5V17h-1z"/></svg></a>
+          <a href="https://www.linkedin.com/" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.94 8.5H4.5V19h2.44V8.5ZM5.72 4.5A1.42 1.42 0 1 0 5.72 7.34 1.42 1.42 0 0 0 5.72 4.5ZM19.5 19h-2.44v-5.13c0-1.22-.02-2.79-1.7-2.79-1.7 0-1.96 1.33-1.96 2.7V19h-2.44V8.5h2.34v1.43h.03c.33-.62 1.13-1.28 2.33-1.28 2.49 0 2.95 1.64 2.95 3.77V19Z"/></svg></a>
+          <span>© 2026 Peer Freight</span>
+        </span>
       </div>
     </div>
     <div class="footer__word" aria-hidden="true">Peer</div>
   </footer>
+
+  <script>
+    (function () {
+      var header = document.querySelector('.site-header');
+      function onScroll() { header.classList.toggle('is-scrolled', window.scrollY > 8); }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
 </body>
 </html>
