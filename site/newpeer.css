@@ -328,13 +328,6 @@ p { margin: 0; }
 .step h3 { font-size: 1.02rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
 .step p { color: var(--muted); font-size: 0.95rem; margin-top: 0.5rem; flex: 1; }
 .step img { border-radius: var(--r-md); margin-top: 1.1rem; height: 190px; width: 100%; object-fit: cover; }
-.steps__cta {
-  margin-top: clamp(1.8rem, 3.5vw, 2.6rem);
-  border-top: 1px solid var(--line); padding-top: clamp(1.4rem, 2.5vw, 2rem);
-  display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;
-}
-.steps__cta h4 { font-size: 1.15rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }
-.steps__cta p { color: var(--muted); font-size: 0.95rem; margin-top: 0.4rem; }
 
 /* ---------- Bento (Why Peer) ---------- */
 .bento {
@@ -367,9 +360,9 @@ p { margin: 0; }
 .cta-bar { margin-top: clamp(1.6rem, 3vw, 2.4rem); background: var(--gold-grad); box-shadow: var(--gold-edge); color: var(--navy); border-radius: var(--r-lg); padding: 1.1rem clamp(1.2rem, 2.5vw, 2rem); display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; flex-wrap: wrap; }
 .cta-bar strong { font-size: clamp(1rem, 1.8vw, 1.3rem); font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; }
 
-/* ---------- Footer ---------- */
+/* ---------- Footer (giant wordmark on top, legal line at the very bottom) ---------- */
 .footer { background: var(--navy); color: #fff; padding-top: clamp(1.6rem, 3vw, 2.4rem); overflow: hidden; }
-.footer__legal { padding: 1.4rem 0; font-size: 0.82rem; color: var(--muted-on-dark); display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.footer__legal { border-top: 1px solid var(--line-dark); padding: 1.4rem 0; font-size: 0.82rem; color: var(--muted-on-dark); display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .footer__links { display: inline-flex; align-items: center; gap: 1.1rem; }
 .footer__links a { display: inline-grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line-dark); border-radius: 50%; color: #fff; }
 .footer__links a:hover { border-color: var(--accent); color: var(--accent); }
