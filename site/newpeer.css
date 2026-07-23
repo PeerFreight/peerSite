@@ -257,9 +257,6 @@ p { margin: 0; }
 /* Lockups whose letterforms run small need extra height to read at the same optical size */
 .logo-band__row img.logo--md { height: clamp(32px, 3vw, 42px); }
 .logo-band__row img.logo--tall { height: clamp(42px, 4vw, 56px); }
-/* The YC mark keeps its brand orange instead of the white knockout treatment */
-.logo-band__row img.logo--yc { filter: none; opacity: 1; height: clamp(28px, 2.6vw, 36px); border-radius: 4px; }
-
 /* ---------- Generic section ---------- */
 .section { padding: var(--section-y) 0; }
 .section--paper { background: var(--paper); }
