@@ -27,7 +27,7 @@
   <link rel="apple-touch-icon" href="/site/favicon.png">
   <link rel="preload" href="/styles/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles/tokens.css?v=2">
-  <link rel="stylesheet" href="/site/newpeer.css?v=43">
+  <link rel="stylesheet" href="/site/newpeer.css?v=44">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -89,7 +89,7 @@
       <div class="wrap">
         <div class="section__head">
           <h2 class="heading" id="serve-title">Freight we specialize in.</h2>
-          <p class="lead">Hazmat most of all. The carriers, the placards, and the paperwork are our problem, not yours.</p>
+          <p class="lead">We specialize in hazmat, and we cover reefer, dry van, flatbed, and port drayage just as well. Whatever the load, the carriers, the placards, and the paperwork are our problem, not yours.</p>
         </div>
 
         <div class="serve__mosaic mosaic">
@@ -130,7 +130,7 @@
       <div class="wrap">
         <div class="section__head">
           <h2 class="heading" id="svc-title">We run every load the same way.</h2>
-          <p class="lead">This is what happens on every load, from quote to delivery.</p>
+          <p class="lead">Every load runs through the same four steps, no matter the freight. Open each one to see exactly what we do and what you get.</p>
         </div>
 
         <div class="svc">
@@ -199,7 +199,7 @@
       <div class="wrap">
         <div class="section__head">
           <h2 class="heading" id="how-title">Covering a load with us is simple.</h2>
-          <p class="lead">In most cases we are back to you with a rate within the hour.</p>
+          <p class="lead">We always get back to you with a rate within one hour. Send the load, approve the number, and we take it from there.</p>
         </div>
         <div class="steps mosaic">
           <div class="step">
@@ -239,7 +239,7 @@
       <div class="wrap">
         <div class="section__head on-dark">
           <h2 class="heading" id="why-title">Built to be reliable, not just cheap.</h2>
-          <p class="lead">You can see it in how the company is put together.</p>
+          <p class="lead">We take the loads other brokers turn down: oversize freight, hazmat, and the lanes nobody wants to run. If it absolutely has to move, we are built to move it.</p>
         </div>
 
         <div class="bento mosaic">
@@ -283,14 +283,7 @@
         <div class="cta-band__top">
           <div>
             <h2>Freight that moves around your schedule.</h2>
-            <p class="lead">Send it over and we will take it from there.</p>
-          </div>
-          <div class="cta-band__links" aria-hidden="true">
-            <span>HAZMAT</span>
-            <span>REEFER</span>
-            <span>DRY VAN</span>
-            <span>FLATBED</span>
-            <span>DRAYAGE</span>
+            <p class="lead">Hazmat, reefer, dry van, flatbed, or a container sitting at the port. Tell us when it needs to move, and one of the owners takes it from there.</p>
           </div>
         </div>
         <div class="cta-bar">
@@ -324,6 +317,7 @@
       var header = document.querySelector('.site-header');
       function onScroll() { header.classList.toggle('is-scrolled', window.scrollY > 8); }
       window.addEventListener('scroll', onScroll, { passive: true });
+      document.querySelectorAll('img').forEach(function (img) { img.setAttribute('draggable', 'false'); });
       onScroll();
     })();
   </script>
