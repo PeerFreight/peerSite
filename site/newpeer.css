@@ -204,6 +204,9 @@ p { margin: 0; }
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  /* Paint past line-height:1 so the g descender isn't clipped by the text mask */
+  padding-bottom: 0.22em;
+  margin-bottom: -0.22em;
 }
 .nav { display: flex; gap: clamp(1.2rem, 3vw, 2.6rem); font-weight: 600; font-size: 0.98rem; color: #fff; }
 .nav a { opacity: 0.9; white-space: nowrap; transition: opacity 0.15s ease, color 0.15s ease; }
