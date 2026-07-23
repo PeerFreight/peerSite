@@ -257,6 +257,13 @@ p { margin: 0; }
 /* Lockups whose letterforms run small need extra height to read at the same optical size */
 .logo-band__row img.logo--md { height: clamp(32px, 3vw, 42px); }
 .logo-band__row img.logo--tall { height: clamp(42px, 4vw, 56px); }
+/* YC lockup is drawn inline (bordered-square Y + word) so it takes the same white treatment as the imgs */
+.logo-band__row .logo--yc-lockup {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  color: #fff; opacity: 0.8; font-weight: 800;
+  font-size: clamp(1.05rem, 1.7vw, 1.4rem); letter-spacing: 0.01em; line-height: 1;
+}
+.logo-band__row .logo--yc-lockup svg { height: clamp(24px, 2.3vw, 32px); width: auto; }
 /* ---------- Generic section ---------- */
 .section { padding: var(--section-y) 0; }
 .section--paper { background: var(--paper); }
