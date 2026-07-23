@@ -27,7 +27,7 @@
   <link rel="apple-touch-icon" href="/site/favicon.png">
   <link rel="preload" href="/styles/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles/tokens.css?v=2">
-  <link rel="stylesheet" href="/site/newpeer.css?v=39">
+  <link rel="stylesheet" href="/site/newpeer.css?v=40">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -38,23 +38,29 @@
         <span class="brand__word"><span>Peer</span> <span>Freight</span></span>
       </a>
       <nav class="nav" aria-label="Primary">
-        <a href="/">Home</a>
+        <a class="nav__home" href="/">Home</a>
         <a href="/carriers">For Carriers</a>
       </nav>
-      <a class="btn btn--white" href="/quote">Get Set Up</a>
+      <a class="btn btn--white" href="/carrier-setup">Get Set Up</a>
     </div>
   </header>
 
   <main id="main">
-    <section class="subhero" aria-labelledby="carrier-title">
-      <img class="subhero__bg" src="/site/freight-oversize-morning.jpg" alt="">
+    <section class="hero" aria-labelledby="carrier-title">
+      <img class="hero__bg" src="/site/freight-oversize-morning.jpg" alt="" fetchpriority="high">
       <div class="wrap">
-        <h1 class="display" id="carrier-title">Get loaded and get paid fast.</h1>
-        <p class="lead">Peer Freight pays carriers within 24 to 48 hours, we put detention and TONU in writing on the rate confirmation, and we run accurate loads so there are no surprises when you get to the dock.</p>
-        <a class="btn btn--yellow" href="/quote">
-          Get Set Up
-          <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
-        </a>
+        <div class="hero__grid">
+          <div class="hero__content">
+            <h1 id="carrier-title" class="display">Get loaded and get paid fast.</h1>
+            <p class="hero__sub">Paid within 24 to 48 hours. Detention and TONU in writing on the rate con. No surprises at the dock.</p>
+            <div class="hero__cta">
+              <a class="btn btn--yellow" href="/carrier-setup">
+                Get Set Up
+                <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -67,41 +73,41 @@
           <article class="perk">
             <div class="perk__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M17 6.5c0-2-2.2-3-5-3s-5 1-5 3.2c0 4.8 10 2.8 10 7.6 0 2.2-2.2 3.2-5 3.2s-5-1.2-5-3.2"/></svg></div>
             <h3>Fast pay</h3>
-            <p>We pay within 24 to 48 hours, with a same day option when you need it, so you can skip your factor's fee on our loads.</p>
+            <p>24 to 48 hours standard, same day when you need it. Skip your factor's fee.</p>
           </article>
           <article class="perk">
             <div class="perk__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/><path d="m17 16 2 2 3-3"/></svg></div>
             <h3>Accessorials honored</h3>
-            <p>We pay detention, layover, and TONU when the delay is on us or the shipper, and we put it in writing on the rate confirmation.</p>
+            <p>Detention, layover, and TONU, in writing on the rate confirmation.</p>
           </article>
           <article class="perk">
             <div class="perk__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
             <h3>Accurate loads</h3>
-            <p>We give you real weights and real appointment times, and we do not play games at the dock.</p>
+            <p>Real weights and real appointment times.</p>
           </article>
           <article class="perk">
             <div class="perk__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M17 3l4 4-9 9H8v-4Z"/></svg></div>
             <h3>Easy paperwork</h3>
-            <p>You can upload your proof of delivery right from your phone, so there are no endless check calls.</p>
+            <p>Upload your POD from your phone. No endless check calls.</p>
           </article>
           <article class="perk">
             <div class="perk__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
             <h3>A broker that does not ghost</h3>
-            <p>We hold active authority, we are bonded, and we pay on time every single time.</p>
+            <p>Active authority, bonded, and we pay on time.</p>
           </article>
           <article class="perk">
             <div class="perk__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg></div>
             <h3>Hazmat and repeat freight</h3>
-            <p>We run steady lanes for carriers that are rated for hazmat, so you can plan your week around real freight.</p>
+            <p>Steady lanes for carriers rated to haul hazmat.</p>
           </article>
         </div>
 
         <div class="setup">
           <div>
             <h2>One packet, then you are cleared.</h2>
-            <p>Send us your packet one time, which is your MC or DOT number, your W-9, a certificate of insurance that names Peer as the certificate holder, and your banking details. After that you are set up for our loads.</p>
+            <p>Tell us who you are, we verify your authority and insurance, and you are set up for our loads.</p>
           </div>
-          <a class="btn btn--yellow" href="/quote">
+          <a class="btn btn--yellow" href="/carrier-setup">
             Get Set Up
             <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
           </a>

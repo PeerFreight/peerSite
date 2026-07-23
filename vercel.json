@@ -32,6 +32,10 @@
       "dest": "/site/quote.html"
     },
     {
+      "src": "/carrier-setup",
+      "dest": "/site/carrier-setup.html"
+    },
+    {
       "src": "/robots.txt",
       "dest": "/site/robots.txt"
     },
