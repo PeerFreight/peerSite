@@ -27,7 +27,7 @@
   <link rel="apple-touch-icon" href="/site/favicon.png">
   <link rel="preload" href="/styles/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles/tokens.css?v=2">
-  <link rel="stylesheet" href="/site/newpeer.css?v=40">
+  <link rel="stylesheet" href="/site/newpeer.css?v=43">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -92,7 +92,7 @@
           <p class="lead">Hazmat most of all. The carriers, the placards, and the paperwork are our problem, not yours.</p>
         </div>
 
-        <div class="serve__cards">
+        <div class="serve__mosaic mosaic">
           <article class="card">
             <div class="card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg></div>
             <h3>Hazmat</h3>
@@ -113,11 +113,14 @@
             <h3>Port drayage</h3>
             <p>Containers in and out of ports and rail ramps, hazmat endorsed when needed.</p>
           </article>
-        </div>
-
-        <div class="serve__photos">
-          <img src="/site/freight-hero-terminal-morning.jpg" alt="Placarded chemical tanker truck at a terminal at sunrise">
-          <img src="/site/freight-drayage-port.jpg" alt="Drayage truck hauling a container beneath port cranes">
+          <div class="tile--img">
+            <img src="/site/freight-hero-terminal-morning.jpg" alt="Placarded chemical tanker truck at a terminal at sunrise">
+            <span class="tile__overlay">Tanker</span>
+          </div>
+          <div class="tile--img">
+            <img src="/site/freight-drayage-port.jpg" alt="Drayage truck hauling a container beneath port cranes">
+            <span class="tile__overlay">Drayage</span>
+          </div>
         </div>
       </div>
     </section>
@@ -142,7 +145,7 @@
             </summary>
             <div class="svc__panel">
               <div class="svc__stat"><b>Real</b><span>market comps behind every rate</span></div>
-              <p class="svc__desc">Spot and contract comps for your lane go out with every rate, and the invoice matches it.</p>
+              <p class="svc__desc">When we quote your lane, we pull the current spot and contract comps and send them along with the rate, so you can see why the number is what it is. If the market moves between quotes, you see the new data, not a vague explanation. The invoice you get matches the rate you approved.</p>
             </div>
           </details>
           <details name="svc">
@@ -156,7 +159,7 @@
             </summary>
             <div class="svc__panel">
               <div class="svc__stat"><b>100%</b><span>of carriers verified before dispatch</span></div>
-              <p class="svc__desc">Highway identity checks plus FMCSA authority, insurance, and safety, run on every load.</p>
+              <p class="svc__desc">Before a carrier gets your load, we verify their identity through Highway and check FMCSA for active authority, insurance, and safety history. We rerun those checks on every load, not just once when a carrier signs up, because that is where fraud slips in. If anything looks off, the load goes to a different truck.</p>
             </div>
           </details>
           <details name="svc">
@@ -170,7 +173,7 @@
             </summary>
             <div class="svc__panel">
               <div class="svc__stat"><b>24/7</b><span>owner access on every load</span></div>
-              <p class="svc__desc">If something goes sideways at night, you get an owner on the phone, not a call center.</p>
+              <p class="svc__desc">You get an update at pickup, another in transit, and another at delivery, without having to chase anyone down. If something goes sideways at 2 a.m., you reach one of the owners on the phone, not a call center. We surface problems early, while there is still time to fix them.</p>
             </div>
           </details>
           <details name="svc">
@@ -184,7 +187,7 @@
             </summary>
             <div class="svc__panel">
               <div class="svc__stat"><b>Same day</b><span>signed proof of delivery</span></div>
-              <p class="svc__desc">The load delivers, you get the signed POD that day, and the invoice matches the quote.</p>
+              <p class="svc__desc">The day your load delivers, we collect the signed proof of delivery and send it to you, so your own billing never waits on us. The invoice matches the rate confirmation you approved, with any accessorials spelled out in writing. There are no surprise charges weeks later.</p>
             </div>
           </details>
         </div>
@@ -198,26 +201,34 @@
           <h2 class="heading" id="how-title">Covering a load with us is simple.</h2>
           <p class="lead">In most cases we are back to you with a rate within the hour.</p>
         </div>
-        <div class="steps">
+        <div class="steps mosaic">
           <div class="step">
-            <h3>Send us the load</h3>
-            <p>Email the lane, dates, commodity, weight, and equipment, or send it straight from your TMS.</p>
             <img src="/site/freight-bol-daylight.jpg" alt="Bill of lading paperwork on a trailer door">
+            <div class="step__overlay">
+              <h3>Send us the load</h3>
+              <p>Lane, dates, and equipment, by email or from your TMS.</p>
+            </div>
           </div>
           <div class="step">
-            <h3>Get your rate</h3>
-            <p>A rate backed by what is happening on your lane, with no hidden fees.</p>
             <img src="/site/freight-highway-cornfield.jpg" alt="Truckload trailer on an open highway through farmland">
+            <div class="step__overlay">
+              <h3>Get your rate</h3>
+              <p>Backed by your lane, with no hidden fees.</p>
+            </div>
           </div>
           <div class="step">
-            <h3>We cover and track it</h3>
-            <p>A carrier we screened for fraud hauls it, and we keep you posted through delivery.</p>
             <img src="/site/freight-reefer-evening.jpg" alt="Reefer trailers lined up in a yard in the evening">
+            <div class="step__overlay">
+              <h3>We cover and track it</h3>
+              <p>A fraud-screened carrier hauls it, with updates through delivery.</p>
+            </div>
           </div>
           <div class="step">
-            <h3>We close it out clean</h3>
-            <p>Signed POD the same day, invoice that matches the quote.</p>
             <img src="/site/freight-dock-dusk.jpg" alt="Trailer at a loading dock at dusk">
+            <div class="step__overlay">
+              <h3>We close it out clean</h3>
+              <p>Same day POD, invoice that matches the quote.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -231,8 +242,11 @@
           <p class="lead">You can see it in how the company is put together.</p>
         </div>
 
-        <div class="bento">
-          <div class="tile tile--img tile--wide"><img src="/site/freight-yard-aerial-night.jpg" alt="Intermodal container yard at night"></div>
+        <div class="bento mosaic">
+          <div class="tile tile--img tile--wide">
+            <img src="/site/freight-yard-aerial-night.jpg" alt="Intermodal container yard at night">
+            <span class="tile__overlay">Intermodal</span>
+          </div>
           <div class="tile tile--white">
             <span class="tile__label">Owner access</span>
             <span class="tile__stat">24/7</span>
@@ -254,38 +268,37 @@
             <span class="tile__label">Fully insured</span>
             <span class="tile__desc">Contingent cargo and auto, general liability, E&amp;O, and cyber.</span>
           </div>
-          <div class="tile tile--img tile--wide"><img src="/site/freight-oversize-morning.jpg" alt="Flatbed truck hauling an oversize load in the morning"></div>
+          <div class="tile tile--img tile--wide">
+            <img src="/site/freight-oversize-morning.jpg" alt="Flatbed truck hauling an oversize load in the morning">
+            <span class="tile__overlay">Oversize</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- FINAL CTA -->
-    <section class="section section--paper" aria-label="Get started">
+    <!-- FINAL CTA (full-bleed photo band) -->
+    <section class="cta-band" aria-label="Get started">
+      <img class="cta-band__bg" src="/site/freight-highway-cornfield.jpg" alt="">
       <div class="wrap">
-        <div class="cta-card">
-          <img class="cta-card__bg" src="/site/freight-highway-cornfield.jpg" alt="">
-          <div class="cta-card__inner">
-            <div class="cta-card__top">
-              <div>
-                <h2>Freight that moves around your schedule.</h2>
-                <p class="lead">Send it over and we will take it from there.</p>
-              </div>
-              <div class="cta-card__links" aria-hidden="true">
-                <span>HAZMAT</span>
-                <span>REEFER</span>
-                <span>DRY VAN</span>
-                <span>FLATBED</span>
-                <span>DRAYAGE</span>
-              </div>
-            </div>
-            <div class="cta-bar">
-              <strong>Got a load that can't be late?</strong>
-              <a class="btn btn--navy" href="/quote">
-                Get a Quote
-                <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
-              </a>
-            </div>
+        <div class="cta-band__top">
+          <div>
+            <h2>Freight that moves around your schedule.</h2>
+            <p class="lead">Send it over and we will take it from there.</p>
           </div>
+          <div class="cta-band__links" aria-hidden="true">
+            <span>HAZMAT</span>
+            <span>REEFER</span>
+            <span>DRY VAN</span>
+            <span>FLATBED</span>
+            <span>DRAYAGE</span>
+          </div>
+        </div>
+        <div class="cta-bar">
+          <strong>Got a load that can't be late?</strong>
+          <a class="btn btn--navy" href="/quote">
+            Get a Quote
+            <span class="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+          </a>
         </div>
       </div>
     </section>
