@@ -34,7 +34,7 @@ no CGI smoothness. Pleasant clear weather.`;
 const SHOTS = [
   {
     name: 'hero',
-    file: 'site/freight-hero-terminal-morning.jpg',
+    file: 'public/site/freight-hero-terminal-morning.jpg',
     size: '1536x1024',
     prompt: `Wide establishing shot of a worn semi truck coupled to a stainless steel chemical
 tanker trailer with orange diamond hazmat placards on the side and rear, parked at a large chemical
@@ -45,7 +45,7 @@ yard and sky for text overlay. The placards are small, realistic, and correctly 
   },
   {
     name: 'dock',
-    file: 'site/freight-dock-dusk.jpg',
+    file: 'public/site/freight-dock-dusk.jpg',
     size: '1536x1024',
     prompt: `A well used dry van trailer backed into a busy warehouse loading dock at purple blue
 dusk, dock lights glowing, a forklift moving a pallet inside the lit dock door, eye level side
@@ -53,7 +53,7 @@ angle from the yard. Deep violet sky after sundown.`,
   },
   {
     name: 'tanker',
-    file: 'site/freight-tanker-day.jpg',
+    file: 'public/site/freight-tanker-day.jpg',
     size: '1536x1024',
     prompt: `A stainless steel chemical tanker semi truck with orange hazmat placards rolling down
 an interstate on a bright sunny day, full side profile with slight motion in the wheels, wide
@@ -62,7 +62,7 @@ The tractor is a working truck with grime behind the wheels and a slightly faded
   },
   {
     name: 'drayage',
-    file: 'site/freight-drayage-port.jpg',
+    file: 'public/site/freight-drayage-port.jpg',
     size: '1536x1024',
     prompt: `A drayage semi truck hauling a weathered shipping container on a chassis out of a
 marine container terminal, tall blue gantry cranes and stacks of multicolored containers behind
@@ -70,7 +70,7 @@ it, clear bright morning, slightly elevated wide angle. Haze of the harbor in th
   },
   {
     name: 'oversize',
-    file: 'site/freight-oversize-morning.jpg',
+    file: 'public/site/freight-oversize-morning.jpg',
     size: '1536x1024',
     prompt: `A flatbed semi truck hauling a large tarped industrial machine with yellow OVERSIZE
 LOAD banners and red corner flags, traveling a two lane rural road along the edge of a tall green
@@ -79,7 +79,7 @@ shoulder.`,
   },
   {
     name: 'yard-aerial',
-    file: 'site/freight-yard-aerial-night.jpg',
+    file: 'public/site/freight-yard-aerial-night.jpg',
     size: '1024x1024',
     prompt: `Aerial view straight down a working intermodal container yard just after sunset, deep
 purple and magenta sky on the horizon, warm sodium vapor floodlights over rows of stacked
@@ -87,7 +87,7 @@ containers and parked trailers, a few tractors moving between rows with headligh
   },
   {
     name: 'highway',
-    file: 'site/freight-highway-cornfield.jpg',
+    file: 'public/site/freight-highway-cornfield.jpg',
     size: '1536x1024',
     prompt: `High aerial side view of a single semi truck with a plain white dry van trailer
 rolling down an open rural highway that cuts through cornfields and strips of golden yellow
@@ -96,7 +96,7 @@ and tire marks.`,
   },
   {
     name: 'bol',
-    file: 'site/freight-bol-daylight.jpg',
+    file: 'public/site/freight-bol-daylight.jpg',
     size: '1536x1024',
     prompt: `Close up of a driver's weathered hand holding a metal clipboard with a filled out
 bill of lading form against the corrugated rear doors of a well used semi trailer, soft neutral
@@ -105,7 +105,7 @@ reads as generic shipping paperwork without legible invented words.`,
   },
   {
     name: 'reefer',
-    file: 'site/freight-reefer-evening.jpg',
+    file: 'public/site/freight-reefer-evening.jpg',
     size: '1536x1024',
     prompt: `A row of white refrigerated trailers with reefer units lined up at a freight yard in
 warm early evening light, straight on view down the row so the trailers recede in perspective,

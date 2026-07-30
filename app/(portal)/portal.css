@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/* Portal theme — mapped from the marketing site's newpeer.css :root tokens.
+   Portal pages are white-canvas, light-mode only; paper is for panels, navy
+   for the header and emphasis, gold reserved for primary CTAs and status
+   highlights. */
+@theme {
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, sans-serif;
+
+  --color-navy: #0e1d3a;
+  --color-navy-deep: #0a1630;
+  --color-navy-card: #13244a;
+  --color-gold: #edb72f;
+  --color-gold-soft: #f6d567;
+  --color-gold-hi: #f8d967;
+  --color-gold-lo: #d79a15;
+  --color-paper: #f3f3f1;
+  --color-ink: #0e1d3a;
+  --color-muted: #5c6675;
+  --color-line: rgba(14, 29, 58, 0.1);
+
+  --radius-xl: 14px;
+  --radius-lg: 10px;
+  --radius-md: 7px;
+
+  --shadow-card: 0 24px 60px -34px rgba(14, 29, 58, 0.38);
+
+  --spacing-wrap: 1240px;
+}
+
+@layer components {
+  /* The one gold-gradient surface, reserved for primary CTAs. */
+  .btn-gold-grad {
+    background: linear-gradient(
+      165deg,
+      var(--color-gold-hi) 0%,
+      var(--color-gold) 55%,
+      var(--color-gold-lo) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+  }
+}

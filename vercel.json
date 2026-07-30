@@ -1,59 +1,9 @@
 {
+  "framework": "nextjs",
   "git": {
     "deploymentEnabled": {
-      "main": true
+      "main": true,
+      "shipper-portal": true
     }
-  },
-  "builds": [
-    {
-      "src": "site/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "logos/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "styles/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/",
-      "dest": "/site/index.html"
-    },
-    {
-      "src": "/carriers",
-      "dest": "/site/carriers.html"
-    },
-    {
-      "src": "/quote",
-      "dest": "/site/quote.html"
-    },
-    {
-      "src": "/carrier-setup",
-      "dest": "/site/carrier-setup.html"
-    },
-    {
-      "src": "/robots.txt",
-      "dest": "/site/robots.txt"
-    },
-    {
-      "src": "/sitemap.xml",
-      "dest": "/site/sitemap.xml"
-    },
-    {
-      "src": "/site/(.*)",
-      "dest": "/site/$1"
-    },
-    {
-      "src": "/logos/(.*)",
-      "dest": "/logos/$1"
-    },
-    {
-      "src": "/styles/(.*)",
-      "dest": "/styles/$1"
-    }
-  ]
+  }
 }
