@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { AppShell } from "@/components/portal/app-shell";
+import { PortalNav } from "@/components/portal/portal-nav";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
-import { getAuth, isAdmin } from "@/lib/auth";
-import { getDb } from "@/lib/db";
 import { listUserOrganizations } from "@/lib/portal/queries";
+import { isAdmin } from "@/lib/portal/roles";
+import { requireOrgSession } from "@/lib/portal/session";
 import { SignOutButton } from "../sign-out-button";
 
 export const metadata: Metadata = {
@@ -15,22 +14,12 @@ export const metadata: Metadata = {
 };
 
 export default async function SettingsPage() {
-  const auth = await getAuth();
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/login");
-
-  const db = await getDb();
+  const { session, db } = await requireOrgSession();
   const orgs = await listUserOrganizations(db, session.user.id);
-  if (orgs.length === 0) redirect("/onboarding");
 
   return (
     <AppShell
-      nav={
-        <>
-          <a href="/dashboard" className="hover:text-white">Dashboard</a>
-          <a href="/settings" className="text-white">Settings</a>
-        </>
-      }
+      nav={<PortalNav active="settings" admin={isAdmin(session.user)} />}
       user={<SignOutButton label={session.user.name} />}
     >
       <div className="max-w-xl space-y-6">

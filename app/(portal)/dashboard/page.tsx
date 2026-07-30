@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { AppShell } from "@/components/portal/app-shell";
-import { Button } from "@/components/ui/button";
+import { PortalNav } from "@/components/portal/portal-nav";
+import { StatusBadge } from "@/components/portal/status";
+import { LinkButton } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
-import { getAuth } from "@/lib/auth";
-import { getDb } from "@/lib/db";
-import { listUserOrganizations } from "@/lib/portal/queries";
+import { listQuoteRequests } from "@/lib/portal/queries";
+import { equipmentLabel, laneSummary } from "@/lib/portal/rfq";
+import { isAdmin } from "@/lib/portal/roles";
+import { requireOrgSession } from "@/lib/portal/session";
 import { SignOutButton } from "../sign-out-button";
 
 export const metadata: Metadata = {
@@ -15,23 +16,13 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const auth = await getAuth();
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/login");
-
-  const db = await getDb();
-  const orgs = await listUserOrganizations(db, session.user.id);
-  if (orgs.length === 0) redirect("/onboarding");
-  const org = orgs[0];
+  const { session, db, org } = await requireOrgSession();
+  const requests = await listQuoteRequests(db, session.user.id, org.id);
+  const open = requests.filter((r) => ["submitted", "needs_info", "quoted"].includes(r.status));
 
   return (
     <AppShell
-      nav={
-        <>
-          <a href="/dashboard" className="text-white">Dashboard</a>
-          <a href="/settings" className="hover:text-white">Settings</a>
-        </>
-      }
+      nav={<PortalNav active="dashboard" admin={isAdmin(session.user)} />}
       user={<SignOutButton label={session.user.name} />}
     >
       <div className="space-y-8">
@@ -44,12 +35,11 @@ export default async function DashboardPage() {
           <Card>
             <CardTitle>Request a quote</CardTitle>
             <CardDescription>
-              Structured quote requests land here once the RFQ flow ships. Until
-              then, use the quote form or email team@peer-freight.com — one of
-              the owners gets back to you within the hour.
+              Tell us the lane, dates, and freight. One of the owners prices it
+              and gets back to you within the hour during business hours.
             </CardDescription>
             <div className="mt-4">
-              <Button disabled title="Coming soon">New quote request</Button>
+              <LinkButton href="/quotes/new">New quote request</LinkButton>
             </div>
           </Card>
           <Card>
@@ -60,6 +50,35 @@ export default async function DashboardPage() {
             </CardDescription>
           </Card>
         </div>
+
+        {open.length > 0 ? (
+          <div className="space-y-3">
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-lg font-extrabold">Open quote requests</h2>
+              <a href="/quotes" className="text-sm font-bold text-muted hover:text-ink">
+                View all →
+              </a>
+            </div>
+            <ul className="divide-y divide-line rounded-xl border border-line">
+              {open.slice(0, 5).map((r) => (
+                <li key={r.id}>
+                  <a
+                    href={`/quotes/${r.id}`}
+                    className="flex flex-wrap items-center gap-x-6 gap-y-2 px-5 py-4 hover:bg-paper"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-ink">{laneSummary(r)}</p>
+                      <p className="mt-0.5 truncate text-sm text-muted">
+                        {equipmentLabel(r.equipment)} · {r.commodity}
+                      </p>
+                    </div>
+                    <StatusBadge status={r.status} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </div>
     </AppShell>
   );

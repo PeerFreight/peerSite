@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from "react";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from "react";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md";
@@ -37,4 +37,19 @@ export function Button({
       {...props}
     />
   );
+}
+
+export interface LinkButtonProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+  variant?: Variant;
+  size?: Size;
+}
+
+/** Anchor styled as a button, for navigation CTAs. */
+export function LinkButton({
+  variant = "primary",
+  size = "md",
+  className = "",
+  ...props
+}: LinkButtonProps) {
+  return <a className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} {...props} />;
 }

@@ -6,9 +6,9 @@ import { eq } from "drizzle-orm";
 import * as schema from "@/db/schema";
 import { getDb } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { ADMIN_DOMAIN } from "@/lib/portal/roles";
 
-/** Founder/admin domain. Admin rights never attach to a customer domain. */
-export const ADMIN_DOMAIN = "@peer-freight.com";
+export { ADMIN_DOMAIN, isAdmin } from "@/lib/portal/roles";
 
 async function makeAuth() {
   const db = await getDb();
@@ -67,9 +67,4 @@ const globalForAuth = globalThis as unknown as { __portalAuth?: Promise<Auth> };
 export function getAuth(): Promise<Auth> {
   globalForAuth.__portalAuth ??= makeAuth();
   return globalForAuth.__portalAuth;
-}
-
-/** Portal admins are verified founder-domain accounts. */
-export function isAdmin(user: { email: string; emailVerified: boolean }) {
-  return user.emailVerified && user.email.toLowerCase().endsWith(ADMIN_DOMAIN);
 }

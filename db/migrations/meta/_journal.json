@@ -15,6 +15,20 @@
       "when": 1785448353740,
       "tag": "0001_seed-allowed-emails",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785449155492,
+      "tag": "0002_rfq-quotes-events",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785449161981,
+      "tag": "0003_events-append-only",
+      "breakpoints": true
     }
   ]
 }
