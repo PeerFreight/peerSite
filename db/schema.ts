@@ -5,9 +5,11 @@ import {
   integer,
   jsonb,
   numeric,
+  pgSequence,
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // Better Auth core tables (drizzle adapter). Property names must match the
@@ -231,6 +233,7 @@ export const events = pgTable(
     quoteRequestId: text("quote_request_id").references(() => quoteRequests.id, {
       onDelete: "cascade",
     }),
+    loadId: text("load_id").references(() => loads.id, { onDelete: "cascade" }),
     actorType: text("actor_type").notNull(), // shipper | admin | system
     actorId: text("actor_id"),
     eventType: text("event_type").notNull(),
@@ -240,5 +243,171 @@ export const events = pgTable(
   (t) => [
     index("events_org_idx").on(t.organizationId, t.createdAt),
     index("events_rfq_idx").on(t.quoteRequestId, t.createdAt),
+    index("events_load_idx").on(t.loadId, t.createdAt),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Loads (Phase 3). A load exists from booking onward; the RFQ keeps the
+// pre-booking history. Freight fields are snapshotted from the RFQ at booking
+// so later RFQ edits can never rewrite what was agreed. Statuses are the
+// deliberate shipper-visible simplification of the future TMS states; the
+// events table keeps the full history.
+
+export const LOAD_STATUSES = [
+  "booked",
+  "dispatched",
+  "in_transit",
+  "delivered",
+  "invoiced",
+  "closed",
+  "cancelled",
+] as const;
+export type LoadStatus = (typeof LOAD_STATUSES)[number];
+
+/** Source of PEER-nnnn load references; booking takes nextval. */
+export const loadReferenceSeq = pgSequence("load_reference_seq", {
+  startWith: 1001,
+  increment: 1,
+});
+
+export const loads = pgTable(
+  "loads",
+  {
+    id: text("id").primaryKey(),
+    /** Human reference, e.g. PEER-1001. What shippers and carriers quote back. */
+    reference: text("reference").notNull(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    quoteRequestId: text("quote_request_id")
+      .notNull()
+      .references(() => quoteRequests.id),
+    quoteId: text("quote_id")
+      .notNull()
+      .references(() => quotes.id),
+    bookedByUserId: text("booked_by_user_id").notNull().references(() => user.id),
+    status: text("status").$type<LoadStatus>().notNull().default("booked"),
+    /** Agreed all-in sell rate (shipper-facing; never a buy rate or margin). */
+    allInRateUsd: numeric("all_in_rate_usd", { precision: 12, scale: 2 }).notNull(),
+
+    // Freight snapshot (copied from the RFQ at booking)
+    originAddress: text("origin_address"),
+    originCity: text("origin_city").notNull(),
+    originState: text("origin_state").notNull(),
+    originZip: text("origin_zip").notNull(),
+    originHours: text("origin_hours"),
+    originScheduling: text("origin_scheduling").notNull(),
+    destAddress: text("dest_address"),
+    destCity: text("dest_city").notNull(),
+    destState: text("dest_state").notNull(),
+    destZip: text("dest_zip").notNull(),
+    destHours: text("dest_hours"),
+    destScheduling: text("dest_scheduling").notNull(),
+    pickupDate: date("pickup_date").notNull(),
+    pickupWindow: text("pickup_window"),
+    deliveryDate: date("delivery_date").notNull(),
+    deliveryWindow: text("delivery_window"),
+    commodity: text("commodity").notNull(),
+    weightLbs: integer("weight_lbs").notNull(),
+    pieces: text("pieces").notNull(),
+    dims: text("dims"),
+    declaredValueUsd: numeric("declared_value_usd", { precision: 12, scale: 2 }),
+    equipment: text("equipment").notNull(),
+    temperatureF: text("temperature_f"),
+    equipmentNotes: text("equipment_notes"),
+    hazmat: boolean("hazmat").notNull().default(false),
+    hazmatDetails: text("hazmat_details"),
+    accessorials: jsonb("accessorials").$type<string[]>().notNull().default([]),
+    referenceNumbers: jsonb("reference_numbers")
+      .$type<{ label: string; value: string }[]>()
+      .notNull()
+      .default([]),
+    notes: text("notes"),
+
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("loads_reference_idx").on(t.reference),
+    index("loads_org_idx").on(t.organizationId, t.createdAt),
+    index("loads_status_idx").on(t.status, t.createdAt),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Documents (Phase 4). Metadata only — file bytes live in the documents
+// bucket (GCS in production, a local directory in dev), never in Postgres.
+// Downloads go through /api/documents/[id], which proves membership and
+// visibility before handing out the file.
+
+export const DOCUMENT_TYPES = [
+  "rate_confirmation",
+  "bol",
+  "pod",
+  "invoice",
+  "other",
+] as const;
+export type DocumentType = (typeof DOCUMENT_TYPES)[number];
+
+export const documents = pgTable(
+  "documents",
+  {
+    id: text("id").primaryKey(),
+    loadId: text("load_id")
+      .notNull()
+      .references(() => loads.id, { onDelete: "cascade" }),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    type: text("type").$type<DocumentType>().notNull(),
+    filename: text("filename").notNull(),
+    contentType: text("content_type").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    /** Object path inside the storage backend; opaque to the browser. */
+    storagePath: text("storage_path").notNull(),
+    /** Off until the founder shares it; internal paperwork stays internal. */
+    visibleToShipper: boolean("visible_to_shipper").notNull().default(false),
+    uploadedByUserId: text("uploaded_by_user_id").notNull().references(() => user.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("documents_load_idx").on(t.loadId, t.createdAt),
+    index("documents_org_idx").on(t.organizationId),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Carrier assignment (Phase 5). One carrier per load in v1. Contact details
+// and the pasted tracking link surface on the shipper's load page once
+// `visibleToShipper` flips — auto-suggested at dispatch. Carrier cost never
+// appears here (no pricing internals in the portal).
+
+export const carrierAssignments = pgTable(
+  "carrier_assignments",
+  {
+    id: text("id").primaryKey(),
+    loadId: text("load_id")
+      .notNull()
+      .references(() => loads.id, { onDelete: "cascade" }),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    carrierName: text("carrier_name").notNull(),
+    mcNumber: text("mc_number"),
+    driverName: text("driver_name"),
+    driverPhone: text("driver_phone"),
+    truckNumber: text("truck_number"),
+    trailerNumber: text("trailer_number"),
+    /** Pasted share link (MacroPoint / p44 / ELD portal); native tracking is later. */
+    trackingUrl: text("tracking_url"),
+    visibleToShipper: boolean("visible_to_shipper").notNull().default(false),
+    assignedByUserId: text("assigned_by_user_id").notNull().references(() => user.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("carrier_assignments_load_idx").on(t.loadId),
+    index("carrier_assignments_org_idx").on(t.organizationId),
   ],
 );

@@ -10,3 +10,4 @@ dist/
 .next/
 *.tsbuildinfo
 .devdb/
+.devdocs/

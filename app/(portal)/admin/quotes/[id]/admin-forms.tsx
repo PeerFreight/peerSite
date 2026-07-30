@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/field";
-import { needsInfoAction, sendQuoteAction, type AdminFormState } from "../../actions";
+import { bookLoadAction, needsInfoAction, sendQuoteAction, type AdminFormState } from "../../actions";
 
 export function SendQuoteForm({ requestId }: { requestId: string }) {
   const [state, formAction, pending] = useActionState<AdminFormState, FormData>(
@@ -78,6 +78,23 @@ export function NeedsInfoForm({ requestId }: { requestId: string }) {
       <Button type="submit" variant="secondary" disabled={pending}>
         {pending ? "Sending..." : "Ask for info"}
       </Button>
+    </form>
+  );
+}
+
+/** Book the load off an agreed quote. The redirect lands on the new load. */
+export function BookLoadForm({ quoteId, requestId }: { quoteId: string; requestId: string }) {
+  const [state, formAction, pending] = useActionState<AdminFormState, FormData>(
+    bookLoadAction.bind(null, quoteId, requestId),
+    null,
+  );
+
+  return (
+    <form action={formAction} className="space-y-2">
+      <Button type="submit" disabled={pending}>
+        {pending ? "Booking..." : "Book load"}
+      </Button>
+      {state?.formError ? <p className="text-sm font-bold text-red-700">{state.formError}</p> : null}
     </form>
   );
 }

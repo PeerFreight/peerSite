@@ -4,6 +4,18 @@ const EVENT_LABELS: Record<string, string> = {
   quote_sent: "Quote sent",
   quote_declined: "Quote declined",
   quote_accepted: "Quote accepted",
+  load_booked: "Load booked",
+  load_dispatched: "Carrier dispatched",
+  load_in_transit: "Picked up — in transit",
+  load_delivered: "Delivered",
+  load_invoiced: "Invoiced",
+  load_closed: "Load closed",
+  load_cancelled: "Load cancelled",
+  document_added: "Document posted",
+  document_uploaded_internal: "Document uploaded (internal)",
+  document_hidden: "Document hidden from shipper",
+  carrier_assigned: "Carrier assigned",
+  carrier_updated: "Carrier details updated",
 };
 
 const timeFmt = new Intl.DateTimeFormat("en-US", {
@@ -32,7 +44,11 @@ export function EventTimeline({ events }: { events: TimelineEvent[] }) {
         const message =
           event.eventType === "needs_info" && typeof event.payload?.message === "string"
             ? event.payload.message
-            : null;
+            : event.eventType === "load_booked" && typeof event.payload?.reference === "string"
+              ? `Reference ${event.payload.reference}`
+              : event.eventType === "document_added" && typeof event.payload?.label === "string"
+                ? event.payload.label
+                : null;
         return (
           <li key={event.id} className="relative flex gap-4 pb-6 last:pb-0">
             {i < events.length - 1 ? (

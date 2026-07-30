@@ -9,8 +9,9 @@ import { Card, CardTitle } from "@/components/ui/card";
 import { getQuoteRequestForAdmin } from "@/lib/portal/admin-queries";
 import { accessorialLabel, equipmentLabel, laneSummary } from "@/lib/portal/rfq";
 import { requireAdminSession } from "@/lib/portal/session";
+import { AdminNav } from "../../admin-nav";
 import { SignOutButton } from "../../../sign-out-button";
-import { NeedsInfoForm, SendQuoteForm } from "./admin-forms";
+import { BookLoadForm, NeedsInfoForm, SendQuoteForm } from "./admin-forms";
 
 export const metadata: Metadata = {
   title: "Quote request (admin) - Peer Freight",
@@ -46,8 +47,9 @@ export default async function AdminQuoteRequestPage({
   const { session, db } = await requireAdminSession();
   const detail = await getQuoteRequestForAdmin(db, session.user, id);
   if (!detail) notFound();
-  const { request, orgName, requesterName, requesterEmail, quotes, events } = detail;
+  const { request, orgName, requesterName, requesterEmail, quotes, events, loads } = detail;
   const open = ["submitted", "needs_info"].includes(request.status);
+  const loadForQuote = (quoteId: string) => loads.find((l) => l.quoteId === quoteId);
 
   return (
     <AppShell
@@ -55,19 +57,22 @@ export default async function AdminQuoteRequestPage({
       user={<SignOutButton label={session.user.name} />}
     >
       <div className="space-y-6">
-        <div>
-          <a href="/admin" className="text-sm font-bold text-muted hover:text-ink">
-            ← Queue
-          </a>
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-extrabold">{laneSummary(request)}</h1>
-            <StatusBadge status={request.status} />
-            {request.hazmat ? <Badge tone="red">Hazmat</Badge> : null}
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <a href="/admin" className="text-sm font-bold text-muted hover:text-ink">
+              ← Queue
+            </a>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl font-extrabold">{laneSummary(request)}</h1>
+              <StatusBadge status={request.status} />
+              {request.hazmat ? <Badge tone="red">Hazmat</Badge> : null}
+            </div>
+            <p className="mt-1 text-muted">
+              {orgName} · {requesterName} ({requesterEmail}) · submitted{" "}
+              {dateTimeFmt.format(request.createdAt)} PT
+            </p>
           </div>
-          <p className="mt-1 text-muted">
-            {orgName} · {requesterName} ({requesterEmail}) · submitted{" "}
-            {dateTimeFmt.format(request.createdAt)} PT
-          </p>
+          <AdminNav active="queue" />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
@@ -153,15 +158,30 @@ export default async function AdminQuoteRequestPage({
               <Card>
                 <CardTitle>Quotes sent</CardTitle>
                 <ul className="mt-3 space-y-3">
-                  {quotes.map((q) => (
-                    <li key={q.id} className="rounded-lg bg-white p-4">
-                      <p className="font-extrabold text-ink">
-                        ${Number(q.allInRateUsd).toLocaleString("en-US", { minimumFractionDigits: 2 })}{" "}
-                        <span className="text-sm font-bold text-muted">({q.status})</span>
-                      </p>
-                      <p className="mt-1 whitespace-pre-wrap text-sm text-muted">{q.serviceDescription}</p>
-                    </li>
-                  ))}
+                  {quotes.map((q) => {
+                    const load = loadForQuote(q.id);
+                    return (
+                      <li key={q.id} className="rounded-lg bg-white p-4">
+                        <p className="font-extrabold text-ink">
+                          ${Number(q.allInRateUsd).toLocaleString("en-US", { minimumFractionDigits: 2 })}{" "}
+                          <span className="text-sm font-bold text-muted">({q.status})</span>
+                        </p>
+                        <p className="mt-1 whitespace-pre-wrap text-sm text-muted">{q.serviceDescription}</p>
+                        <div className="mt-3">
+                          {load ? (
+                            <a
+                              href={`/admin/loads/${load.id}`}
+                              className="text-sm font-bold text-navy hover:underline"
+                            >
+                              Booked as {load.reference} →
+                            </a>
+                          ) : ["sent", "accepted"].includes(q.status) ? (
+                            <BookLoadForm quoteId={q.id} requestId={request.id} />
+                          ) : null}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               </Card>
             ) : null}

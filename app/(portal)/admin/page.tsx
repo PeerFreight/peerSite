@@ -7,6 +7,7 @@ import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { listOpenQuoteRequests } from "@/lib/portal/admin-queries";
 import { equipmentLabel, laneSummary } from "@/lib/portal/rfq";
 import { requireAdminSession } from "@/lib/portal/session";
+import { AdminNav } from "./admin-nav";
 import { SignOutButton } from "../sign-out-button";
 
 export const metadata: Metadata = {
@@ -35,12 +36,15 @@ export default async function AdminQueuePage() {
       user={<SignOutButton label={session.user.name} />}
     >
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-extrabold">Quote queue</h1>
-          <p className="mt-1 text-muted">
-            Open requests across every shipper, oldest first. The product is a
-            quote within the hour.
-          </p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-extrabold">Quote queue</h1>
+            <p className="mt-1 text-muted">
+              Open requests across every shipper, oldest first. The product is a
+              quote within the hour.
+            </p>
+          </div>
+          <AdminNav active="queue" />
         </div>
 
         {open.length === 0 ? (

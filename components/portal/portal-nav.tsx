@@ -1,6 +1,7 @@
 const ITEMS = [
   { key: "dashboard", href: "/dashboard", label: "Dashboard" },
   { key: "quotes", href: "/quotes", label: "Quotes" },
+  { key: "loads", href: "/loads", label: "Loads" },
   { key: "settings", href: "/settings", label: "Settings" },
 ] as const;
 
