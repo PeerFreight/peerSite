@@ -384,8 +384,10 @@ p { margin: 0; }
 .footer { background: var(--navy); color: #fff; padding-top: clamp(1.6rem, 3vw, 2.4rem); overflow: hidden; }
 .footer__legal { border-top: 1px solid var(--line-dark); padding: 1.4rem 0; font-size: 0.82rem; color: var(--muted-on-dark); display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .footer__links { display: inline-flex; align-items: center; gap: 1.1rem; }
-.footer__links a { display: inline-grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line-dark); border-radius: 50%; color: #fff; }
-.footer__links a:hover { border-color: var(--accent); color: var(--accent); }
+.footer__links a { color: #fff; }
+.footer__links a:hover { color: var(--accent); }
+.footer__links .footer__social { display: inline-grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line-dark); border-radius: 50%; }
+.footer__links .footer__social:hover { border-color: var(--accent); }
 .footer__links svg { width: 15px; height: 15px; }
 .footer__word { font-weight: 800; text-align: center; letter-spacing: -0.03em; line-height: 0.8; font-size: clamp(6rem, 26vw, 22rem); background: linear-gradient(180deg, #ffffff 20%, rgba(255,255,255,0.1) 105%); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.1em; user-select: none; }
 
@@ -496,6 +498,22 @@ p { margin: 0; }
 .check input:focus-visible + span { outline: 2px solid var(--navy); outline-offset: 2px; }
 .form .btn { margin-top: 0.6rem; }
 .form__note { margin-top: 1rem; font-size: 0.85rem; color: var(--muted); }
+.sms-consent { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 0.65rem; margin: 1.2rem 0; }
+.sms-consent input { width: 1.1rem; height: 1.1rem; margin-top: 0.18rem; accent-color: var(--navy); }
+.sms-consent label { font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
+.sms-consent a { color: var(--navy); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------- Legal and compliance pages ---------- */
+.legal-page { padding: clamp(3.2rem, 7vw, 6rem) 0; }
+.legal-content { max-width: 780px; }
+.legal-content .eyebrow { margin-bottom: 1rem; }
+.legal-content h1 { margin-bottom: 0.75rem; }
+.legal-content .legal-updated { margin-bottom: 2.5rem; color: var(--muted); }
+.legal-content h2 { margin-top: 2.2rem; margin-bottom: 0.75rem; font-size: clamp(1.35rem, 2.5vw, 1.7rem); }
+.legal-content p, .legal-content li { color: var(--ink); line-height: 1.75; }
+.legal-content p + p { margin-top: 0.9rem; }
+.legal-content ul { margin: 0.8rem 0 0 1.25rem; display: grid; gap: 0.45rem; }
+.legal-content a { color: var(--navy); text-decoration: underline; text-underline-offset: 2px; }
 .form__success {
   background: #fff; border: 1px solid var(--line); border-radius: var(--r-xl);
   padding: clamp(1.8rem, 3.5vw, 3rem);
