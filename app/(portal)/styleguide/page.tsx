@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { AppShell } from "@/components/portal/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,10 +13,13 @@ export const metadata: Metadata = {
 
 /**
  * Internal reference page for the shipper-portal UI primitives (Phase 0).
- * Not linked from anywhere; exists so the portal design system builds and can
- * be reviewed on a preview deploy before the real portal routes land.
+ * Reviewable only on preview deploys (which sit behind Vercel SSO); production
+ * builds bake in a 404 so the unreleased portal UI is never public.
  */
 export default function StyleguidePage() {
+  if (process.env.VERCEL_ENV === "production") {
+    notFound();
+  }
   return (
     <AppShell
       nav={
