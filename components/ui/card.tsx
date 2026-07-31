@@ -1,8 +1,8 @@
 import type { HTMLAttributes } from "react";
 
-/** Quiet paper panel, per the design system: flat fill, no border, barely-rounded. */
+/** Quiet white panel on the paper canvas: flat fill, no border, barely-rounded. */
 export function Card({ className = "", ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={`rounded-xl bg-paper p-6 ${className}`} {...props} />;
+  return <div className={`rounded-xl bg-white p-6 ${className}`} {...props} />;
 }
 
 export function CardTitle({ className = "", ...props }: HTMLAttributes<HTMLHeadingElement>) {

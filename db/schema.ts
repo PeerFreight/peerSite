@@ -174,6 +174,18 @@ export const quoteRequests = pgTable(
     temperatureF: text("temperature_f"), // reefer set point
     equipmentNotes: text("equipment_notes"),
     hazmat: boolean("hazmat").notNull().default(false),
+    // Structured hazmat block (migration 0007). UN number, shipping name,
+    // and class are required by validation when hazmat is set; the rest are
+    // shipping-paper details that never block a quote. `hazmatDetails` stays
+    // as the free-text "anything else" (and the only field on old rows).
+    hazmatUnNumber: text("hazmat_un_number"),
+    hazmatShippingName: text("hazmat_shipping_name"),
+    hazmatClass: text("hazmat_class"), // DOT class, e.g. "3", "5.1"
+    hazmatPackingGroup: text("hazmat_packing_group"), // I | II | III | none
+    hazmatQuantity: text("hazmat_quantity"),
+    hazmatPlacardsRequired: text("hazmat_placards_required"), // yes | no | unknown
+    hazmatEmergencyContact: text("hazmat_emergency_contact"), // e.g. CHEMTREC contract
+    hazmatTechnicalName: text("hazmat_technical_name"),
     hazmatDetails: text("hazmat_details"),
 
     // Services / references / commercial context

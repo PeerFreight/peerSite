@@ -8,13 +8,63 @@ import type { QuoteRequestStatus } from "@/db/schema";
  * first-load runbook.
  */
 
-export const EQUIPMENT_OPTIONS = [
-  { value: "dry_van_53", label: "Dry van 53'" },
-  { value: "reefer", label: "Reefer" },
-  { value: "flatbed", label: "Flatbed" },
-  { value: "other", label: "Other" },
+/** Equipment vocabulary, grouped for the form's optgroups. Values are plain
+ * text in the DB, so extending this list never needs a migration and old
+ * rows keep rendering (unknown values fall back to the raw string). */
+export const EQUIPMENT_GROUPS = [
+  {
+    label: "Van",
+    options: [
+      { value: "dry_van_53", label: "Dry van 53'" },
+      { value: "dry_van_48", label: "Dry van 48'" },
+      { value: "box_truck", label: "Box truck" },
+      { value: "sprinter_van", label: "Sprinter / cargo van" },
+    ],
+  },
+  {
+    label: "Temp controlled",
+    options: [{ value: "reefer", label: "Reefer 53'" }],
+  },
+  {
+    label: "Open deck",
+    options: [
+      { value: "flatbed", label: "Flatbed" },
+      { value: "step_deck", label: "Step deck" },
+      { value: "conestoga", label: "Conestoga" },
+      { value: "double_drop", label: "Double drop" },
+      { value: "rgn_lowboy", label: "RGN / lowboy" },
+      { value: "hotshot", label: "Hotshot" },
+    ],
+  },
+  {
+    label: "Bulk & tank",
+    options: [
+      { value: "chemical_tanker", label: "Chemical tanker" },
+      { value: "iso_tank", label: "ISO tank" },
+      { value: "pneumatic", label: "Pneumatic" },
+      { value: "end_dump", label: "End dump" },
+    ],
+  },
+  {
+    label: "Other",
+    options: [
+      { value: "power_only", label: "Power only" },
+      { value: "ltl_partial", label: "LTL / partial" },
+      { value: "other", label: "Other / not sure" },
+    ],
+  },
 ] as const;
-export type Equipment = (typeof EQUIPMENT_OPTIONS)[number]["value"];
+
+type EquipmentOption = (typeof EQUIPMENT_GROUPS)[number]["options"][number];
+export const EQUIPMENT_OPTIONS: readonly EquipmentOption[] = EQUIPMENT_GROUPS.flatMap(
+  (g) => g.options as readonly EquipmentOption[],
+);
+export type Equipment = EquipmentOption["value"];
+
+const EQUIPMENT_VALUES = EQUIPMENT_OPTIONS.map((o) => o.value) as [Equipment, ...Equipment[]];
+
+/** Equipment values whose pick needs a free-text clarifier. */
+export const EQUIPMENT_NEEDS_NOTES: readonly string[] = ["other", "ltl_partial"];
 
 export const ACCESSORIAL_OPTIONS = [
   { value: "liftgate_pickup", label: "Liftgate at pickup" },
@@ -39,6 +89,45 @@ export const SCHEDULING_OPTIONS = [
   { value: "appointment", label: "Appointment required" },
 ] as const;
 
+/** DOT hazard classes (49 CFR 173.2), collapsed to the 15 entries shippers
+ * actually pick from (class 1 divisions folded into one). */
+export const HAZMAT_CLASS_OPTIONS = [
+  { value: "1", label: "Class 1 — Explosives" },
+  { value: "2.1", label: "2.1 — Flammable gas" },
+  { value: "2.2", label: "2.2 — Non-flammable gas" },
+  { value: "2.3", label: "2.3 — Poison gas" },
+  { value: "3", label: "Class 3 — Flammable liquid" },
+  { value: "4.1", label: "4.1 — Flammable solid" },
+  { value: "4.2", label: "4.2 — Spontaneously combustible" },
+  { value: "4.3", label: "4.3 — Dangerous when wet" },
+  { value: "5.1", label: "5.1 — Oxidizer" },
+  { value: "5.2", label: "5.2 — Organic peroxide" },
+  { value: "6.1", label: "6.1 — Poison (toxic)" },
+  { value: "6.2", label: "6.2 — Infectious substance" },
+  { value: "7", label: "Class 7 — Radioactive" },
+  { value: "8", label: "Class 8 — Corrosive" },
+  { value: "9", label: "Class 9 — Miscellaneous" },
+] as const;
+export type HazmatClass = (typeof HAZMAT_CLASS_OPTIONS)[number]["value"];
+
+const HAZMAT_CLASS_VALUES = HAZMAT_CLASS_OPTIONS.map((o) => o.value) as [
+  HazmatClass,
+  ...HazmatClass[],
+];
+
+export const HAZMAT_PACKING_GROUP_OPTIONS = [
+  { value: "I", label: "PG I — high danger" },
+  { value: "II", label: "PG II — medium danger" },
+  { value: "III", label: "PG III — low danger" },
+  { value: "none", label: "Not applicable" },
+] as const;
+
+export const HAZMAT_PLACARD_OPTIONS = [
+  { value: "unknown", label: "Not sure" },
+  { value: "yes", label: "Yes" },
+  { value: "no", label: "No" },
+] as const;
+
 export const STATUS_LABELS: Record<QuoteRequestStatus, string> = {
   submitted: "Submitted",
   needs_info: "Needs info",
@@ -52,6 +141,11 @@ export const STATUS_LABELS: Record<QuoteRequestStatus, string> = {
 const trimmed = (max: number) => z.string().trim().max(max);
 const optionalText = (max: number) =>
   trimmed(max).transform((v) => (v === "" ? null : v)).nullish();
+const optionalEnum = <T extends readonly [string, ...string[]]>(values: T) =>
+  z
+    .enum(values)
+    .nullish()
+    .or(z.literal("").transform(() => null));
 const state = z
   .string()
   .trim()
@@ -65,6 +159,14 @@ const money = z
   .regex(/^\$?\d{1,9}(\.\d{1,2})?$/, "Dollar amount like 1850 or 1850.00")
   .transform((v) => v.replace(/^\$/, ""));
 const optionalMoney = money
+  .nullish()
+  .or(z.literal("").transform(() => null));
+/** "1993", "UN1993", "un 1993" → "UN1993"; blank → null. */
+const unNumber = z
+  .string()
+  .trim()
+  .regex(/^(UN\s?)?\d{4}$/i, "UN number like UN1993")
+  .transform((v) => `UN${v.replace(/\D/g, "")}`)
   .nullish()
   .or(z.literal("").transform(() => null));
 
@@ -101,10 +203,18 @@ export const rfqSchema = z
     pieces: trimmed(120).min(1, "Required — e.g. 26 pallets"),
     dims: optionalText(120),
     declaredValueUsd: optionalMoney,
-    equipment: z.enum(["dry_van_53", "reefer", "flatbed", "other"]),
+    equipment: z.enum(EQUIPMENT_VALUES),
     temperatureF: optionalText(40),
     equipmentNotes: optionalText(300),
     hazmat: z.boolean().default(false),
+    hazmatUnNumber: unNumber,
+    hazmatShippingName: optionalText(200),
+    hazmatClass: optionalEnum(HAZMAT_CLASS_VALUES),
+    hazmatPackingGroup: optionalEnum(["I", "II", "III", "none"] as const),
+    hazmatQuantity: optionalText(120),
+    hazmatPlacardsRequired: optionalEnum(["unknown", "yes", "no"] as const),
+    hazmatEmergencyContact: optionalText(120),
+    hazmatTechnicalName: optionalText(200),
     hazmatDetails: optionalText(500),
 
     // Services / references / rate
@@ -135,17 +245,83 @@ export const rfqSchema = z
         input: v.temperatureF,
       });
     }
-    if (v.hazmat && !v.hazmatDetails) {
-      ctx.issues.push({
-        code: "custom",
-        message: "Tell us the UN number / class / description so we can review",
-        path: ["hazmatDetails"],
-        input: v.hazmatDetails,
-      });
+    // Hazmat pricing needs UN number + shipping name + class; the rest are
+    // shipping-paper details that must not block the quote.
+    if (v.hazmat) {
+      if (!v.hazmatUnNumber) {
+        ctx.issues.push({
+          code: "custom",
+          message: "Required for hazmat, e.g. UN1993",
+          path: ["hazmatUnNumber"],
+          input: v.hazmatUnNumber,
+        });
+      }
+      if (!v.hazmatShippingName) {
+        ctx.issues.push({
+          code: "custom",
+          message: "Required — the proper shipping name on the SDS",
+          path: ["hazmatShippingName"],
+          input: v.hazmatShippingName,
+        });
+      }
+      if (!v.hazmatClass) {
+        ctx.issues.push({
+          code: "custom",
+          message: "Pick the DOT hazard class",
+          path: ["hazmatClass"],
+          input: v.hazmatClass,
+        });
+      }
     }
   });
 
 export type RfqInput = z.infer<typeof rfqSchema>;
+
+/** Wizard steps → schema fields, used to filter validation errors to the
+ * step being advanced. Fields absent here (e.g. hazmat boolean itself) never
+ * error. Kept beside the schema so a new field must pick its step. */
+export const STEP_FIELDS: Record<number, readonly (keyof RfqInput)[]> = {
+  1: [
+    "originAddress",
+    "originCity",
+    "originState",
+    "originZip",
+    "originHours",
+    "originScheduling",
+    "destAddress",
+    "destCity",
+    "destState",
+    "destZip",
+    "destHours",
+    "destScheduling",
+    "pickupDate",
+    "pickupWindow",
+    "deliveryDate",
+    "deliveryWindow",
+    "dateFlexibility",
+  ],
+  2: [
+    "commodity",
+    "weightLbs",
+    "pieces",
+    "dims",
+    "declaredValueUsd",
+    "equipment",
+    "temperatureF",
+    "equipmentNotes",
+    "hazmat",
+    "hazmatUnNumber",
+    "hazmatShippingName",
+    "hazmatClass",
+    "hazmatPackingGroup",
+    "hazmatQuantity",
+    "hazmatPlacardsRequired",
+    "hazmatEmergencyContact",
+    "hazmatTechnicalName",
+    "hazmatDetails",
+  ],
+  3: ["accessorials", "referenceNumbers", "targetRateUsd", "frequency", "notes"],
+};
 
 /** Admin send-quote form; shipper-facing fields only (no pricing internals). */
 export const sendQuoteSchema = z.object({
@@ -200,6 +376,14 @@ export function rfqFromFormData(fd: FormData): unknown {
     temperatureF: text("temperatureF"),
     equipmentNotes: text("equipmentNotes"),
     hazmat: fd.get("hazmat") === "on",
+    hazmatUnNumber: text("hazmatUnNumber"),
+    hazmatShippingName: text("hazmatShippingName"),
+    hazmatClass: text("hazmatClass"),
+    hazmatPackingGroup: text("hazmatPackingGroup"),
+    hazmatQuantity: text("hazmatQuantity"),
+    hazmatPlacardsRequired: text("hazmatPlacardsRequired"),
+    hazmatEmergencyContact: text("hazmatEmergencyContact"),
+    hazmatTechnicalName: text("hazmatTechnicalName"),
     hazmatDetails: text("hazmatDetails"),
     accessorials: fd.getAll("accessorials").filter((v): v is string => typeof v === "string"),
     referenceNumbers,
@@ -215,6 +399,37 @@ export function equipmentLabel(value: string) {
 
 export function accessorialLabel(value: string) {
   return ACCESSORIAL_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+export function hazmatClassLabel(value: string) {
+  return HAZMAT_CLASS_OPTIONS.find((o) => o.value === value)?.label ?? `Class ${value}`;
+}
+
+/** Fields hazmatSummary reads — both quote_requests rows and parsed RFQs. */
+export type HazmatFields = {
+  hazmat: boolean;
+  hazmatUnNumber?: string | null;
+  hazmatShippingName?: string | null;
+  hazmatClass?: string | null;
+  hazmatPackingGroup?: string | null;
+  hazmatQuantity?: string | null;
+  hazmatDetails?: string | null;
+};
+
+/** One-line hazmat digest ("UN1993 · Diesel fuel · Class 3 · PG III") for
+ * the admin queue, team email, and the load's freight snapshot. Old rows
+ * with only free-text details fall back to that text. */
+export function hazmatSummary(r: HazmatFields): string | null {
+  if (!r.hazmat) return null;
+  const parts = [
+    r.hazmatUnNumber,
+    r.hazmatShippingName,
+    r.hazmatClass ? `Class ${r.hazmatClass}` : null,
+    r.hazmatPackingGroup && r.hazmatPackingGroup !== "none" ? `PG ${r.hazmatPackingGroup}` : null,
+    r.hazmatQuantity,
+  ].filter(Boolean);
+  if (parts.length === 0) return r.hazmatDetails ?? "Yes — details pending";
+  return parts.join(" · ");
 }
 
 export function laneSummary(r: {

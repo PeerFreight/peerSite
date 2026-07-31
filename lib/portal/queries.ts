@@ -47,6 +47,34 @@ export async function requireMembership(db: PortalDb, userId: string, orgId: str
   return org;
 }
 
+/** Rename the org from Settings. Membership is proven like every write here,
+ * plus a role gate: only the org's owner or admin role may rename it. */
+export async function updateOrganizationName(
+  db: PortalDb,
+  userId: string,
+  orgId: string,
+  name: string,
+) {
+  const org = await requireMembership(db, userId, orgId);
+  if (!["owner", "admin"].includes(org.role)) {
+    throw new Error("Only an owner or admin can rename the company");
+  }
+  if (org.name === name) return;
+  await db.transaction(async (tx) => {
+    await tx
+      .update(schema.organization)
+      .set({ name })
+      .where(eq(schema.organization.id, orgId));
+    await appendEvent(tx, {
+      organizationId: orgId,
+      actorType: "shipper",
+      actorId: userId,
+      eventType: "org_renamed",
+      payload: { from: org.name, to: name },
+    });
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Quote requests (Phase 2). Every mutation appends an events row in the same
 // transaction; the events table itself is append-only (DB trigger).

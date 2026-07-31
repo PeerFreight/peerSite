@@ -30,6 +30,15 @@
 }
 
 @layer components {
+  /* Small-caps section label (brand rule): panel headers, KPI labels. */
+  .section-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
   /* The one gold-gradient surface, reserved for primary CTAs. */
   .btn-gold-grad {
     background: linear-gradient(

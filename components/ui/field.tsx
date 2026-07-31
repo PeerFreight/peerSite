@@ -25,26 +25,36 @@ export function Textarea({ className = "", ...props }: TextareaHTMLAttributes<HT
   return <textarea className={`${control} min-h-24 ${className}`} {...props} />;
 }
 
-/** Label + control + optional hint/error, stacked. */
+/** Label + control + optional hint/error, stacked. Convention: unmarked
+ * fields are required; pass `optional` to show the muted suffix. */
 export function Field({
   label,
   htmlFor,
   hint,
   error,
+  optional = false,
   children,
 }: {
   label: string;
   htmlFor?: string;
   hint?: string;
   error?: string;
+  optional?: boolean;
   children: ReactNode;
 }) {
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={htmlFor}>{label}</Label>
+      <Label htmlFor={htmlFor}>
+        {label}
+        {optional ? (
+          <span className="ml-1.5 text-xs font-semibold text-muted">Optional</span>
+        ) : null}
+      </Label>
       {children}
       {error ? (
-        <p className="text-sm text-red-700">{error}</p>
+        <p className="text-sm text-red-700" id={htmlFor ? `${htmlFor}-error` : undefined}>
+          {error}
+        </p>
       ) : hint ? (
         <p className="text-sm text-muted">{hint}</p>
       ) : null}

@@ -16,6 +16,7 @@ const EVENT_LABELS: Record<string, string> = {
   document_hidden: "Document hidden from shipper",
   carrier_assigned: "Carrier assigned",
   carrier_updated: "Carrier details updated",
+  org_renamed: "Company renamed",
 };
 
 const timeFmt = new Intl.DateTimeFormat("en-US", {

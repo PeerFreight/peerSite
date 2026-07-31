@@ -3,7 +3,7 @@ import * as schema from "@/db/schema";
 import type { CarrierAssignmentInput } from "@/lib/portal/carrier";
 import { canTransition, LOAD_STATUS_EVENT } from "@/lib/portal/loads";
 import { appendEvent, type PortalDb } from "@/lib/portal/queries";
-import type { SendQuoteInput } from "@/lib/portal/rfq";
+import { hazmatSummary, type SendQuoteInput } from "@/lib/portal/rfq";
 import { assertAdmin, type PortalUser } from "@/lib/portal/roles";
 
 /**
@@ -29,6 +29,7 @@ export async function listOpenQuoteRequests(db: PortalDb, admin: AdminUser) {
       equipment: schema.quoteRequests.equipment,
       commodity: schema.quoteRequests.commodity,
       hazmat: schema.quoteRequests.hazmat,
+      hazmatClass: schema.quoteRequests.hazmatClass,
       createdAt: schema.quoteRequests.createdAt,
       orgName: schema.organization.name,
     })
@@ -229,7 +230,13 @@ export async function bookLoad(db: PortalDb, admin: AdminUser, quoteId: string) 
       temperatureF: r.temperatureF,
       equipmentNotes: r.equipmentNotes,
       hazmat: r.hazmat,
-      hazmatDetails: r.hazmatDetails,
+      // The loads table keeps its single free-text hazmat field; snapshot
+      // the structured block as the one-line digest so nothing is lost.
+      hazmatDetails: r.hazmat
+        ? [hazmatSummary(r), r.hazmatUnNumber ? r.hazmatDetails : null]
+            .filter(Boolean)
+            .join(" — ") || r.hazmatDetails
+        : r.hazmatDetails,
       accessorials: r.accessorials,
       referenceNumbers: r.referenceNumbers,
       notes: r.notes,

@@ -11,8 +11,14 @@ const manrope = localFont({
 export default function PortalLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // manrope.className sets font-family directly on this subtree. The
+  // `font-sans` utility can't do it: @theme's --font-sans resolves
+  // var(--font-manrope) at :root, where the next/font variable (scoped to
+  // this div) doesn't exist, so the stack collapsed to the system font.
   return (
-    <div className={`${manrope.variable} font-sans min-h-screen bg-white text-ink antialiased`}>
+    <div
+      className={`${manrope.className} ${manrope.variable} min-h-screen bg-white text-ink antialiased`}
+    >
       {children}
     </div>
   );

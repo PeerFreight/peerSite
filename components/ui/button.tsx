@@ -1,6 +1,6 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from "react";
 
-type Variant = "primary" | "secondary" | "ghost" | "danger";
+type Variant = "primary" | "navy" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md";
 
 const base =
@@ -8,6 +8,7 @@ const base =
 
 const variants: Record<Variant, string> = {
   primary: "btn-gold-grad text-navy",
+  navy: "bg-navy text-white hover:bg-navy-card",
   secondary: "bg-white text-ink border border-line hover:bg-paper",
   ghost: "bg-transparent text-ink hover:bg-paper",
   danger: "bg-white text-red-700 border border-red-200 hover:bg-red-50",
