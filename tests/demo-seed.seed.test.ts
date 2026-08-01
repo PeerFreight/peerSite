@@ -63,11 +63,11 @@ describe.skipIf(!process.env.DEMO_SEED)("demo seed", () => {
     const byEmail = async (email: string) =>
       (await db.select().from(schema.user).where(eq(schema.user.email, email)).limit(1))[0];
 
-    const aaron = await byEmail("aaron@peer-freight.com");
+    const founder = await byEmail("admin@peer-freight.com");
     const minal = await byEmail("minal@avbc.com");
-    expect(aaron, "run the HTTP account setup first").toBeTruthy();
+    expect(founder, "run the HTTP account setup first").toBeTruthy();
     expect(minal, "run the HTTP account setup first").toBeTruthy();
-    const admin: AdminUser = { id: aaron.id, email: aaron.email, emailVerified: true };
+    const admin: AdminUser = { id: founder.id, email: founder.email, emailVerified: true };
 
     const membership = (
       await db.select().from(schema.member).where(eq(schema.member.userId, minal.id)).limit(1)
