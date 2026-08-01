@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
-import { IconFileText, IconTruck } from "@/components/ui/icons";
+import { IconClock, IconFileText, IconTruck } from "@/components/ui/icons";
 import { ListPanel, ListRow } from "@/components/ui/list";
-import { Panel, PanelBody, PanelHeader } from "@/components/ui/panel";
+import { JoinedGrid, Panel, PanelBody, PanelHeader } from "@/components/ui/panel";
 import { StatTile } from "@/components/ui/stat";
 
 export const metadata: Metadata = {
@@ -20,8 +20,9 @@ export const metadata: Metadata = {
  * only on preview deploys (which sit behind Vercel SSO); production builds
  * bake in a 404 so the unreleased portal UI is never public.
  *
- * Sectioning system: three flat brand tones — navy chrome (sidebar), paper
- * canvas, white surfaces. No borders or shadows for elevation.
+ * Sectioning system: navy chrome (sidebar), paper canvas, bordered white
+ * surfaces — the hairline carries structure. Related sections share one
+ * surface via JoinedGrid (hairline joints) instead of floating separately.
  */
 export default function StyleguidePage() {
   if (process.env.VERCEL_ENV === "production") {
@@ -67,11 +68,15 @@ export default function StyleguidePage() {
 
       <section className="space-y-4">
         <h2 className="text-lg font-extrabold">Stat tiles</h2>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <StatTile label="Active loads" value={4} />
-          <StatTile label="In transit" value={2} />
-          <StatTile label="Open quotes" value={7} />
-        </div>
+        <JoinedGrid className="sm:grid-cols-3">
+          <StatTile label="Active loads" value={4} icon={<IconTruck size={18} />} />
+          <StatTile label="In transit" value={2} icon={<IconClock size={18} />} />
+          <StatTile label="Open quotes" value={7} icon={<IconFileText size={18} />} />
+        </JoinedGrid>
+        <p className="text-sm text-muted">
+          KPI cells live on one JoinedGrid surface — attached at hairline
+          joints, never floating as separate cards.
+        </p>
       </section>
 
       <section className="space-y-4">
@@ -87,8 +92,8 @@ export default function StyleguidePage() {
           />
           <PanelBody>
             <p className="text-sm text-muted">
-              White surface on the paper canvas; the small-caps `.section-label`
-              carries the sectioning.
+              Bordered white surface on the paper canvas; the small-caps
+              `.section-label` carries the sectioning.
             </p>
           </PanelBody>
         </Panel>
@@ -131,10 +136,10 @@ export default function StyleguidePage() {
               <Badge tone="navy">In transit</Badge>
             </div>
           </Card>
-          <Card className="border border-line">
+          <Card className="border-navy/30">
             <CardTitle>Quote ready</CardTitle>
             <CardDescription>
-              Border marks the one card that needs a decision.
+              The navy border marks the one card that needs a decision.
             </CardDescription>
             <div className="mt-4 flex gap-2">
               <Button size="sm">Accept</Button>

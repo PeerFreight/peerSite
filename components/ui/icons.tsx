@@ -175,6 +175,15 @@ export function IconBuilding(props: IconProps) {
   );
 }
 
+export function IconClock(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </Svg>
+  );
+}
+
 export function IconInbox(props: IconProps) {
   return (
     <Svg {...props}>

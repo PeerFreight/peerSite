@@ -76,7 +76,7 @@ export default async function QuoteRequestPage({ params }: { params: Promise<{ i
       </div>
 
       {request.status === "needs_info" && request.needsInfoMessage ? (
-        <Card className="bg-gold/15">
+        <Card className="border-gold/40 bg-gold/15">
           <CardTitle>We need a bit more information</CardTitle>
           <p className="mt-2 whitespace-pre-wrap text-sm text-ink">{request.needsInfoMessage}</p>
           <p className="mt-3 text-sm text-muted">
@@ -87,7 +87,7 @@ export default async function QuoteRequestPage({ params }: { params: Promise<{ i
       ) : null}
 
       {quotes.map((quote) => (
-        <Card key={quote.id} className="border border-line">
+        <Card key={quote.id} className="border-navy/30">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-wide text-muted">

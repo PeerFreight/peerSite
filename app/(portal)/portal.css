@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 /* Portal theme — mapped from the marketing site's newpeer.css :root tokens.
-   Portal pages are white-canvas, light-mode only; paper is for panels, navy
-   for the header and emphasis, gold reserved for primary CTAs and status
-   highlights. */
+   Signed-in pages sit on the paper canvas with bordered white surfaces
+   (hairline lines carry the structure, not shadows); signed-out pages sit on
+   the navy. Gold stays reserved for primary CTAs and status highlights. */
 @theme {
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, sans-serif;
@@ -15,16 +15,19 @@
   --color-gold-soft: #f6d567;
   --color-gold-hi: #f8d967;
   --color-gold-lo: #d79a15;
-  --color-paper: #f3f3f1;
+  --color-paper: #f5f6f8;
   --color-ink: #0e1d3a;
   --color-muted: #5c6675;
-  --color-line: rgba(14, 29, 58, 0.1);
+  /* Solid (not alpha) so it doubles as the joint color in gap-px mosaics. */
+  --color-line: #e4e7ee;
 
   --radius-xl: 14px;
   --radius-lg: 10px;
   --radius-md: 7px;
 
   --shadow-card: 0 24px 60px -34px rgba(14, 29, 58, 0.38);
+  /* Barely-there lift for bordered panels on the paper canvas. */
+  --shadow-panel: 0 1px 2px 0 rgba(14, 29, 58, 0.04);
 
   --spacing-wrap: 1240px;
 }
@@ -37,6 +40,15 @@
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--color-muted);
+  }
+
+  /* Navy backdrop for signed-out pages (login, signup, onboarding): the
+     site's hero navy with a soft top glow so the white card reads as the
+     single lit surface. */
+  .auth-bg {
+    background:
+      radial-gradient(90% 55% at 50% 0%, rgba(19, 36, 74, 0.85) 0%, rgba(19, 36, 74, 0) 100%),
+      linear-gradient(180deg, var(--color-navy-deep) 0%, var(--color-navy) 100%);
   }
 
   /* The one gold-gradient surface, reserved for primary CTAs. */

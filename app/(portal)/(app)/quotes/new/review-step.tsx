@@ -51,7 +51,7 @@ function Group({
           Edit
         </button>
       </header>
-      <dl className="mt-2 divide-y divide-line rounded-lg bg-paper px-4 py-1.5">{children}</dl>
+      <dl className="mt-2 divide-y divide-line rounded-lg border border-line bg-paper px-4 py-1.5">{children}</dl>
     </section>
   );
 }

@@ -22,7 +22,7 @@ export function HazmatFields({
 }) {
   const err = (name: string) => errors[name]?.[0];
   return (
-    <div className="space-y-4 rounded-lg bg-paper p-4">
+    <div className="space-y-4 rounded-lg border border-line bg-paper p-4">
       <div className="grid gap-4 sm:grid-cols-[10rem_1fr]">
         <Field label="UN number" htmlFor="hazmatUnNumber" error={err("hazmatUnNumber")}>
           <Input

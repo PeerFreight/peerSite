@@ -197,7 +197,7 @@ export function DateField({
         <div
           role="dialog"
           aria-label="Choose date"
-          className="absolute left-0 top-full z-30 mt-2 w-[18.5rem] rounded-lg border border-line bg-white p-3"
+          className="absolute left-0 top-full z-30 mt-2 w-[18.5rem] rounded-lg border border-line bg-white p-3 shadow-lg"
         >
           <div className="flex items-center justify-between">
             <button

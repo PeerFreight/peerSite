@@ -159,7 +159,7 @@ export default async function AdminQuoteRequestPage({
                 {quotes.map((q) => {
                   const load = loadForQuote(q.id);
                   return (
-                    <li key={q.id} className="rounded-lg bg-paper p-4">
+                    <li key={q.id} className="rounded-lg border border-line bg-paper p-4">
                       <p className="font-extrabold text-ink">
                         ${Number(q.allInRateUsd).toLocaleString("en-US", { minimumFractionDigits: 2 })}{" "}
                         <span className="text-sm font-bold text-muted">({q.status})</span>

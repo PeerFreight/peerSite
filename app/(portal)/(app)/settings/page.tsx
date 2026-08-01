@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { JoinedGrid } from "@/components/ui/panel";
 import { listUserOrganizations } from "@/lib/portal/queries";
 import { isAdmin } from "@/lib/portal/roles";
 import { requireOrgSession } from "@/lib/portal/session";
@@ -22,45 +22,48 @@ export default async function SettingsPage() {
     <div className="max-w-2xl space-y-6">
       <h1 className="text-2xl font-extrabold">Settings</h1>
 
-      <Card>
-        <div className="flex items-baseline justify-between gap-4">
-          <h2 className="section-label">Profile</h2>
-          {isAdmin(session.user) ? <Badge tone="navy">Admin</Badge> : null}
-        </div>
-        <div className="mt-4">
-          <ProfileForm name={session.user.name} email={session.user.email} />
-        </div>
-      </Card>
+      {/* One attached surface: settings sections meet at hairline joints. */}
+      <JoinedGrid>
+        <section className="bg-white p-6">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="section-label">Profile</h2>
+            {isAdmin(session.user) ? <Badge tone="navy">Admin</Badge> : null}
+          </div>
+          <div className="mt-4">
+            <ProfileForm name={session.user.name} email={session.user.email} />
+          </div>
+        </section>
 
-      <Card>
-        <h2 className="section-label">Company</h2>
-        <div className="mt-4">
-          <CompanyForm
-            name={current.name}
-            role={current.role}
-            canEdit={["owner", "admin"].includes(current.role)}
-          />
-        </div>
-      </Card>
+        <section className="bg-white p-6">
+          <h2 className="section-label">Company</h2>
+          <div className="mt-4">
+            <CompanyForm
+              name={current.name}
+              role={current.role}
+              canEdit={["owner", "admin"].includes(current.role)}
+            />
+          </div>
+        </section>
 
-      <Card>
-        <h2 className="section-label">Teammates</h2>
-        <p className="mt-3 text-sm text-muted">
-          Invites are coming with the quote-request flow. For now, email
-          team@peer-freight.com and we will add your teammates.
-        </p>
-      </Card>
+        <section className="bg-white p-6">
+          <h2 className="section-label">Teammates</h2>
+          <p className="mt-3 text-sm text-muted">
+            Invites are coming with the quote-request flow. For now, email
+            team@peer-freight.com and we will add your teammates.
+          </p>
+        </section>
 
-      <Card>
-        <h2 className="section-label">Session</h2>
-        <p className="mt-3 text-sm text-muted">
-          Signed in as {session.user.email}. Signing out ends this session on
-          this device only.
-        </p>
-        <div className="mt-4">
-          <SignOutPanel />
-        </div>
-      </Card>
+        <section className="bg-white p-6">
+          <h2 className="section-label">Session</h2>
+          <p className="mt-3 text-sm text-muted">
+            Signed in as {session.user.email}. Signing out ends this session on
+            this device only.
+          </p>
+          <div className="mt-4">
+            <SignOutPanel />
+          </div>
+        </section>
+      </JoinedGrid>
     </div>
   );
 }

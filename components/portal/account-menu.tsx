@@ -16,7 +16,7 @@ export function initials(name: string) {
 /**
  * Account menu for the app shell. Desktop: opens upward from the
  * sidebar-bottom account row. Mobile: opens downward from the top-bar
- * avatar. Border-only elevation (no shadow) per the flat design system.
+ * avatar. Bordered with a soft shadow — overlays get depth; inline panels stay flat.
  * Sign out lives here and in Settings — the standard both-places pattern.
  */
 export function AccountMenu({
@@ -119,7 +119,7 @@ export function AccountMenu({
           ref={menuRef}
           role="menu"
           aria-label="Account"
-          className={`absolute z-50 w-60 rounded-lg border border-line bg-white p-1.5 text-ink ${
+          className={`absolute z-50 w-60 rounded-lg border border-line bg-white p-1.5 shadow-lg text-ink ${
             direction === "up" ? "bottom-full left-0 mb-2" : "right-0 top-full mt-2"
           }`}
         >

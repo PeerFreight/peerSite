@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { JoinedGrid } from "@/components/ui/panel";
 import { DateField } from "@/components/ui/date-field";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { IconCheck } from "@/components/ui/icons";
@@ -145,7 +146,7 @@ function Stepper({
           Step {step} of {STEPS.length}
           <span className="ml-2 font-bold text-muted">{STEPS[step - 1].label}</span>
         </p>
-        <div className="mt-2 h-1 overflow-hidden rounded-full bg-white">
+        <div className="mt-2 h-1 overflow-hidden rounded-full bg-line">
           <div
             className="h-full rounded-full bg-gold transition-all"
             style={{ width: `${(step / STEPS.length) * 100}%` }}
@@ -352,21 +353,22 @@ export function RfqForm({ prefill }: { prefill?: RfqPrefill }) {
     <form ref={formRef} action={formAction} onSubmit={onSubmit} noValidate className="scroll-mt-6 space-y-6">
       <Stepper step={step} erred={erredSteps} onBack={(n) => n < step && goTo(n)} />
 
-      {/* Step 1 — Lane & dates */}
-      <div hidden={step !== 1} className="space-y-6">
-        <Card>
-          <div className="grid gap-8 lg:grid-cols-2">
-            <div className="space-y-4">
-              <h2 className="section-label">Pickup</h2>
-              <StopFields prefix="origin" errors={errors} prefill={prefill} />
-            </div>
-            <div className="space-y-4">
-              <h2 className="section-label">Delivery</h2>
-              <StopFields prefix="dest" errors={errors} prefill={prefill} />
+      {/* Step 1 — Lane & dates: one attached surface, sections at hairline joints. */}
+      <div hidden={step !== 1}>
+        <JoinedGrid>
+          <div className="bg-white p-6">
+            <div className="grid gap-8 lg:grid-cols-2">
+              <div className="space-y-4">
+                <h2 className="section-label">Pickup</h2>
+                <StopFields prefix="origin" errors={errors} prefill={prefill} />
+              </div>
+              <div className="space-y-4">
+                <h2 className="section-label">Delivery</h2>
+                <StopFields prefix="dest" errors={errors} prefill={prefill} />
+              </div>
             </div>
           </div>
-        </Card>
-        <Card>
+          <div className="bg-white p-6">
           <h2 className="section-label">Dates</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <Field label="Pickup date" htmlFor="pickupDate" error={err("pickupDate")}>
@@ -412,7 +414,8 @@ export function RfqForm({ prefill }: { prefill?: RfqPrefill }) {
               </Select>
             </Field>
           </div>
-        </Card>
+          </div>
+        </JoinedGrid>
       </div>
 
       {/* Step 2 — Freight */}

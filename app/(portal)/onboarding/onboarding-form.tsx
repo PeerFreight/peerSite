@@ -3,8 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { AuthShell } from "@/components/portal/auth-shell";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import { CardDescription, CardTitle } from "@/components/ui/card";
 import { Field, Input } from "@/components/ui/field";
 
 function slugify(name: string) {
@@ -37,21 +38,19 @@ export function OnboardingForm() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
-      <Card className="shadow-card">
-        <CardTitle>Set up your company</CardTitle>
-        <CardDescription>
-          Your quotes, loads, and documents live under this profile. You can
-          invite teammates later.
-        </CardDescription>
-        <form onSubmit={createOrg} className="mt-6 space-y-4">
-          <Field label="Company name" htmlFor="org-name">
-            <Input id="org-name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Anderson Valley Brewing" />
-          </Field>
-          {error ? <p className="text-sm text-red-700">{error}</p> : null}
-          <Button type="submit" disabled={busy}>Continue</Button>
-        </form>
-      </Card>
-    </div>
+    <AuthShell>
+      <CardTitle>Set up your company</CardTitle>
+      <CardDescription>
+        Your quotes, loads, and documents live under this profile. You can
+        invite teammates later.
+      </CardDescription>
+      <form onSubmit={createOrg} className="mt-6 space-y-4">
+        <Field label="Company name" htmlFor="org-name">
+          <Input id="org-name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Anderson Valley Brewing" />
+        </Field>
+        {error ? <p className="text-sm text-red-700">{error}</p> : null}
+        <Button type="submit" disabled={busy}>Continue</Button>
+      </form>
+    </AuthShell>
   );
 }
