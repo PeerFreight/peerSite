@@ -1,7 +1,8 @@
-import { and, desc, eq, inArray, notInArray, or } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, notInArray, or } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import * as schema from "@/db/schema";
 import type { RfqInput } from "@/lib/portal/rfq";
+import { isPublicLinkLive, serializePublicTracking } from "@/lib/portal/tracking";
 
 /**
  * Org-scoped query layer. The browser never touches the database; every
@@ -101,6 +102,10 @@ const INTERNAL_EVENT_TYPES = [
   "document_hidden",
   "carrier_assigned",
   "carrier_updated",
+  // Link revocation is desk plumbing; the shipper-facing news was the send.
+  "tracking_link_revoked",
+  // Raw provider status callbacks are desk telemetry, not shipper news.
+  "tracking_status",
 ];
 
 export async function createQuoteRequest(
@@ -278,6 +283,96 @@ export async function getLoadDetail(db: PortalDb, userId: string, orgId: string,
       .limit(1),
   ]);
   return { load, events, documents, carrier: carrierRows[0] ?? null };
+}
+
+// ---------------------------------------------------------------------------
+// Live tracking (Phase 6). Two readers with very different trust levels: the
+// org-scoped one behind a session, and the token-scoped public projection.
+
+/** Live tracking for the shipper's load page: the latest session (narrow
+ * projection — never the webhook secret or the raw driver phone) plus the
+ * full breadcrumb. Total transparency is deliberate: the customer sees the
+ * same trail the public link shows. */
+export async function getTrackingForLoad(
+  db: PortalDb,
+  userId: string,
+  orgId: string,
+  loadId: string,
+) {
+  await requireMembership(db, userId, orgId);
+  const sessions = await db
+    .select({
+      id: schema.trackingSessions.id,
+      status: schema.trackingSessions.status,
+      originLat: schema.trackingSessions.originLat,
+      originLng: schema.trackingSessions.originLng,
+      destLat: schema.trackingSessions.destLat,
+      destLng: schema.trackingSessions.destLng,
+      lastPingAt: schema.trackingSessions.lastPingAt,
+      startedAt: schema.trackingSessions.startedAt,
+      stoppedAt: schema.trackingSessions.stoppedAt,
+    })
+    .from(schema.trackingSessions)
+    .where(
+      and(
+        eq(schema.trackingSessions.loadId, loadId),
+        eq(schema.trackingSessions.organizationId, orgId),
+      ),
+    )
+    .orderBy(desc(schema.trackingSessions.startedAt))
+    .limit(1);
+  const session = sessions[0];
+  if (!session) return null;
+  const pings = await db
+    .select({
+      lat: schema.locationPings.lat,
+      lng: schema.locationPings.lng,
+      city: schema.locationPings.city,
+      state: schema.locationPings.state,
+      etaAt: schema.locationPings.etaAt,
+      recordedAt: schema.locationPings.recordedAt,
+    })
+    .from(schema.locationPings)
+    .where(eq(schema.locationPings.trackingSessionId, session.id))
+    .orderBy(asc(schema.locationPings.recordedAt));
+  return { session, pings };
+}
+
+/**
+ * The public no-login projection behind /track/<token>. Token-authenticated:
+ * possession of the unguessable token IS the authorization. Returns the
+ * NARROW payload only — reference, lane city/state, load status, breadcrumb
+ * coordinates, ETA. NEVER address lines, driver name/phone, rate, commodity,
+ * or org identifiers (tests pin the exact key set). Null when the token is
+ * unknown (revocation rotates it away), the link has expired, or the load
+ * was cancelled.
+ */
+export async function getPublicTracking(db: PortalDb, token: string) {
+  if (!token) return null;
+  const rows = await db
+    .select({
+      session: schema.trackingSessions,
+      load: schema.loads,
+    })
+    .from(schema.trackingSessions)
+    .innerJoin(schema.loads, eq(schema.trackingSessions.loadId, schema.loads.id))
+    .where(eq(schema.trackingSessions.publicToken, token))
+    .limit(1);
+  const row = rows[0];
+  if (!row) return null;
+  if (!isPublicLinkLive(row.session)) return null;
+  if (row.load.status === "cancelled") return null;
+  const pings = await db
+    .select({
+      lat: schema.locationPings.lat,
+      lng: schema.locationPings.lng,
+      etaAt: schema.locationPings.etaAt,
+      recordedAt: schema.locationPings.recordedAt,
+    })
+    .from(schema.locationPings)
+    .where(eq(schema.locationPings.trackingSessionId, row.session.id))
+    .orderBy(asc(schema.locationPings.recordedAt));
+  return serializePublicTracking({ load: row.load, session: row.session, pings });
 }
 
 /** Fetch one document for download — membership and visibility proven here,
