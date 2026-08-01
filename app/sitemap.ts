@@ -11,5 +11,10 @@ import { SITE_URL } from "@/lib/site";
  * page changed on every deploy.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [{ url: `${SITE_URL}/` }, { url: `${SITE_URL}/carriers` }];
+  return [
+    { url: `${SITE_URL}/` },
+    { url: `${SITE_URL}/carriers` },
+    { url: `${SITE_URL}/privacy` },
+    { url: `${SITE_URL}/terms` },
+  ];
 }
