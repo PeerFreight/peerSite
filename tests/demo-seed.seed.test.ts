@@ -64,19 +64,19 @@ describe.skipIf(!process.env.DEMO_SEED)("demo seed", () => {
       (await db.select().from(schema.user).where(eq(schema.user.email, email)).limit(1))[0];
 
     const founder = await byEmail("admin@peer-freight.com");
-    const minal = await byEmail("minal@avbc.com");
+    const customer = await byEmail("customer@peerfreight.com");
     expect(founder, "run the HTTP account setup first").toBeTruthy();
-    expect(minal, "run the HTTP account setup first").toBeTruthy();
+    expect(customer, "run the HTTP account setup first").toBeTruthy();
     const admin: AdminUser = { id: founder.id, email: founder.email, emailVerified: true };
 
     const membership = (
-      await db.select().from(schema.member).where(eq(schema.member.userId, minal.id)).limit(1)
+      await db.select().from(schema.member).where(eq(schema.member.userId, customer.id)).limit(1)
     )[0];
-    expect(membership, "Minal needs an org (onboarding) first").toBeTruthy();
+    expect(membership, "the customer needs an org (onboarding) first").toBeTruthy();
     const orgId = membership.organizationId;
 
     // Shipper submits the RFQ; admin quotes it; admin books on acceptance.
-    const requestId = await createQuoteRequest(db, minal.id, orgId, rfq);
+    const requestId = await createQuoteRequest(db, customer.id, orgId, rfq);
     const { quoteId } = await sendQuote(db, admin, requestId, {
       allInRateUsd: "1850",
       serviceDescription: "Dry van 53', liftgate delivery, POD same day",
