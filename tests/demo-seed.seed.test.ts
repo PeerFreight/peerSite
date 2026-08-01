@@ -17,6 +17,7 @@ import {
   type AdminUser,
 } from "../lib/portal/admin-queries";
 import { createQuoteRequest, type PortalDb } from "../lib/portal/queries";
+import { getTrackingForAdmin, startTracking } from "../lib/portal/tracking-queries";
 import type { RfqInput } from "../lib/portal/rfq";
 import { documentPath, getStorage } from "../lib/storage";
 
@@ -116,6 +117,47 @@ describe.skipIf(!process.env.DEMO_SEED)("demo seed", () => {
     await setLoadStatus(db, admin, loadId, "delivered");
 
     console.log(`seeded ${reference} (load ${loadId}) for org ${orgId}`);
+
+    // A second load left in transit WITH a live (stub) tracking session, so
+    // the tracking map, public link, and simulator have something to bite.
+    const second = await createQuoteRequest(db, customer.id, orgId, {
+      ...rfq,
+      destCity: "Reno",
+      destState: "NV",
+      destZip: "89502",
+      destScheduling: "fcfs",
+      pickupDate: "2026-08-07",
+      deliveryDate: "2026-08-08",
+      notes: null,
+    });
+    const secondQuote = await sendQuote(db, admin, second, {
+      allInRateUsd: "2150",
+      serviceDescription: "Dry van 53', door to door.",
+      exclusions: null,
+      validUntil: null,
+    });
+    const booked = await bookLoad(db, admin, secondQuote.quoteId);
+    await upsertCarrierAssignment(db, admin, booked.loadId, {
+      carrierName: "Sierra Haulers LLC",
+      mcNumber: "MC 445566",
+      driverName: "D. Kowalski",
+      driverPhone: "(555) 010-4477",
+      truckNumber: "88",
+      trailerNumber: "53-1201",
+      trackingUrl: null,
+      visibleToShipper: true,
+    });
+    await setLoadStatus(db, admin, booked.loadId, "dispatched");
+    const { sessionId, publicToken } = await startTracking(db, admin, booked.loadId, {
+      intervalMinutes: 30,
+    });
+    await setLoadStatus(db, admin, booked.loadId, "in_transit");
+    const session = (await getTrackingForAdmin(db, admin, booked.loadId))!.session;
+    console.log(
+      `seeded ${booked.reference} (load ${booked.loadId}) with live tracking\n` +
+        `  public link: /track/${publicToken}\n` +
+        `  simulator:   node scripts/track-sim.ts http://localhost:3000/api/tracking/callback/${sessionId}/${session.webhookSecret} --from 38.23,-122.63 --to 39.52,-119.81`,
+    );
     await pool.end();
   }, 60_000);
 });
