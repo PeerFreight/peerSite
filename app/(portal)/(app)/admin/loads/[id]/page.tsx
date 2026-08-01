@@ -5,12 +5,15 @@ import { EventTimeline } from "@/components/portal/event-timeline";
 import { HazmatBlock } from "@/components/portal/hazmat-block";
 import { LoadProgress } from "@/components/portal/load-progress";
 import { LoadStatusBadge } from "@/components/portal/status";
+import { TrackingMap } from "@/components/portal/tracking-map";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getLoadForAdmin } from "@/lib/portal/admin-queries";
 import { LOAD_TRANSITIONS } from "@/lib/portal/loads";
 import { accessorialLabel, equipmentLabel, laneSummary } from "@/lib/portal/rfq";
 import { requireAdminSession } from "@/lib/portal/session";
+import { TRACKABLE_LOAD_STATUSES, trackingPublicUrl } from "@/lib/portal/tracking";
+import { callbackUrl, getTrackingForAdmin } from "@/lib/portal/tracking-queries";
 import { AdminNav } from "../../admin-nav";
 import {
   CarrierForm,
@@ -18,6 +21,12 @@ import {
   ToggleDocumentVisibilityForm,
   UploadDocumentForm,
 } from "./load-forms";
+import {
+  ManualPingForm,
+  StartTrackingForm,
+  StopTrackingForm,
+  TrackingLinkPanel,
+} from "./tracking-forms";
 
 export const metadata: Metadata = {
   title: "Load (admin) - Peer Freight",
@@ -50,6 +59,8 @@ export default async function AdminLoadPage({ params }: { params: Promise<{ id: 
   const detail = await getLoadForAdmin(db, session.user, id);
   if (!detail) notFound();
   const { load, orgName, requesterName, requesterEmail, events, documents, carrier } = detail;
+  const tracking = await getTrackingForAdmin(db, session.user, id);
+  const trackingLive = tracking != null && ["requested", "active"].includes(tracking.session.status);
   const nextSteps = LOAD_TRANSITIONS[load.status];
   const dispatchedOrLater = !["booked", "cancelled"].includes(load.status);
 
@@ -191,8 +202,103 @@ export default async function AdminLoadPage({ params }: { params: Promise<{ id: 
                 : "No carrier assigned yet."}
             </p>
             <div className="mt-4">
-              <CarrierForm loadId={load.id} carrier={carrier} suggestVisible={dispatchedOrLater} />
+              <CarrierForm
+                loadId={load.id}
+                carrier={carrier}
+                suggestVisible={dispatchedOrLater}
+                hasLiveTracking={trackingLive}
+              />
             </div>
+          </Card>
+
+          <Card>
+            <h2 className="section-label">Live tracking</h2>
+            {tracking ? (
+              <div className="mt-4 space-y-4">
+                <dl className="grid gap-4 sm:grid-cols-2">
+                  <Detail
+                    label="Session"
+                    value={`${tracking.session.provider} · ${tracking.session.status}`}
+                  />
+                  <Detail label="Driver phone" value={tracking.session.driverPhone} />
+                  <Detail label="Interval" value={`${tracking.session.intervalMinutes} min`} />
+                  <Detail
+                    label="Last ping"
+                    value={
+                      tracking.session.lastPingAt
+                        ? `${dateTimeFmt.format(tracking.session.lastPingAt)} PT (${tracking.pings.length} total)`
+                        : "None yet"
+                    }
+                  />
+                </dl>
+                <TrackingMap
+                  originLat={tracking.session.originLat}
+                  originLng={tracking.session.originLng}
+                  destLat={tracking.session.destLat}
+                  destLng={tracking.session.destLng}
+                  pings={tracking.pings.map((p) => ({
+                    lat: p.lat,
+                    lng: p.lng,
+                    recordedAt: p.recordedAt.toISOString(),
+                  }))}
+                  lastPingAt={tracking.session.lastPingAt?.toISOString() ?? null}
+                  pollUrl={trackingLive ? `/api/tracking/load/${load.id}` : null}
+                />
+                <div className="border-t border-line pt-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-muted">
+                    Shareable link (no login)
+                  </p>
+                  <div className="mt-2">
+                    <TrackingLinkPanel
+                      publicUrl={trackingPublicUrl(tracking.session.publicToken)}
+                      sessionId={tracking.session.id}
+                      loadId={load.id}
+                    />
+                  </div>
+                </div>
+                {trackingLive ? (
+                  <div className="flex flex-col gap-4 border-t border-line pt-4">
+                    {tracking.session.provider === "stub" ? (
+                      <p className="break-all text-xs text-muted">
+                        Stub session — feed it with{" "}
+                        <code className="font-mono">
+                          node scripts/track-sim.ts {callbackUrl(tracking.session.id, tracking.session.webhookSecret)}{" "}
+                          --from 38.23,-122.63 --to 39.52,-119.81
+                        </code>
+                      </p>
+                    ) : null}
+                    <ManualPingForm loadId={load.id} />
+                    <StopTrackingForm loadId={load.id} />
+                  </div>
+                ) : (
+                  <div className="border-t border-line pt-4">
+                    <p className="mb-3 text-sm text-muted">
+                      Session {tracking.session.status}. Start a fresh one to resume tracking.
+                    </p>
+                    {(TRACKABLE_LOAD_STATUSES as readonly string[]).includes(load.status) ? (
+                      <StartTrackingForm loadId={load.id} />
+                    ) : null}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="mt-4">
+                {(TRACKABLE_LOAD_STATUSES as readonly string[]).includes(load.status) ? (
+                  carrier?.driverPhone ? (
+                    <StartTrackingForm loadId={load.id} />
+                  ) : (
+                    <p className="text-sm text-muted">
+                      Assign a carrier with a driver phone number, then start tracking (or
+                      tick the checkbox on the carrier form).
+                    </p>
+                  )
+                ) : (
+                  <p className="text-sm text-muted">
+                    Tracking starts while a load is booked, dispatched, or in transit.
+                  </p>
+                )}
+              </div>
+            )}
           </Card>
 
           <Card>

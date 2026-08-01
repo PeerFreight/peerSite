@@ -5,9 +5,10 @@ import { EventTimeline } from "@/components/portal/event-timeline";
 import { HazmatBlock } from "@/components/portal/hazmat-block";
 import { LoadProgress } from "@/components/portal/load-progress";
 import { LoadStatusBadge } from "@/components/portal/status";
+import { TrackingMap } from "@/components/portal/tracking-map";
 import { LinkButton } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { getLoadDetail } from "@/lib/portal/queries";
+import { getLoadDetail, getTrackingForLoad } from "@/lib/portal/queries";
 import { accessorialLabel, equipmentLabel, laneSummary } from "@/lib/portal/rfq";
 import { requireOrgSession } from "@/lib/portal/session";
 
@@ -38,6 +39,7 @@ export default async function LoadPage({ params }: { params: Promise<{ id: strin
   const detail = await getLoadDetail(db, session.user.id, org.id, id);
   if (!detail) notFound();
   const { load, events, documents, carrier } = detail;
+  const tracking = await getTrackingForLoad(db, session.user.id, org.id, id);
   // Carrier details surface once the truck is actually moving on this load.
   const showCarrier = carrier && !["booked", "cancelled"].includes(load.status);
 
@@ -139,6 +141,44 @@ export default async function LoadPage({ params }: { params: Promise<{ id: strin
         </div>
 
         <div className="space-y-4">
+          {tracking && load.status !== "cancelled" ? (
+            <Card>
+              <h2 className="section-label">Live tracking</h2>
+              <div className="mt-4">
+                <TrackingMap
+                  originLat={tracking.session.originLat}
+                  originLng={tracking.session.originLng}
+                  destLat={tracking.session.destLat}
+                  destLng={tracking.session.destLng}
+                  pings={tracking.pings.map((p) => ({
+                    lat: p.lat,
+                    lng: p.lng,
+                    recordedAt: p.recordedAt.toISOString(),
+                  }))}
+                  lastPingAt={tracking.session.lastPingAt?.toISOString() ?? null}
+                  pollUrl={
+                    ["requested", "active"].includes(tracking.session.status)
+                      ? `/api/tracking/load/${load.id}`
+                      : null
+                  }
+                />
+              </div>
+              {tracking.pings.length > 0 && tracking.pings[tracking.pings.length - 1].etaAt ? (
+                <p className="mt-2 text-sm text-muted">
+                  Estimated delivery:{" "}
+                  {new Intl.DateTimeFormat("en-US", {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    timeZone: "America/Los_Angeles",
+                  }).format(tracking.pings[tracking.pings.length - 1].etaAt!)}{" "}
+                  PT
+                </p>
+              ) : null}
+            </Card>
+          ) : null}
           {showCarrier ? (
             <Card>
               <h2 className="section-label">Your carrier</h2>
