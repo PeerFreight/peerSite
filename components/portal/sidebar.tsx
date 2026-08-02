@@ -7,6 +7,7 @@ import {
   IconFileText,
   IconMenu,
   IconPlus,
+  IconReceipt,
   IconSettings,
   IconShield,
   IconTruck,
@@ -19,6 +20,7 @@ const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: IconDashboard },
   { href: "/quotes", label: "Quotes", icon: IconFileText },
   { href: "/loads", label: "Loads", icon: IconTruck },
+  { href: "/invoices", label: "Invoices", icon: IconReceipt },
   { href: "/settings", label: "Settings", icon: IconSettings },
 ] as const;
 

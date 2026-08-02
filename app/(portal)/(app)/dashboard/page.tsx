@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { EventTimeline } from "@/components/portal/event-timeline";
-import { LoadStatusBadge, StatusBadge } from "@/components/portal/status";
+import { DelayBadge, LoadStatusBadge, StatusBadge } from "@/components/portal/status";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconClock, IconFileText, IconInbox, IconTruck } from "@/components/ui/icons";
 import { ListRow } from "@/components/ui/list";
@@ -104,6 +104,7 @@ export default async function DashboardPage() {
                         {equipmentLabel(l.equipment)} · {l.commodity}
                       </p>
                     </div>
+                    <DelayBadge delayedAt={l.delayedAt} revisedDeliveryDate={l.revisedDeliveryDate} />
                     <LoadStatusBadge status={l.status} />
                   </ListRow>
                 ))}

@@ -43,6 +43,14 @@ export function SendQuoteForm({ requestId }: { requestId: string }) {
       >
         <Textarea id="exclusions" name="exclusions" placeholder="Detention after 2 hours at $75/hr; lumper fees billed at cost; ..." />
       </Field>
+      <Field
+        label="How we priced it"
+        htmlFor="note"
+        hint="Optional rationale the shipper sees in the quote email."
+        error={err("note")}
+      >
+        <Textarea id="note" name="note" placeholder="Priced off three recent comps on this lane; morning pickup keeps it in one driving day." />
+      </Field>
       {state?.formError ? <p className="text-sm font-bold text-red-700">{state.formError}</p> : null}
       {state?.ok ? <p className="text-sm font-bold text-green-800">Quote sent and shipper emailed.</p> : null}
       <Button type="submit" disabled={pending}>

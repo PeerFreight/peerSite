@@ -4,10 +4,12 @@ import { DocumentList } from "@/components/portal/document-list";
 import { EventTimeline } from "@/components/portal/event-timeline";
 import { HazmatBlock } from "@/components/portal/hazmat-block";
 import { LoadProgress } from "@/components/portal/load-progress";
-import { LoadStatusBadge } from "@/components/portal/status";
+import { DelayBadge, LoadStatusBadge } from "@/components/portal/status";
 import { TrackingMap } from "@/components/portal/tracking-map";
+import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getInvoiceForLoad, INVOICE_STATUS_LABELS } from "@/lib/portal/invoices";
 import { getLoadDetail, getTrackingForLoad } from "@/lib/portal/queries";
 import { accessorialLabel, equipmentLabel, laneSummary } from "@/lib/portal/rfq";
 import { requireOrgSession } from "@/lib/portal/session";
@@ -40,6 +42,7 @@ export default async function LoadPage({ params }: { params: Promise<{ id: strin
   if (!detail) notFound();
   const { load, events, documents, carrier } = detail;
   const tracking = await getTrackingForLoad(db, session.user.id, org.id, id);
+  const invoice = await getInvoiceForLoad(db, session.user.id, org.id, id);
   // Carrier details surface once the truck is actually moving on this load.
   const showCarrier = carrier && !["booked", "cancelled"].includes(load.status);
 
@@ -54,12 +57,28 @@ export default async function LoadPage({ params }: { params: Promise<{ id: strin
             {load.reference} · {laneSummary(load)}
           </h1>
           <LoadStatusBadge status={load.status} />
+          <DelayBadge delayedAt={load.delayedAt} revisedDeliveryDate={load.revisedDeliveryDate} />
         </div>
         <p className="mt-1 text-muted">
           Pickup {fmtDate(load.pickupDate)} · Delivery {fmtDate(load.deliveryDate)} ·{" "}
           {equipmentLabel(load.equipment)} · {load.commodity}
         </p>
       </div>
+
+      {load.delayedAt ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-5">
+          <p className="text-sm font-extrabold uppercase tracking-wide text-red-900">
+            Running behind
+          </p>
+          <p className="mt-1 text-sm text-red-900">{load.delayReason}</p>
+          <p className="mt-1 text-sm text-red-900">
+            {load.revisedDeliveryDate
+              ? `Revised delivery: ${fmtDate(load.revisedDeliveryDate)}.`
+              : "We will send a revised delivery time as soon as we have one."}{" "}
+            We are on it and will email you the moment anything changes.
+          </p>
+        </div>
+      ) : null}
 
       <Card>
         <LoadProgress status={load.status} />
@@ -214,6 +233,42 @@ export default async function LoadPage({ params }: { params: Promise<{ id: strin
                   </LinkButton>
                 </div>
               ) : null}
+            </Card>
+          ) : null}
+          {invoice ? (
+            <Card>
+              <div className="flex items-baseline justify-between gap-4">
+                <h2 className="section-label">Invoice</h2>
+                <Badge tone={invoice.status === "paid" ? "green" : invoice.status === "void" ? "neutral" : "gold"}>
+                  {INVOICE_STATUS_LABELS[invoice.status]}
+                </Badge>
+              </div>
+              <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+                <Detail label="Invoice" value={invoice.number} />
+                <Detail
+                  label="Amount"
+                  value={`$${Number(invoice.amountUsd).toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
+                />
+                <Detail label="Due" value={fmtDate(invoice.dueDate)} />
+                <Detail
+                  label="Paid"
+                  value={
+                    invoice.paidAt
+                      ? new Intl.DateTimeFormat("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                          timeZone: "America/Los_Angeles",
+                        }).format(invoice.paidAt)
+                      : null
+                  }
+                />
+              </dl>
+              <p className="mt-4 text-sm text-muted">
+                <a href="/invoices" className="font-bold hover:text-ink">
+                  All invoices →
+                </a>
+              </p>
             </Card>
           ) : null}
           <Card>

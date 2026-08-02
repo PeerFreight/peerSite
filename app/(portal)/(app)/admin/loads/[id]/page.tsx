@@ -4,17 +4,20 @@ import { DocumentList } from "@/components/portal/document-list";
 import { EventTimeline } from "@/components/portal/event-timeline";
 import { HazmatBlock } from "@/components/portal/hazmat-block";
 import { LoadProgress } from "@/components/portal/load-progress";
-import { LoadStatusBadge } from "@/components/portal/status";
+import { DelayBadge, LoadStatusBadge } from "@/components/portal/status";
 import { TrackingMap } from "@/components/portal/tracking-map";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getLoadForAdmin } from "@/lib/portal/admin-queries";
+import { INVOICE_STATUS_LABELS } from "@/lib/portal/invoices";
 import { LOAD_TRANSITIONS } from "@/lib/portal/loads";
 import { accessorialLabel, equipmentLabel, laneSummary } from "@/lib/portal/rfq";
 import { requireAdminSession } from "@/lib/portal/session";
 import { TRACKABLE_LOAD_STATUSES, trackingPublicUrl } from "@/lib/portal/tracking";
 import { callbackUrl, getTrackingForAdmin } from "@/lib/portal/tracking-queries";
 import { AdminNav } from "../../admin-nav";
+import { ClearDelayForm, SetDelayForm } from "./delay-form";
+import { CreateInvoiceForm, MarkPaidForm } from "./invoice-form";
 import {
   CarrierForm,
   StatusStepForm,
@@ -58,11 +61,14 @@ export default async function AdminLoadPage({ params }: { params: Promise<{ id: 
   const { session, db } = await requireAdminSession();
   const detail = await getLoadForAdmin(db, session.user, id);
   if (!detail) notFound();
-  const { load, orgName, requesterName, requesterEmail, events, documents, carrier } = detail;
+  const { load, orgName, requesterName, requesterEmail, events, documents, carrier, invoice } =
+    detail;
   const tracking = await getTrackingForAdmin(db, session.user, id);
   const trackingLive = tracking != null && ["requested", "active"].includes(tracking.session.status);
   const nextSteps = LOAD_TRANSITIONS[load.status];
   const dispatchedOrLater = !["booked", "cancelled"].includes(load.status);
+  const delayable = ["booked", "dispatched", "in_transit"].includes(load.status);
+  const invoiceable = ["delivered", "invoiced"].includes(load.status) && !invoice;
 
   return (
     <div className="space-y-6">
@@ -76,6 +82,7 @@ export default async function AdminLoadPage({ params }: { params: Promise<{ id: 
               {load.reference} · {laneSummary(load)}
             </h1>
             <LoadStatusBadge status={load.status} />
+            <DelayBadge delayedAt={load.delayedAt} revisedDeliveryDate={load.revisedDeliveryDate} />
             {load.hazmat ? <Badge tone="red">Hazmat</Badge> : null}
           </div>
           <p className="mt-1 text-muted">
@@ -170,7 +177,7 @@ export default async function AdminLoadPage({ params }: { params: Promise<{ id: 
           <Card>
             <h2 className="section-label">Timeline</h2>
             <div className="mt-4">
-              <EventTimeline events={events} />
+              <EventTimeline events={events} showVia />
             </div>
           </Card>
         </div>
@@ -191,6 +198,64 @@ export default async function AdminLoadPage({ params }: { params: Promise<{ id: 
               )}
             </div>
           </Card>
+
+          {delayable || load.delayedAt ? (
+            <Card>
+              <h2 className="section-label">Exception</h2>
+              {load.delayedAt ? (
+                <div className="mt-1 space-y-3">
+                  <p className="text-sm font-bold text-red-700">
+                    Delayed: {load.delayReason}
+                    {load.revisedDeliveryDate ? ` (revised ETA ${load.revisedDeliveryDate})` : ""}
+                  </p>
+                  <ClearDelayForm loadId={load.id} />
+                </div>
+              ) : (
+                <p className="mt-1 text-sm text-muted">
+                  Flagging a delay emails the shipper and marks the load until you clear it.
+                </p>
+              )}
+              {delayable ? (
+                <div className={load.delayedAt ? "mt-4 border-t border-line pt-4" : "mt-4"}>
+                  <SetDelayForm
+                    loadId={load.id}
+                    delayed={Boolean(load.delayedAt)}
+                    defaultReason={load.delayReason}
+                    defaultRevised={load.revisedDeliveryDate}
+                  />
+                </div>
+              ) : null}
+            </Card>
+          ) : null}
+
+          {invoiceable || invoice ? (
+            <Card>
+              <h2 className="section-label">Invoice</h2>
+              {invoice ? (
+                <div className="mt-4 space-y-4">
+                  <dl className="grid gap-4 sm:grid-cols-2">
+                    <Detail label="Invoice" value={invoice.number} />
+                    <Detail
+                      label="Amount"
+                      value={`$${Number(invoice.amountUsd).toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
+                    />
+                    <Detail label="Due" value={invoice.dueDate} />
+                    <Detail label="Status" value={INVOICE_STATUS_LABELS[invoice.status]} />
+                  </dl>
+                  {invoice.status === "open" ? (
+                    <MarkPaidForm invoiceId={invoice.id} loadId={load.id} />
+                  ) : null}
+                </div>
+              ) : (
+                <div className="mt-4">
+                  <p className="mb-4 text-sm text-muted">
+                    Issuing the invoice emails the shipper and moves the load to invoiced.
+                  </p>
+                  <CreateInvoiceForm loadId={load.id} defaultAmount={load.allInRateUsd} />
+                </div>
+              )}
+            </Card>
+          ) : null}
 
           <Card>
             <h2 className="section-label">Carrier</h2>

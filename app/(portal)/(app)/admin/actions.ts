@@ -8,10 +8,14 @@ import { sendEmail } from "@/lib/email";
 import {
   addDocument,
   bookLoad,
+  clearLoadDelay,
+  createInvoice,
   getLoadForAdmin,
+  markInvoicePaid,
   requestInfo,
   sendQuote,
   setDocumentVisibility,
+  setLoadDelay,
   setLoadStatus,
   upsertCarrierAssignment,
 } from "@/lib/portal/admin-queries";
@@ -21,7 +25,19 @@ import {
   documentMetaSchema,
   MAX_DOCUMENT_BYTES,
 } from "@/lib/portal/documents";
-import { LOAD_STATUS_EMAIL } from "@/lib/portal/loads";
+import { createInvoiceSchema } from "@/lib/portal/invoices";
+import { delaySchema } from "@/lib/portal/loads";
+import {
+  composeDelayCleared,
+  composeDelaySet,
+  composeDocumentShared,
+  composeInvoiceIssued,
+  composeLoadBooked,
+  composeLoadStatus,
+  composeNeedsInfo,
+  composeQuoteSent,
+  deliver,
+} from "@/lib/portal/notify";
 import { needsInfoSchema, sendQuoteSchema } from "@/lib/portal/rfq";
 import { requireAdminSession } from "@/lib/portal/session";
 import { PUBLIC_LINK_TTL_DAYS, trackingPublicUrl } from "@/lib/portal/tracking";
@@ -35,7 +51,6 @@ import {
   stopTracking,
 } from "@/lib/portal/tracking-queries";
 import { appendEvent } from "@/lib/portal/queries";
-import { baseUrl } from "@/lib/portal/urls";
 import { documentPath, getStorage } from "@/lib/storage";
 
 export type AdminFormState = {
@@ -66,6 +81,7 @@ export async function sendQuoteAction(
     serviceDescription: formData.get("serviceDescription") ?? "",
     exclusions: formData.get("exclusions") ?? "",
     validUntil: formData.get("validUntil") ?? "",
+    note: formData.get("note") ?? "",
   });
   if (!parsed.success) {
     return { fieldErrors: z.flattenError(parsed.error).fieldErrors, formError: "Fix the highlighted fields." };
@@ -78,27 +94,18 @@ export async function sendQuoteAction(
     return { fieldErrors: {}, formError: err instanceof Error ? err.message : "Could not send the quote." };
   }
 
-  const rate = Number(parsed.data.allInRateUsd).toLocaleString("en-US", { minimumFractionDigits: 2 });
   try {
-    await sendEmail({
-      to: result.requesterEmail,
-      subject: "Your Peer Freight quote is ready",
-      text: [
-        `Your quote is ready: $${rate} all-in.`,
-        "",
-        parsed.data.serviceDescription,
-        parsed.data.exclusions ? `\nNot included: ${parsed.data.exclusions}` : null,
-        parsed.data.validUntil ? `\nThis quote is valid through ${parsed.data.validUntil}.` : null,
-        "",
-        `Review it here: ${baseUrl()}/quotes/${requestId}`,
-        "",
-        "Reply to this email to move forward or ask anything.",
-        "",
-        "Peer Freight",
-      ]
-        .filter((line) => line !== null)
-        .join("\n"),
-    });
+    await deliver(
+      composeQuoteSent({
+        to: result.requesterEmail,
+        requestId,
+        allInRateUsd: parsed.data.allInRateUsd,
+        serviceDescription: parsed.data.serviceDescription,
+        exclusions: parsed.data.exclusions,
+        validUntil: parsed.data.validUntil,
+        note: parsed.data.note,
+      }),
+    );
   } catch (err) {
     console.error("quote-ready email failed", err);
   }
@@ -127,19 +134,13 @@ export async function needsInfoAction(
   }
 
   try {
-    await sendEmail({
-      to: result.requesterEmail,
-      subject: "Quick questions before we quote your shipment",
-      text: [
-        "To finish pricing your quote request, we need a few more details:",
-        "",
-        parsed.data.message,
-        "",
-        `You can reply to this email, or update us here: ${baseUrl()}/quotes/${requestId}`,
-        "",
-        "Peer Freight",
-      ].join("\n"),
-    });
+    await deliver(
+      composeNeedsInfo({
+        to: result.requesterEmail,
+        requestId,
+        message: parsed.data.message,
+      }),
+    );
   } catch (err) {
     console.error("needs-info email failed", err);
   }
@@ -177,21 +178,13 @@ export async function bookLoadAction(
   }
 
   try {
-    await sendEmail({
-      to: result.requesterEmail,
-      subject: `Your load is booked: ${result.reference}`,
-      text: [
-        `Your load is booked. Reference ${result.reference} — quote it in any message about this shipment.`,
-        "",
-        "We are sourcing and vetting the carrier now. You will get an email when a carrier is dispatched, and its contact details will be on your load page.",
-        "",
-        "Once the truck is rolling you will also get a live tracking link — a map you can watch (and share) without logging in.",
-        "",
-        `Track it here: ${baseUrl()}/loads/${result.loadId}`,
-        "",
-        "Peer Freight",
-      ].join("\n"),
-    });
+    await deliver(
+      composeLoadBooked({
+        to: result.requesterEmail,
+        reference: result.reference,
+        loadId: result.loadId,
+      }),
+    );
   } catch (err) {
     console.error("booking email failed", err);
   }
@@ -234,36 +227,32 @@ export async function setLoadStatusAction(
   }
 
   // The dispatch / in-transit emails carry the shareable live-tracking link
-  // when a session is live (composed here, like the Load page line).
-  let trackingLine: string | null = null;
+  // when a session is live (passed as an extra line so notify.ts stays
+  // tracking-free).
+  const extraLines: string[] = [];
   if (["dispatched", "in_transit"].includes(next)) {
     try {
       const live = await getLiveSessionForLoad(db, loadId);
       if (live) {
-        trackingLine = `Live tracking (shareable, no login): ${trackingPublicUrl(live.publicToken)}`;
+        extraLines.push(
+          `Live tracking (shareable, no login): ${trackingPublicUrl(live.publicToken)}`,
+        );
       }
     } catch (err) {
       console.error("tracking link lookup failed", err);
     }
   }
 
-  const email = LOAD_STATUS_EMAIL[next as Exclude<LoadStatus, "booked">];
   try {
-    await sendEmail({
-      to: result.requesterEmail,
-      subject: email.subject(result.reference),
-      text: [
-        email.body,
-        "",
-        trackingLine,
-        trackingLine ? "" : null,
-        `Load page: ${baseUrl()}/loads/${loadId}`,
-        "",
-        "Peer Freight",
-      ]
-        .filter((line) => line !== null)
-        .join("\n"),
-    });
+    await deliver(
+      composeLoadStatus({
+        to: result.requesterEmail,
+        reference: result.reference,
+        loadId,
+        next: next as Exclude<LoadStatus, "booked">,
+        extraLines,
+      }),
+    );
   } catch (err) {
     console.error("load status email failed", err);
   }
@@ -328,17 +317,14 @@ export async function uploadDocumentAction(
 
   if (parsedMeta.data.visibleToShipper) {
     try {
-      await sendEmail({
-        to: result.requesterEmail,
-        subject: `New document on ${result.reference}: ${DOCUMENT_TYPE_LABELS[parsedMeta.data.type]}`,
-        text: [
-          `A new document is posted on load ${result.reference}: ${DOCUMENT_TYPE_LABELS[parsedMeta.data.type]}.`,
-          "",
-          `Download it from your load page: ${baseUrl()}/loads/${loadId}`,
-          "",
-          "Peer Freight",
-        ].join("\n"),
-      });
+      await deliver(
+        composeDocumentShared({
+          to: result.requesterEmail,
+          reference: result.reference,
+          loadId,
+          typeLabel: DOCUMENT_TYPE_LABELS[parsedMeta.data.type],
+        }),
+      );
     } catch (err) {
       console.error("document email failed", err);
     }
@@ -369,17 +355,14 @@ export async function setDocumentVisibilityAction(
     try {
       const detail = await getLoadForAdmin(db, session.user, loadId);
       if (detail) {
-        await sendEmail({
-          to: detail.requesterEmail,
-          subject: `New document on ${detail.load.reference}: ${DOCUMENT_TYPE_LABELS[row.doc.type]}`,
-          text: [
-            `A new document is posted on load ${detail.load.reference}: ${DOCUMENT_TYPE_LABELS[row.doc.type]}.`,
-            "",
-            `Download it from your load page: ${baseUrl()}/loads/${loadId}`,
-            "",
-            "Peer Freight",
-          ].join("\n"),
-        });
+        await deliver(
+          composeDocumentShared({
+            to: detail.requesterEmail,
+            reference: detail.load.reference,
+            loadId,
+            typeLabel: DOCUMENT_TYPE_LABELS[row.doc.type],
+          }),
+        );
       }
     } catch (err) {
       console.error("document email failed", err);
@@ -440,6 +423,148 @@ export async function assignCarrierAction(
 
   refreshLoadPages(loadId);
   return { fieldErrors: {}, formError: null, ok: true, notice };
+}
+
+// ---------------------------------------------------------------------------
+// Delay / exception surfacing
+
+/** Flag the load delayed (reason + optional revised ETA); emails the shipper. */
+export async function setDelayAction(
+  loadId: string,
+  _prev: AdminFormState,
+  formData: FormData,
+): Promise<AdminFormState> {
+  const { session, db } = await requireAdminSession();
+
+  const parsed = delaySchema.safeParse({
+    reason: formData.get("reason") ?? "",
+    revisedDeliveryDate: formData.get("revisedDeliveryDate") ?? "",
+  });
+  if (!parsed.success) {
+    return { fieldErrors: z.flattenError(parsed.error).fieldErrors, formError: "Fix the highlighted fields." };
+  }
+
+  let result;
+  try {
+    result = await setLoadDelay(db, session.user, loadId, parsed.data);
+  } catch (err) {
+    return { fieldErrors: {}, formError: err instanceof Error ? err.message : "Could not flag the delay." };
+  }
+
+  try {
+    await deliver(
+      composeDelaySet({
+        to: result.requesterEmail,
+        reference: result.reference,
+        loadId,
+        reason: result.reason,
+        revisedDeliveryDate: result.revisedDeliveryDate,
+      }),
+    );
+  } catch (err) {
+    console.error("delay email failed", err);
+  }
+
+  refreshLoadPages(loadId);
+  return { fieldErrors: {}, formError: null, ok: true };
+}
+
+/** Clear the delay flag; emails the shipper it's back on schedule. */
+export async function clearDelayAction(
+  loadId: string,
+  _prev: AdminFormState,
+  _formData: FormData,
+): Promise<AdminFormState> {
+  const { session, db } = await requireAdminSession();
+
+  let result;
+  try {
+    result = await clearLoadDelay(db, session.user, loadId);
+  } catch (err) {
+    return { fieldErrors: {}, formError: err instanceof Error ? err.message : "Could not clear the delay." };
+  }
+
+  try {
+    await deliver(
+      composeDelayCleared({
+        to: result.requesterEmail,
+        reference: result.reference,
+        loadId,
+      }),
+    );
+  } catch (err) {
+    console.error("delay-cleared email failed", err);
+  }
+
+  refreshLoadPages(loadId);
+  return { fieldErrors: {}, formError: null, ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Invoices
+
+/** Issue the load's invoice (delivered → invoiced happens inside
+ * createInvoice); the invoice email replaces the generic status email. */
+export async function createInvoiceAction(
+  loadId: string,
+  _prev: AdminFormState,
+  formData: FormData,
+): Promise<AdminFormState> {
+  const { session, db } = await requireAdminSession();
+
+  const parsed = createInvoiceSchema.safeParse({
+    amountUsd: formData.get("amountUsd") ?? "",
+    dueDate: formData.get("dueDate") ?? "",
+  });
+  if (!parsed.success) {
+    return { fieldErrors: z.flattenError(parsed.error).fieldErrors, formError: "Fix the highlighted fields." };
+  }
+
+  let result;
+  try {
+    result = await createInvoice(db, session.user, loadId, parsed.data);
+  } catch (err) {
+    return { fieldErrors: {}, formError: err instanceof Error ? err.message : "Could not create the invoice." };
+  }
+
+  try {
+    await deliver(
+      composeInvoiceIssued({
+        to: result.requesterEmail,
+        reference: result.reference,
+        loadId,
+        number: result.number,
+        amountUsd: result.amountUsd,
+        dueDate: result.dueDate,
+      }),
+    );
+  } catch (err) {
+    console.error("invoice email failed", err);
+  }
+
+  refreshLoadPages(loadId);
+  revalidatePath("/invoices");
+  return { fieldErrors: {}, formError: null, ok: true };
+}
+
+/** Record payment on the load's invoice. */
+export async function markInvoicePaidAction(
+  invoiceId: string,
+  loadId: string,
+  _prev: AdminFormState,
+  _formData: FormData,
+): Promise<AdminFormState> {
+  const { session, db } = await requireAdminSession();
+
+  try {
+    await markInvoicePaid(db, session.user, invoiceId);
+  } catch (err) {
+    return { fieldErrors: {}, formError: err instanceof Error ? err.message : "Could not mark it paid." };
+  }
+
+  refreshLoadPages(loadId);
+  revalidatePath("/invoices");
+  return { fieldErrors: {}, formError: null, ok: true };
 }
 
 // ---------------------------------------------------------------------------

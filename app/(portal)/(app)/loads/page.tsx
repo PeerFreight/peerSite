@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LoadStatusBadge } from "@/components/portal/status";
+import { DelayBadge, LoadStatusBadge } from "@/components/portal/status";
 import { LinkButton } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconTruck } from "@/components/ui/icons";
@@ -52,6 +52,7 @@ export default async function LoadsPage() {
                   {equipmentLabel(l.equipment)} · {l.commodity}
                 </p>
               </div>
+              <DelayBadge delayedAt={l.delayedAt} revisedDeliveryDate={l.revisedDeliveryDate} />
               <LoadStatusBadge status={l.status} />
             </ListRow>
           ))}

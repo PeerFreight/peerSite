@@ -32,3 +32,25 @@ const LOAD_TONES: Record<LoadStatus, NonNullable<BadgeProps["tone"]>> = {
 export function LoadStatusBadge({ status }: { status: LoadStatus }) {
   return <Badge tone={LOAD_TONES[status]}>{LOAD_STATUS_LABELS[status]}</Badge>;
 }
+
+const etaFmt = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
+
+/** Red exception badge for a load with a live delay flag; shows the revised
+ * ETA when the desk has one. Renders nothing when the load isn't delayed. */
+export function DelayBadge({
+  delayedAt,
+  revisedDeliveryDate,
+}: {
+  delayedAt: Date | null;
+  revisedDeliveryDate?: string | null;
+}) {
+  if (!delayedAt) return null;
+  return (
+    <Badge tone="red">
+      Delayed
+      {revisedDeliveryDate
+        ? ` · ETA ${etaFmt.format(new Date(`${revisedDeliveryDate}T12:00:00`))}`
+        : ""}
+    </Badge>
+  );
+}
