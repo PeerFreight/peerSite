@@ -195,10 +195,20 @@ export type NewEvent = {
   actorId?: string | null;
   eventType: string;
   payload?: Record<string, unknown>;
+  /** Channel provenance: the founder is always the actor; `via: "agent"`
+   * marks that an AI agent executed it on their behalf. Folded into the
+   * jsonb payload — no schema change, and the shipper timeline never
+   * renders it. Absent means the web UI. */
+  via?: "web" | "agent";
 };
 
 export async function appendEvent(db: PortalDb, event: NewEvent) {
-  await db.insert(schema.events).values({ id: crypto.randomUUID(), ...event });
+  const { via, payload, ...rest } = event;
+  await db.insert(schema.events).values({
+    id: crypto.randomUUID(),
+    ...rest,
+    payload: via ? { ...(payload ?? {}), via } : payload,
+  });
 }
 
 /** Desk-internal event types that must never render on a shipper timeline.
@@ -327,6 +337,9 @@ const loadListColumns = {
   deliveryDate: schema.loads.deliveryDate,
   equipment: schema.loads.equipment,
   commodity: schema.loads.commodity,
+  delayedAt: schema.loads.delayedAt,
+  delayReason: schema.loads.delayReason,
+  revisedDeliveryDate: schema.loads.revisedDeliveryDate,
   createdAt: schema.loads.createdAt,
 };
 

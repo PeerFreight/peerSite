@@ -10,8 +10,12 @@ import { assertAdmin, type PortalUser } from "@/lib/portal/roles";
  * Admin (founder) query layer: the only code that reads across organizations.
  * Every function takes the session user and proves the admin role itself —
  * defense in depth on top of the /admin layout gate.
+ *
+ * `via` is channel provenance, not identity: the founder stays the actor on
+ * every event; the CLI sets `via: "agent"` and appendEvent folds it into the
+ * event payload. Web sessions set nothing.
  */
-export type AdminUser = PortalUser & { id: string };
+export type AdminUser = PortalUser & { id: string; via?: "web" | "agent" };
 
 /** Open RFQs oldest-first across all orgs — "quote within the hour" is the
  * product, so the queue surfaces the longest-waiting request on top. */
@@ -117,7 +121,12 @@ export async function sendQuote(
       actorType: "admin",
       actorId: admin.id,
       eventType: "quote_sent",
-      payload: { quoteId, allInRateUsd: input.allInRateUsd },
+      payload: {
+        quoteId,
+        allInRateUsd: input.allInRateUsd,
+        ...(input.note ? { note: input.note } : {}),
+      },
+      via: admin.via,
     });
   });
   return { quoteId, requesterEmail: detail.requesterEmail, orgName: detail.orgName };
@@ -149,6 +158,7 @@ export async function requestInfo(
       actorId: admin.id,
       eventType: "needs_info",
       payload: { message },
+      via: admin.via,
     });
   });
   return { requesterEmail: detail.requesterEmail, orgName: detail.orgName };
@@ -253,6 +263,7 @@ export async function bookLoad(db: PortalDb, admin: AdminUser, quoteId: string) 
         actorId: admin.id,
         eventType: "quote_accepted",
         payload: { quoteId, channel: "offline" },
+        via: admin.via,
       });
     }
     await tx
@@ -267,6 +278,7 @@ export async function bookLoad(db: PortalDb, admin: AdminUser, quoteId: string) 
       actorId: admin.id,
       eventType: "load_booked",
       payload: { reference, allInRateUsd: row.quote.allInRateUsd },
+      via: admin.via,
     });
   });
   return {
@@ -295,6 +307,9 @@ export async function listLoadsForAdmin(db: PortalDb, admin: AdminUser) {
       equipment: schema.loads.equipment,
       commodity: schema.loads.commodity,
       hazmat: schema.loads.hazmat,
+      delayedAt: schema.loads.delayedAt,
+      delayReason: schema.loads.delayReason,
+      revisedDeliveryDate: schema.loads.revisedDeliveryDate,
       createdAt: schema.loads.createdAt,
       orgName: schema.organization.name,
     })
@@ -325,7 +340,7 @@ export async function getLoadForAdmin(db: PortalDb, admin: AdminUser, loadId: st
     .limit(1);
   const row = rows[0];
   if (!row) return null;
-  const [events, documents, carrierRows] = await Promise.all([
+  const [events, documents, carrierRows, invoiceRows] = await Promise.all([
     db
       .select()
       .from(schema.events)
@@ -346,17 +361,32 @@ export async function getLoadForAdmin(db: PortalDb, admin: AdminUser, loadId: st
       .from(schema.carrierAssignments)
       .where(eq(schema.carrierAssignments.loadId, loadId))
       .limit(1),
+    db
+      .select()
+      .from(schema.invoices)
+      .where(eq(schema.invoices.loadId, loadId))
+      .limit(1),
   ]);
-  return { ...row, events, documents, carrier: carrierRows[0] ?? null };
+  return {
+    ...row,
+    events,
+    documents,
+    carrier: carrierRows[0] ?? null,
+    invoice: invoiceRows[0] ?? null,
+  };
 }
 
 /** Walk the load one legal step (or cancel). Writes status + event in one
- * transaction and returns what the caller needs to email the shipper. */
+ * transaction and returns what the caller needs to email the shipper.
+ * An optional note travels in the event payload and the status email.
+ * Reaching delivered or cancelled clears any live delay flag — the
+ * exception is moot once the freight is off the road. */
 export async function setLoadStatus(
   db: PortalDb,
   admin: AdminUser,
   loadId: string,
   next: schema.LoadStatus,
+  opts?: { note?: string | null },
 ) {
   assertAdmin(admin);
   const detail = await getLoadForAdmin(db, admin, loadId);
@@ -365,10 +395,18 @@ export async function setLoadStatus(
   if (!canTransition(from, next)) {
     throw new Error(`A ${from} load cannot move to ${next}`);
   }
+  const note = opts?.note?.trim() || null;
+  const clearDelay = ["delivered", "cancelled"].includes(next);
   await db.transaction(async (tx) => {
     await tx
       .update(schema.loads)
-      .set({ status: next, updatedAt: new Date() })
+      .set({
+        status: next,
+        updatedAt: new Date(),
+        ...(clearDelay
+          ? { delayedAt: null, delayReason: null, revisedDeliveryDate: null }
+          : {}),
+      })
       .where(and(eq(schema.loads.id, loadId), eq(schema.loads.status, from)));
     await appendEvent(tx, {
       organizationId: detail.load.organizationId,
@@ -377,7 +415,8 @@ export async function setLoadStatus(
       actorType: "admin",
       actorId: admin.id,
       eventType: LOAD_STATUS_EVENT[next as Exclude<schema.LoadStatus, "booked">],
-      payload: { from, to: next },
+      payload: { from, to: next, ...(note ? { note } : {}) },
+      via: admin.via,
     });
   });
   return {
@@ -386,6 +425,252 @@ export async function setLoadStatus(
     requesterEmail: detail.requesterEmail,
     from,
     to: next,
+    note,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Delay / exception surfacing. One current exception per load, stored on the
+// load row; the set/clear history is events. "At risk" in v1 is binary and
+// founder-declared — no automatic ETA math yet.
+
+/** Statuses in which flagging a delay makes sense: freight not yet off the road. */
+const DELAYABLE_STATUSES: schema.LoadStatus[] = ["booked", "dispatched", "in_transit"];
+
+/** Flag (or update) the load's current delay. Returns email ingredients. */
+export async function setLoadDelay(
+  db: PortalDb,
+  admin: AdminUser,
+  loadId: string,
+  input: { reason: string; revisedDeliveryDate?: string | null },
+) {
+  assertAdmin(admin);
+  const detail = await getLoadForAdmin(db, admin, loadId);
+  if (!detail) throw new Error("Load not found");
+  if (!DELAYABLE_STATUSES.includes(detail.load.status)) {
+    throw new Error(`A ${detail.load.status} load cannot be flagged delayed`);
+  }
+  const revised = input.revisedDeliveryDate ?? null;
+  await db.transaction(async (tx) => {
+    await tx
+      .update(schema.loads)
+      .set({
+        delayedAt: new Date(),
+        delayReason: input.reason,
+        revisedDeliveryDate: revised,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.loads.id, loadId));
+    await appendEvent(tx, {
+      organizationId: detail.load.organizationId,
+      quoteRequestId: detail.load.quoteRequestId,
+      loadId,
+      actorType: "admin",
+      actorId: admin.id,
+      eventType: "load_delayed",
+      payload: {
+        reason: input.reason,
+        ...(revised ? { revisedDeliveryDate: revised } : {}),
+      },
+      via: admin.via,
+    });
+  });
+  return {
+    reference: detail.load.reference,
+    orgName: detail.orgName,
+    requesterEmail: detail.requesterEmail,
+    reason: input.reason,
+    revisedDeliveryDate: revised,
+  };
+}
+
+/** Clear the load's delay flag ("back on schedule"). */
+export async function clearLoadDelay(db: PortalDb, admin: AdminUser, loadId: string) {
+  assertAdmin(admin);
+  const detail = await getLoadForAdmin(db, admin, loadId);
+  if (!detail) throw new Error("Load not found");
+  if (!detail.load.delayedAt) throw new Error("This load is not flagged delayed");
+  await db.transaction(async (tx) => {
+    await tx
+      .update(schema.loads)
+      .set({
+        delayedAt: null,
+        delayReason: null,
+        revisedDeliveryDate: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.loads.id, loadId));
+    await appendEvent(tx, {
+      organizationId: detail.load.organizationId,
+      quoteRequestId: detail.load.quoteRequestId,
+      loadId,
+      actorType: "admin",
+      actorId: admin.id,
+      eventType: "load_delay_cleared",
+      payload: { reason: detail.load.delayReason },
+      via: admin.via,
+    });
+  });
+  return {
+    reference: detail.load.reference,
+    orgName: detail.orgName,
+    requesterEmail: detail.requesterEmail,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Invoices. The receivable as data (one per load in v1). Creating one on a
+// delivered load performs the delivered → invoiced transition itself, so the
+// caller sends composeInvoiceIssued INSTEAD of the generic status email.
+
+export async function createInvoice(
+  db: PortalDb,
+  admin: AdminUser,
+  loadId: string,
+  input: { amountUsd?: string | null; dueDate: string; documentId?: string | null },
+) {
+  assertAdmin(admin);
+  const detail = await getLoadForAdmin(db, admin, loadId);
+  if (!detail) throw new Error("Load not found");
+  if (!["delivered", "invoiced"].includes(detail.load.status)) {
+    throw new Error(`A ${detail.load.status} load cannot be invoiced yet`);
+  }
+  if (detail.invoice) {
+    throw new Error(`This load already has invoice ${detail.invoice.number}`);
+  }
+  if (input.documentId) {
+    const doc = detail.documents.find((d) => d.id === input.documentId);
+    if (!doc) throw new Error("documentId does not belong to this load");
+  }
+  const amountUsd = input.amountUsd ?? detail.load.allInRateUsd;
+  const invoiceId = crypto.randomUUID();
+  let number = "";
+  await db.transaction(async (tx) => {
+    const seq = (await tx.execute(sql`select nextval('invoice_number_seq') as n`)) as unknown as {
+      rows: { n: string | number | bigint }[];
+    };
+    number = `INV-${seq.rows[0].n}`;
+    await tx.insert(schema.invoices).values({
+      id: invoiceId,
+      loadId,
+      organizationId: detail.load.organizationId,
+      number,
+      amountUsd,
+      dueDate: input.dueDate,
+      documentId: input.documentId ?? null,
+      createdByUserId: admin.id,
+    });
+    await appendEvent(tx, {
+      organizationId: detail.load.organizationId,
+      quoteRequestId: detail.load.quoteRequestId,
+      loadId,
+      actorType: "admin",
+      actorId: admin.id,
+      eventType: "invoice_created",
+      payload: { invoiceId, number, amountUsd, dueDate: input.dueDate },
+      via: admin.via,
+    });
+    if (detail.load.status === "delivered") {
+      await tx
+        .update(schema.loads)
+        .set({ status: "invoiced", updatedAt: new Date() })
+        .where(and(eq(schema.loads.id, loadId), eq(schema.loads.status, "delivered")));
+      await appendEvent(tx, {
+        organizationId: detail.load.organizationId,
+        quoteRequestId: detail.load.quoteRequestId,
+        loadId,
+        actorType: "admin",
+        actorId: admin.id,
+        eventType: "load_invoiced",
+        payload: { from: "delivered", to: "invoiced", number },
+        via: admin.via,
+      });
+    }
+  });
+  return {
+    invoiceId,
+    number,
+    amountUsd,
+    dueDate: input.dueDate,
+    reference: detail.load.reference,
+    loadId,
+    orgName: detail.orgName,
+    requesterEmail: detail.requesterEmail,
+  };
+}
+
+/** Mark an invoice paid, by id or INV-nnnn number. */
+export async function markInvoicePaid(
+  db: PortalDb,
+  admin: AdminUser,
+  invoiceIdOrNumber: string,
+) {
+  assertAdmin(admin);
+  const rows = await db
+    .select({ invoice: schema.invoices, load: schema.loads })
+    .from(schema.invoices)
+    .innerJoin(schema.loads, eq(schema.invoices.loadId, schema.loads.id))
+    .where(
+      or(
+        eq(schema.invoices.id, invoiceIdOrNumber),
+        eq(schema.invoices.number, invoiceIdOrNumber.toUpperCase()),
+      ),
+    )
+    .limit(1);
+  const row = rows[0];
+  if (!row) throw new Error("Invoice not found");
+  if (row.invoice.status === "paid") throw new Error(`${row.invoice.number} is already paid`);
+  const paidAt = new Date();
+  await db.transaction(async (tx) => {
+    await tx
+      .update(schema.invoices)
+      .set({ status: "paid", paidAt })
+      .where(eq(schema.invoices.id, row.invoice.id));
+    await appendEvent(tx, {
+      organizationId: row.invoice.organizationId,
+      quoteRequestId: row.load.quoteRequestId,
+      loadId: row.invoice.loadId,
+      actorType: "admin",
+      actorId: admin.id,
+      eventType: "invoice_paid",
+      payload: { invoiceId: row.invoice.id, number: row.invoice.number },
+      via: admin.via,
+    });
+  });
+  return {
+    number: row.invoice.number,
+    reference: row.load.reference,
+    loadId: row.invoice.loadId,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Custom shipper update: the "hey, just wanted to update you" path, recorded
+// as a shipper-visible event so the reassurance is evidence, not vapor.
+
+export async function sendShipperUpdate(
+  db: PortalDb,
+  admin: AdminUser,
+  loadId: string,
+  input: { subject: string; body: string },
+) {
+  assertAdmin(admin);
+  const detail = await getLoadForAdmin(db, admin, loadId);
+  if (!detail) throw new Error("Load not found");
+  await appendEvent(db, {
+    organizationId: detail.load.organizationId,
+    quoteRequestId: detail.load.quoteRequestId,
+    loadId,
+    actorType: "admin",
+    actorId: admin.id,
+    eventType: "update_sent",
+    payload: { subject: input.subject, body: input.body },
+    via: admin.via,
+  });
+  return {
+    reference: detail.load.reference,
+    orgName: detail.orgName,
+    requesterEmail: detail.requesterEmail,
   };
 }
 
@@ -429,6 +714,7 @@ export async function addDocument(
       actorId: admin.id,
       eventType: meta.visibleToShipper ? "document_added" : "document_uploaded_internal",
       payload: { documentId, type: meta.type, label: meta.filename },
+      via: admin.via,
     });
   });
   return {
@@ -469,6 +755,7 @@ export async function setDocumentVisibility(
       actorId: admin.id,
       eventType: visible ? "document_added" : "document_hidden",
       payload: { documentId, type: row.doc.type, label: row.doc.filename },
+      via: admin.via,
     });
   });
   return row;
@@ -531,6 +818,7 @@ export async function upsertCarrierAssignment(
         carrierName: input.carrierName,
         visibleToShipper: input.visibleToShipper,
       },
+      via: admin.via,
     });
   });
   return {

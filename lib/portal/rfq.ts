@@ -323,12 +323,15 @@ export const STEP_FIELDS: Record<number, readonly (keyof RfqInput)[]> = {
   3: ["accessorials", "referenceNumbers", "targetRateUsd", "frequency", "notes"],
 };
 
-/** Admin send-quote form; shipper-facing fields only (no pricing internals). */
+/** Admin send-quote form; shipper-facing fields only (no pricing internals).
+ * `note` is the founder's pricing rationale — it goes to the shipper as a
+ * "How we priced it" paragraph and into the quote_sent event payload. */
 export const sendQuoteSchema = z.object({
   allInRateUsd: money,
   serviceDescription: trimmed(1000).min(1, "Required"),
   exclusions: optionalText(1000),
   validUntil: isoDate.nullish().or(z.literal("").transform(() => null)),
+  note: optionalText(1000),
 });
 export type SendQuoteInput = z.infer<typeof sendQuoteSchema>;
 

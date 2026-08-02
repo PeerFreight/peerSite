@@ -340,6 +340,13 @@ export const loads = pgTable(
       .default([]),
     notes: text("notes"),
 
+    // Current exception state (migration 0010). One live delay per load;
+    // set/clear history lives in events (load_delayed / load_delay_cleared).
+    // Reaching delivered or cancelled clears all three in the same tx.
+    delayedAt: timestamp("delayed_at", { withTimezone: true }),
+    delayReason: text("delay_reason"),
+    revisedDeliveryDate: date("revised_delivery_date"),
+
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -424,6 +431,50 @@ export const carrierAssignments = pgTable(
   (t) => [
     uniqueIndex("carrier_assignments_load_idx").on(t.loadId),
     index("carrier_assignments_org_idx").on(t.organizationId),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Invoices (migration 0011). The shipper-facing receivable as data, not just
+// a PDF: number, amount, due date, open/paid. One invoice per load in v1.
+// Amount is the sell side only (defaults to the load's all-in rate); pricing
+// internals never enter the portal. An optional document link attaches the
+// rendered PDF when there is one.
+
+export const INVOICE_STATUSES = ["open", "paid", "void"] as const;
+export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
+
+/** Source of INV-nnnn invoice numbers; createInvoice takes nextval. */
+export const invoiceNumberSeq = pgSequence("invoice_number_seq", {
+  startWith: 1001,
+  increment: 1,
+});
+
+export const invoices = pgTable(
+  "invoices",
+  {
+    id: text("id").primaryKey(),
+    loadId: text("load_id")
+      .notNull()
+      .references(() => loads.id, { onDelete: "cascade" }),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    /** Human reference, e.g. INV-1001. What remittance advice quotes back. */
+    number: text("number").notNull(),
+    amountUsd: numeric("amount_usd", { precision: 12, scale: 2 }).notNull(),
+    dueDate: date("due_date").notNull(),
+    status: text("status").$type<InvoiceStatus>().notNull().default("open"),
+    /** Optional link to the rendered invoice PDF in documents. */
+    documentId: text("document_id").references(() => documents.id),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    createdByUserId: text("created_by_user_id").notNull().references(() => user.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("invoices_load_idx").on(t.loadId),
+    uniqueIndex("invoices_number_idx").on(t.number),
+    index("invoices_org_idx").on(t.organizationId, t.createdAt),
   ],
 );
 

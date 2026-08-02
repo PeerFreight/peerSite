@@ -1,4 +1,5 @@
-import type { LoadStatus } from "@/db/schema";
+import { z } from "zod";
+import { LOAD_STATUSES, type LoadStatus } from "@/db/schema";
 
 /**
  * Load status vocabulary shared by the shipper and admin views, plus the
@@ -6,6 +7,9 @@ import type { LoadStatus } from "@/db/schema";
  * shipper-visible simplification agreed in the portal plan; the append-only
  * events table keeps the full history.
  */
+
+/** "booked|dispatched|..." for CLI usage strings. */
+export const LOAD_STATUSES_HELP = LOAD_STATUSES.join("|");
 
 export const LOAD_STATUS_LABELS: Record<LoadStatus, string> = {
   booked: "Booked",
@@ -61,6 +65,17 @@ export const LOAD_STATUS_EVENT: Record<Exclude<LoadStatus, "booked">, string> = 
   closed: "load_closed",
   cancelled: "load_cancelled",
 };
+
+/** Admin delay form: a reason in shipper language, optional revised ETA. */
+export const delaySchema = z.object({
+  reason: z.string().trim().min(1, "Say what happened, in shipper language").max(500),
+  revisedDeliveryDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date")
+    .nullish()
+    .or(z.literal("").transform(() => null)),
+});
+export type DelayInput = z.infer<typeof delaySchema>;
 
 /** Shipper-facing one-liners for the status-change emails. */
 export const LOAD_STATUS_EMAIL: Record<

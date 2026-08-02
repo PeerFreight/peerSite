@@ -11,7 +11,10 @@ import * as schema from "../db/schema";
 import {
   addDocument,
   bookLoad,
+  createInvoice,
   sendQuote,
+  sendShipperUpdate,
+  setLoadDelay,
   setLoadStatus,
   upsertCarrierAssignment,
   type AdminUser,
@@ -83,6 +86,7 @@ describe.skipIf(!process.env.DEMO_SEED)("demo seed", () => {
       serviceDescription: "Dry van 53', liftgate delivery, POD same day",
       exclusions: "Detention after 2h $75/h; TONU $250",
       validUntil: "2026-08-04",
+      note: "Priced off three recent comps on this lane; morning pickup keeps it in one driving day.",
     });
     const { loadId, reference } = await bookLoad(db, admin, quoteId);
 
@@ -116,7 +120,12 @@ describe.skipIf(!process.env.DEMO_SEED)("demo seed", () => {
     await setLoadStatus(db, admin, loadId, "in_transit");
     await setLoadStatus(db, admin, loadId, "delivered");
 
-    console.log(`seeded ${reference} (load ${loadId}) for org ${orgId}`);
+    // The finished load gets its invoice (delivered → invoiced happens
+    // inside createInvoice), so /invoices and the load's invoice block
+    // render with real data.
+    const invoice = await createInvoice(db, admin, loadId, { dueDate: "2026-09-05" });
+
+    console.log(`seeded ${reference} (load ${loadId}, ${invoice.number}) for org ${orgId}`);
 
     // A second load left in transit WITH a live (stub) tracking session, so
     // the tracking map, public link, and simulator have something to bite.
@@ -152,6 +161,19 @@ describe.skipIf(!process.env.DEMO_SEED)("demo seed", () => {
       intervalMinutes: 30,
     });
     await setLoadStatus(db, admin, booked.loadId, "in_transit");
+
+    // Leave the moving load flagged delayed with a reassurance update, so
+    // the dashboard badge, the red banner, and the timeline entries all
+    // show in the seeded UI.
+    await setLoadDelay(db, admin, booked.loadId, {
+      reason: "Tractor breakdown near Sacramento; replacement truck is dispatched.",
+      revisedDeliveryDate: "2026-08-09",
+    });
+    await sendShipperUpdate(db, admin, booked.loadId, {
+      subject: `Quick update on ${booked.reference}`,
+      body: "Replacement tractor is hooked and rolling. We expect to make up most of the lost time overnight.",
+    });
+
     const session = (await getTrackingForAdmin(db, admin, booked.loadId))!.session;
     console.log(
       `seeded ${booked.reference} (load ${booked.loadId}) with live tracking\n` +
