@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, notInArray, or } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, isNotNull, notInArray, or, sql } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import * as schema from "@/db/schema";
 import type { RfqInput } from "@/lib/portal/rfq";
@@ -46,6 +46,113 @@ export async function requireMembership(db: PortalDb, userId: string, orgId: str
   const org = await getOrganizationForUser(db, userId, orgId);
   if (!org) throw new Error("Not a member of this organization");
   return org;
+}
+
+/** Whether the user can sign in with a password at all — decides Set vs
+ * Change password in Settings (magic-link/social users have no credential
+ * account row). */
+export async function hasCredentialAccount(db: PortalDb, userId: string) {
+  const rows = await db
+    .select({ id: schema.account.id })
+    .from(schema.account)
+    .where(
+      and(
+        eq(schema.account.userId, userId),
+        eq(schema.account.providerId, "credential"),
+        isNotNull(schema.account.password),
+      ),
+    )
+    .limit(1);
+  return rows.length > 0;
+}
+
+/** Everyone in the org sees who else is in it (name, email, role). */
+export async function listOrgMembers(db: PortalDb, userId: string, orgId: string) {
+  await requireMembership(db, userId, orgId);
+  return db
+    .select({
+      id: schema.member.id,
+      role: schema.member.role,
+      name: schema.user.name,
+      email: schema.user.email,
+      userId: schema.member.userId,
+      createdAt: schema.member.createdAt,
+    })
+    .from(schema.member)
+    .innerJoin(schema.user, eq(schema.member.userId, schema.user.id))
+    .where(eq(schema.member.organizationId, orgId))
+    .orderBy(asc(schema.member.createdAt));
+}
+
+/** Pending, unexpired invitations — owner/admin only (throws otherwise);
+ * members see the roster but not who has been invited. */
+export async function listPendingInvitations(db: PortalDb, userId: string, orgId: string) {
+  const org = await requireMembership(db, userId, orgId);
+  if (!["owner", "admin"].includes(org.role)) {
+    throw new Error("Only an owner or admin can manage invitations");
+  }
+  return db
+    .select({
+      id: schema.invitation.id,
+      email: schema.invitation.email,
+      role: schema.invitation.role,
+      expiresAt: schema.invitation.expiresAt,
+    })
+    .from(schema.invitation)
+    .where(
+      and(
+        eq(schema.invitation.organizationId, orgId),
+        eq(schema.invitation.status, "pending"),
+        gt(schema.invitation.expiresAt, new Date()),
+      ),
+    )
+    .orderBy(asc(schema.invitation.expiresAt));
+}
+
+/** The pending, unexpired invitation for an email, if any — routes a user
+ * who signed up without their invite link to the accept page. */
+export async function findPendingInvitationForEmail(db: PortalDb, email: string) {
+  const rows = await db
+    .select({
+      id: schema.invitation.id,
+      organizationId: schema.invitation.organizationId,
+    })
+    .from(schema.invitation)
+    .where(
+      and(
+        sql`lower(${schema.invitation.email}) = ${email.toLowerCase()}`,
+        eq(schema.invitation.status, "pending"),
+        gt(schema.invitation.expiresAt, new Date()),
+      ),
+    )
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+/**
+ * Invitation lookup for the accept page, reachable signed-out (the auth API's
+ * getInvitation requires a matching session, so the page reads directly).
+ * Possession of the unguessable invitation id is the authorization; the
+ * projection stays narrow — no inviter email, no org internals.
+ */
+export async function getInvitationForAcceptPage(db: PortalDb, invitationId: string) {
+  const rows = await db
+    .select({
+      id: schema.invitation.id,
+      email: schema.invitation.email,
+      role: schema.invitation.role,
+      status: schema.invitation.status,
+      expiresAt: schema.invitation.expiresAt,
+      organizationId: schema.invitation.organizationId,
+      organizationName: schema.organization.name,
+      inviterName: schema.user.name,
+    })
+    .from(schema.invitation)
+    .innerJoin(schema.organization, eq(schema.invitation.organizationId, schema.organization.id))
+    .innerJoin(schema.user, eq(schema.invitation.inviterId, schema.user.id))
+    .where(eq(schema.invitation.id, invitationId))
+    .limit(1);
+  return rows[0] ?? null;
 }
 
 /** Rename the org from Settings. Membership is proven like every write here,

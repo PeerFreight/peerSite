@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getAuth } from "@/lib/auth";
 import { getDb } from "@/lib/db";
-import { listUserOrganizations } from "@/lib/portal/queries";
+import { findPendingInvitationForEmail, listUserOrganizations } from "@/lib/portal/queries";
 import { OnboardingForm } from "./onboarding-form";
 
 export const metadata: Metadata = {
@@ -19,6 +19,11 @@ export default async function OnboardingPage() {
   const db = await getDb();
   const orgs = await listUserOrganizations(db, session.user.id);
   if (orgs.length > 0) redirect("/dashboard");
+
+  // Invited teammates who signed up without their link should join the
+  // inviting company, not create a duplicate one.
+  const invitation = await findPendingInvitationForEmail(db, session.user.email);
+  if (invitation) redirect(`/invite/${invitation.id}`);
 
   return <OnboardingForm />;
 }

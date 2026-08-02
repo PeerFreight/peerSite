@@ -22,9 +22,12 @@ export default async function LoadsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold">Loads</h1>
-        <p className="mt-1 text-muted">Every load booked under {org.name}.</p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold">Loads</h1>
+          <p className="mt-1 text-muted">Every load booked under {org.name}.</p>
+        </div>
+        <LinkButton href="/quotes/new">Request a quote</LinkButton>
       </div>
 
       {loads.length === 0 ? (
@@ -33,7 +36,6 @@ export default async function LoadsPage() {
             icon={<IconTruck size={20} />}
             title="No loads yet"
             description="Once we book a load from one of your quotes, its status, timeline, carrier, and documents live here."
-            action={<LinkButton href="/quotes/new">Request a quote</LinkButton>}
           />
         </Panel>
       ) : (

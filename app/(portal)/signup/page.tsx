@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { enabledSocialProviders } from "@/lib/auth";
 import { SignupForm } from "./signup-form";
 
 export const metadata: Metadata = {
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function SignupPage() {
-  return <SignupForm />;
+  return <SignupForm providers={enabledSocialProviders()} />;
 }

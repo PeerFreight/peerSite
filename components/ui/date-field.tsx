@@ -15,8 +15,9 @@ import {
   todayISO,
 } from "@/lib/portal/dates";
 
+// Keep in step with the control string in components/ui/field.tsx.
 const control =
-  "w-full rounded-lg border border-line bg-white px-3 py-2 text-[0.95rem] text-ink placeholder:text-muted/60 focus:outline-2 focus:outline-offset-1 focus:outline-navy";
+  "w-full rounded-lg border border-line bg-paper px-3 py-2 text-[0.95rem] text-ink placeholder:text-muted/60 focus:bg-white focus:outline-2 focus:outline-offset-1 focus:outline-navy";
 
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 

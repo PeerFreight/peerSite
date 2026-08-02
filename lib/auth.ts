@@ -1,17 +1,35 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
+import { nextCookies } from "better-auth/next-js";
 import { magicLink, organization } from "better-auth/plugins";
-import { eq } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
 import * as schema from "@/db/schema";
 import { getDb } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { ADMIN_DOMAIN } from "@/lib/portal/roles";
+import { baseUrl } from "@/lib/portal/urls";
 
 export { ADMIN_DOMAIN, isAdmin } from "@/lib/portal/roles";
 
+/**
+ * Social sign-in is env-gated: a provider exists only when its OAuth
+ * credentials are configured, so enabling Google/Microsoft later is just
+ * setting env vars (redirect URI: ${BETTER_AUTH_URL}/api/auth/callback/<id>).
+ * Pages read these flags server-side to decide which buttons to render.
+ */
+export function enabledSocialProviders() {
+  return {
+    google: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+    microsoft: Boolean(process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET),
+  };
+}
+
+export type SocialProviderFlags = ReturnType<typeof enabledSocialProviders>;
+
 async function makeAuth() {
   const db = await getDb();
+  const social = enabledSocialProviders();
   return betterAuth({
     baseURL: process.env.BETTER_AUTH_URL,
     secret: process.env.BETTER_AUTH_SECRET,
@@ -21,11 +39,58 @@ async function makeAuth() {
     emailAndPassword: {
       enabled: true,
     },
+    socialProviders: {
+      ...(social.google
+        ? {
+            google: {
+              clientId: process.env.GOOGLE_CLIENT_ID!,
+              clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            },
+          }
+        : {}),
+      ...(social.microsoft
+        ? {
+            microsoft: {
+              clientId: process.env.MICROSOFT_CLIENT_ID!,
+              clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
+              tenantId: process.env.MICROSOFT_TENANT_ID ?? "common",
+            },
+          }
+        : {}),
+    },
+    account: {
+      accountLinking: {
+        // Microsoft often omits email_verified in its profile; without
+        // trusting these providers an existing email-password user gets
+        // account_not_linked instead of signing in to the same account.
+        trustedProviders: ["google", "microsoft"],
+      },
+    },
+    // Serves double duty: signup verification (magic-link/social users are
+    // verified by their flow already) and the change-email flow — without a
+    // top-level sendVerificationEmail, /change-email 400s. Deliberately no
+    // sendOnSignUp and no sendChangeEmailConfirmation: the change-email
+    // verification link must go to the NEW address in one step.
+    emailVerification: {
+      sendVerificationEmail: async ({ user, url }) => {
+        await sendEmail({
+          to: user.email,
+          subject: "Verify your email for Peer Freight",
+          text: `Confirm this email address for your Peer Freight portal account:\n\n${url}\n\nIf you did not request this, ignore this email.`,
+        });
+      },
+    },
+    user: {
+      changeEmail: {
+        enabled: true,
+      },
+    },
     databaseHooks: {
       user: {
         create: {
           // Pre-authority posture: invite-only. A founder must seed
-          // allowed_emails before an outside signup succeeds.
+          // allowed_emails — or a teammate must hold a pending, unexpired
+          // org invitation — before an outside signup succeeds.
           before: async (u) => {
             const email = u.email.toLowerCase();
             if (email.endsWith(ADMIN_DOMAIN)) return { data: u };
@@ -34,10 +99,37 @@ async function makeAuth() {
               .from(schema.allowedEmails)
               .where(eq(schema.allowedEmails.email, email))
               .limit(1);
-            if (allowed.length === 0) {
+            if (allowed.length > 0) return { data: u };
+            const invited = await db
+              .select({ id: schema.invitation.id })
+              .from(schema.invitation)
+              .where(
+                and(
+                  sql`lower(${schema.invitation.email}) = ${email}`,
+                  eq(schema.invitation.status, "pending"),
+                  gt(schema.invitation.expiresAt, new Date()),
+                ),
+              )
+              .limit(1);
+            if (invited.length > 0) return { data: u };
+            throw new APIError("FORBIDDEN", {
+              message:
+                "The portal is invite-only right now. Email team@peer-freight.com and we will set you up.",
+            });
+          },
+        },
+        update: {
+          // Admin = verified + @peer-freight.com (lib/portal/roles.ts), and
+          // the change-email verify step lands here with emailVerified: true.
+          // Without this hook a shipper could change their email onto the
+          // founder domain and self-promote to admin.
+          before: async (u) => {
+            if (
+              typeof u.email === "string" &&
+              u.email.toLowerCase().endsWith(ADMIN_DOMAIN)
+            ) {
               throw new APIError("FORBIDDEN", {
-                message:
-                  "The portal is invite-only right now. Email team@peer-freight.com and we will set you up.",
+                message: "That email domain is reserved.",
               });
             }
             return { data: u };
@@ -55,7 +147,19 @@ async function makeAuth() {
           });
         },
       }),
-      organization(),
+      organization({
+        sendInvitationEmail: async ({ id, email, organization: org, inviter }) => {
+          await sendEmail({
+            to: email,
+            subject: `${inviter.user.name} invited you to ${org.name} on Peer Freight`,
+            text: `${inviter.user.name} (${inviter.user.email}) invited you to join ${org.name} on the Peer Freight shipper portal.\n\nAccept the invitation:\n\n${baseUrl()}/invite/${id}\n\nThis invitation expires in 48 hours. If you were not expecting it, ignore this email.`,
+          });
+        },
+      }),
+      // Must stay last: without it, auth.api.* calls from server actions
+      // drop their Set-Cookie headers (change-password would silently sign
+      // the user out).
+      nextCookies(),
     ],
   });
 }

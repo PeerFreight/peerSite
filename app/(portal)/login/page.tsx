@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { enabledSocialProviders } from "@/lib/auth";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
@@ -7,5 +8,6 @@ export const metadata: Metadata = {
 };
 
 export default function LoginPage() {
-  return <LoginForm />;
+  // Server component reads the env flags; the client form only gets booleans.
+  return <LoginForm providers={enabledSocialProviders()} />;
 }

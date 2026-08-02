@@ -10,16 +10,14 @@ export function AuthShell({ children, footer }: { children: ReactNode; footer?: 
   return (
     <div className="auth-bg flex min-h-screen flex-col items-center justify-center px-6 py-16">
       <div className="w-full max-w-md">
-        <a
-          href="/"
-          className="mb-8 flex items-center justify-center gap-2.5"
-          aria-label="Peer Freight home"
-        >
-          <img src="/site/peer-logo-mark.png" alt="" width={34} height={34} draggable={false} />
-          <span className="text-lg font-extrabold tracking-tight">
+        {/* Static brand stamp, not a link: nothing on the auth screen should
+            navigate away or drag. */}
+        <div className="mb-8 flex select-none items-center justify-center gap-3">
+          <img src="/site/peer-logo-mark.png" alt="" width={44} height={44} draggable={false} />
+          <span className="text-xl font-extrabold tracking-tight">
             <span className="text-white">Peer</span> <span className="text-gold">Freight</span>
           </span>
-        </a>
+        </div>
         <div className="rounded-xl bg-white p-6 shadow-card sm:p-8">{children}</div>
         {footer ? <p className="mt-5 text-center text-sm text-white/70">{footer}</p> : null}
       </div>

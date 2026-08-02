@@ -80,15 +80,19 @@ function Rail({ user, pathname }: { user: ShellUser; pathname: string }) {
       <div className="px-5 pt-5">
         <Wordmark />
       </div>
-      <div className="px-4 pt-6">
-        <a
-          href="/quotes/new"
-          className="btn-gold-grad flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold text-navy transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
-        >
-          <IconPlus size={16} />
-          Request a quote
-        </a>
-      </div>
+      {/* The quote CTA is the shipper's global action; on internal /admin
+          pages it is noise, so the rail drops it there. */}
+      {pathname.startsWith("/admin") ? null : (
+        <div className="px-4 pt-6">
+          <a
+            href="/quotes/new"
+            className="btn-gold-grad flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold text-navy transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+          >
+            <IconPlus size={16} />
+            Request a quote
+          </a>
+        </div>
+      )}
       <nav className="mt-6 flex-1 overflow-y-auto px-4" aria-label="Portal">
         <div className="space-y-1">
           {NAV.map((item) => (
