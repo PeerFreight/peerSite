@@ -8,7 +8,6 @@ import {
   IconMenu,
   IconPlus,
   IconReceipt,
-  IconSettings,
   IconShield,
   IconTruck,
   IconX,
@@ -21,7 +20,8 @@ const NAV = [
   { href: "/quotes", label: "Quotes", icon: IconFileText },
   { href: "/loads", label: "Loads", icon: IconTruck },
   { href: "/invoices", label: "Invoices", icon: IconReceipt },
-  { href: "/settings", label: "Settings", icon: IconSettings },
+  // Settings deliberately lives only in the account menu (bottom-left
+  // profile row), not the primary nav.
 ] as const;
 
 type ShellUser = {

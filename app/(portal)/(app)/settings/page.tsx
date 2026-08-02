@@ -43,7 +43,7 @@ export default async function SettingsPage({
   const current = orgs.find((o) => o.id === org.id) ?? org;
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="space-y-6">
       <h1 className="text-2xl font-extrabold">Settings</h1>
 
       {/* The change-email verify link lands back here; a dead token gets a
@@ -54,8 +54,9 @@ export default async function SettingsPage({
         </div>
       ) : null}
 
-      {/* One attached surface: settings sections meet at hairline joints. */}
-      <JoinedGrid>
+      {/* One attached surface: settings sections meet at hairline joints,
+          two-up on wide screens so the page fills the canvas. */}
+      <JoinedGrid className="lg:grid-cols-2">
         <section className="bg-white p-6">
           <div className="flex items-baseline justify-between gap-4">
             <h2 className="section-label">Profile</h2>
@@ -87,7 +88,7 @@ export default async function SettingsPage({
           </div>
         </section>
 
-        <section className="bg-white p-6">
+        <section className="bg-white p-6 lg:col-span-2">
           <h2 className="section-label">Teammates</h2>
           <ul className="mt-4 divide-y divide-line">
             {members.map((m) => (
@@ -140,7 +141,7 @@ export default async function SettingsPage({
           )}
         </section>
 
-        <section className="bg-white p-6">
+        <section className="bg-white p-6 lg:col-span-2">
           <h2 className="section-label">Session</h2>
           <p className="mt-3 text-sm text-muted">
             Signed in as {session.user.email}. Signing out ends this session on

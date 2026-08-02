@@ -27,6 +27,8 @@ export type TrackingMapProps = {
   lastPingAt: string | null;
   /** Polled every 60s for fresh pings; null disables polling. */
   pollUrl: string | null;
+  /** Map height; the load page hero passes a taller one. */
+  heightClass?: string;
 };
 
 const POLL_MS = 60_000;
@@ -67,6 +69,7 @@ function FitBounds({ points }: { points: { lat: number; lng: number }[] }) {
 }
 
 export function TrackingMap(props: TrackingMapProps) {
+  const heightClass = props.heightClass ?? "h-72";
   const [pings, setPings] = useState(props.pings);
   const [lastPingAt, setLastPingAt] = useState(props.lastPingAt);
 
@@ -112,7 +115,7 @@ export function TrackingMap(props: TrackingMapProps) {
   if (!apiKey) {
     return (
       <div>
-        <div className="flex h-48 items-center justify-center rounded-lg border border-dashed border-line bg-paper px-6 text-center">
+        <div className={`flex ${props.heightClass ?? "h-48"} items-center justify-center rounded-lg border border-dashed border-line bg-paper px-6 text-center`}>
           <div>
             <p className="text-sm font-bold text-ink">
               {latest
@@ -131,7 +134,7 @@ export function TrackingMap(props: TrackingMapProps) {
 
   return (
     <div>
-      <div className="h-72 overflow-hidden rounded-lg border border-line">
+      <div className={`${heightClass} overflow-hidden rounded-lg border border-line`}>
         <APIProvider apiKey={apiKey}>
           <Map
             defaultCenter={
