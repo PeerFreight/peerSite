@@ -6,6 +6,7 @@ import { IconInbox } from "@/components/ui/icons";
 import { ListPanel, ListRow } from "@/components/ui/list";
 import { Panel } from "@/components/ui/panel";
 import { listOpenQuoteRequests } from "@/lib/portal/admin-queries";
+import { formatDateDisplay } from "@/lib/portal/dates";
 import { equipmentLabel, laneSummary } from "@/lib/portal/rfq";
 import { requireAdminSession } from "@/lib/portal/session";
 import { AdminNav } from "./admin-nav";
@@ -68,7 +69,7 @@ export default async function AdminQueuePage() {
                     {r.orgName} · {laneSummary(r)}
                   </p>
                   <p className="mt-0.5 truncate text-sm text-muted">
-                    Pickup {r.pickupDate} · {equipmentLabel(r.equipment)} · {r.commodity}
+                    Pickup {formatDateDisplay(r.pickupDate)} · {equipmentLabel(r.equipment)} · {r.commodity}
                   </p>
                 </div>
                 {r.hazmat ? (

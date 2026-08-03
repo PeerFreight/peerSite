@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/portal/status";
 import { Badge } from "@/components/ui/badge";
 import { Button, LinkButton } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 import { IconCopy } from "@/components/ui/icons";
 import { getQuoteRequestDetail } from "@/lib/portal/queries";
 import { ACCEPT_DISABLED_NOTE, AUTHORITY_ACTIVE } from "@/lib/portal/gates";
@@ -117,7 +118,7 @@ export default async function QuoteRequestPage({ params }: { params: Promise<{ i
                   Accept quote
                 </Button>
                 <form action={declineQuoteAction.bind(null, quote.id, request.id)}>
-                  <Button type="submit" variant="secondary">Decline</Button>
+                  <ConfirmButton label="Decline" />
                 </form>
               </div>
               {!AUTHORITY_ACTIVE ? (

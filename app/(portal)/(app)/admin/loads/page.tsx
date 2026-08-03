@@ -6,6 +6,7 @@ import { IconTruck } from "@/components/ui/icons";
 import { ListPanel, ListRow } from "@/components/ui/list";
 import { Panel } from "@/components/ui/panel";
 import { listLoadsForAdmin } from "@/lib/portal/admin-queries";
+import { formatDateDisplay } from "@/lib/portal/dates";
 import { equipmentLabel, laneSummary } from "@/lib/portal/rfq";
 import { requireAdminSession } from "@/lib/portal/session";
 import { AdminNav } from "../admin-nav";
@@ -53,7 +54,7 @@ export default async function AdminLoadsPage() {
                   {l.orgName} · {laneSummary(l)}
                 </p>
                 <p className="mt-0.5 truncate text-sm text-muted">
-                  Pickup {l.pickupDate} · {equipmentLabel(l.equipment)} · {l.commodity}
+                  Pickup {formatDateDisplay(l.pickupDate)} · {equipmentLabel(l.equipment)} · {l.commodity}
                 </p>
               </div>
               {l.hazmat ? <Badge tone="red">Hazmat</Badge> : null}

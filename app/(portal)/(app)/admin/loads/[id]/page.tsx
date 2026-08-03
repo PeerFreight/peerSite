@@ -9,6 +9,7 @@ import { TrackingMap } from "@/components/portal/tracking-map";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getLoadForAdmin } from "@/lib/portal/admin-queries";
+import { formatDateDisplay } from "@/lib/portal/dates";
 import { INVOICE_STATUS_LABELS } from "@/lib/portal/invoices";
 import { LOAD_TRANSITIONS } from "@/lib/portal/loads";
 import { accessorialLabel, equipmentLabel, laneSummary } from "@/lib/portal/rfq";
@@ -131,11 +132,11 @@ export default async function AdminLoadPage({ params }: { params: Promise<{ id: 
               />
               <Detail
                 label="Pickup"
-                value={`${load.pickupDate}${load.pickupWindow ? ` (${load.pickupWindow})` : ""}`}
+                value={`${formatDateDisplay(load.pickupDate)}${load.pickupWindow ? ` (${load.pickupWindow})` : ""}`}
               />
               <Detail
                 label="Delivery"
-                value={`${load.deliveryDate}${load.deliveryWindow ? ` (${load.deliveryWindow})` : ""}`}
+                value={`${formatDateDisplay(load.deliveryDate)}${load.deliveryWindow ? ` (${load.deliveryWindow})` : ""}`}
               />
               <Detail label="Commodity" value={load.commodity} />
               <Detail label="Weight" value={`${load.weightLbs.toLocaleString("en-US")} lbs`} />
@@ -239,7 +240,7 @@ export default async function AdminLoadPage({ params }: { params: Promise<{ id: 
                       label="Amount"
                       value={`$${Number(invoice.amountUsd).toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
                     />
-                    <Detail label="Due" value={invoice.dueDate} />
+                    <Detail label="Due" value={formatDateDisplay(invoice.dueDate)} />
                     <Detail label="Status" value={INVOICE_STATUS_LABELS[invoice.status]} />
                   </dl>
                   {invoice.status === "open" ? (

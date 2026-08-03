@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/portal/status";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getQuoteRequestForAdmin } from "@/lib/portal/admin-queries";
+import { formatDateDisplay } from "@/lib/portal/dates";
 import { accessorialLabel, equipmentLabel, laneSummary } from "@/lib/portal/rfq";
 import { requireAdminSession } from "@/lib/portal/session";
 import { AdminNav } from "../../admin-nav";
@@ -104,11 +105,11 @@ export default async function AdminQuoteRequestPage({
               />
               <Detail
                 label="Pickup"
-                value={`${request.pickupDate}${request.pickupWindow ? ` (${request.pickupWindow})` : ""}`}
+                value={`${formatDateDisplay(request.pickupDate)}${request.pickupWindow ? ` (${request.pickupWindow})` : ""}`}
               />
               <Detail
                 label="Delivery"
-                value={`${request.deliveryDate}${request.deliveryWindow ? ` (${request.deliveryWindow})` : ""}${request.dateFlexibility === "flexible" ? " · flexible" : " · firm"}`}
+                value={`${formatDateDisplay(request.deliveryDate)}${request.deliveryWindow ? ` (${request.deliveryWindow})` : ""}${request.dateFlexibility === "flexible" ? " · flexible" : " · firm"}`}
               />
               <Detail label="Commodity" value={request.commodity} />
               <Detail label="Weight" value={`${request.weightLbs.toLocaleString("en-US")} lbs`} />

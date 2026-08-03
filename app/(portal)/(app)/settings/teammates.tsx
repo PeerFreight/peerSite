@@ -1,7 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { cancelInvitationAction, inviteTeammateAction, type SettingsFormState } from "./actions";
 
@@ -34,25 +36,21 @@ export function InviteForm() {
         </Button>
       </div>
       {state?.ok ? (
-        <p className="text-sm font-bold text-green-800">
-          Invitation sent — it expires in 48 hours.
-        </p>
+        <Alert tone="success">Invitation sent — it expires in 48 hours.</Alert>
       ) : null}
     </form>
   );
 }
 
 export function CancelInviteButton({ invitationId }: { invitationId: string }) {
-  const [state, formAction, pending] = useActionState<SettingsFormState, FormData>(
+  const [state, formAction] = useActionState<SettingsFormState, FormData>(
     cancelInvitationAction,
     null,
   );
   return (
     <form action={formAction} className="flex items-center gap-2">
       <input type="hidden" name="invitationId" value={invitationId} />
-      <Button type="submit" variant="ghost" size="sm" disabled={pending}>
-        {pending ? "Cancelling..." : "Cancel"}
-      </Button>
+      <ConfirmButton label="Cancel" variant="ghost" size="sm" />
       {state?.error ? <p className="text-sm text-red-700">{state.error}</p> : null}
     </form>
   );

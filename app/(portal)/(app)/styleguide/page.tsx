@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { IconClock, IconFileText, IconTruck } from "@/components/ui/icons";
 import { ListPanel, ListRow } from "@/components/ui/list";
 import { JoinedGrid, Panel, PanelBody, PanelHeader } from "@/components/ui/panel";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatTile } from "@/components/ui/stat";
 
 export const metadata: Metadata = {
@@ -47,11 +49,41 @@ export default function StyleguidePage() {
           <Button variant="ghost">Ghost</Button>
           <Button variant="danger">Danger</Button>
           <Button disabled>Disabled</Button>
+          <Button loading>Signing in</Button>
           <Button size="sm">Small</Button>
         </div>
         <p className="text-sm text-muted">
           Gold gradient = the one primary CTA per screen. Navy solid = wizard
-          Continue / form saves. Everything else secondary or ghost.
+          Continue / form saves. Everything else secondary or ghost. Pass
+          `loading` while an action is in flight — it disables the button and
+          prepends the spinner.
+        </p>
+      </section>
+
+      <section className="max-w-md space-y-4">
+        <h2 className="text-lg font-extrabold">Alerts</h2>
+        <Alert tone="error">
+          That email and password don&apos;t match. Check them and try again, or
+          use a sign-in link.
+        </Alert>
+        <Alert tone="success">Check your inbox — we sent a sign-in link.</Alert>
+        <Alert tone="info">Enter your email above and we&apos;ll send you a link.</Alert>
+        <p className="text-sm text-muted">
+          Inline, form-adjacent feedback — no floating toasts. Key the Alert
+          with a per-submit attempt counter (`key={"{attempt}"}`) so it
+          re-animates on every failed retry.
+        </p>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-extrabold">Skeletons</h2>
+        <div className="max-w-md space-y-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-40" />
+        </div>
+        <p className="text-sm text-muted">
+          Route-level `loading.tsx` silhouettes while force-dynamic pages
+          fetch. Keep shapes matched to the real page anatomy.
         </p>
       </section>
 
