@@ -1,6 +1,10 @@
 import { Sidebar } from "@/components/portal/sidebar";
 import { getShellSession } from "@/lib/portal/session";
 
+// Every route under this shell reads the authenticated session and production
+// database. Never let Next.js try to prerender it during a build.
+export const dynamic = "force-dynamic";
+
 /**
  * Signed-in app shell: navy sidebar rail, paper canvas, 1120px content
  * column. Auth here is shell-grade only (signed in, tolerate zero orgs so

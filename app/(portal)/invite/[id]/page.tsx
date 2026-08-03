@@ -9,6 +9,9 @@ import { getInvitationForAcceptPage } from "@/lib/portal/queries";
 import { acceptInvitationAction } from "./actions";
 import { SwitchAccountButton } from "./switch-account";
 
+// Invitation state and session membership are request-time data.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Team invitation - Peer Freight",
   robots: { index: false },

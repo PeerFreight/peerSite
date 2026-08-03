@@ -6,6 +6,10 @@ import { getDb } from "@/lib/db";
 import { findPendingInvitationForEmail, listUserOrganizations } from "@/lib/portal/queries";
 import { OnboardingForm } from "./onboarding-form";
 
+// Onboarding checks both the current session and organization membership.
+// Those reads must happen per request, not while Vercel is building the app.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Set up your company - Peer Freight",
   robots: { index: false },

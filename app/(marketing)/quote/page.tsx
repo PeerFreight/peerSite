@@ -171,6 +171,12 @@ export default function QuotePage() {
                     <label htmlFor="notes">Anything else we should know?</label>
                     <textarea id="notes" name="notes" placeholder="Accessorials (liftgate, tarps, team service), appointment requirements, reference numbers…"></textarea>
                   </div>
+                  <div className="sms-consent">
+                    <input id="sms-consent" name="sms_consent" type="checkbox" value="Yes — opted in to Peer Freight operational text messages" />
+                    <label htmlFor="sms-consent">
+                      I agree to receive conversational and operational text messages from Peer Freight about my quote requests and shipments at the number provided. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not a condition of purchase. See our <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms &amp; Conditions</a>.
+                    </label>
+                  </div>
                   <button className="btn btn--yellow" type="submit">
                     Send request
                     <span className="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
