@@ -1,6 +1,7 @@
 type Cta = { href: string; label: string };
 
-/** Marketing site header. `Log in` is the portal entry; the primary CTA
+/** Marketing site header. `Log in` sits with the primary CTA in the action
+ * cluster (it's a main call to action, not a nav tab); the primary CTA
  * stays per-page. */
 export function SiteHeader({ cta }: { cta: Cta }) {
   return (
@@ -13,9 +14,11 @@ export function SiteHeader({ cta }: { cta: Cta }) {
         <nav className="nav" aria-label="Primary">
           <a className="nav__home" href="/">Home</a>
           <a href="/carriers">For Carriers</a>
-          <a href="/login">Log in</a>
         </nav>
-        <a className="btn btn--white" href={cta.href}>{cta.label}</a>
+        <div className="site-header__actions">
+          <a className="btn btn--ghost" href="/login">Log in</a>
+          <a className="btn btn--white" href={cta.href}>{cta.label}</a>
+        </div>
       </div>
     </header>
   );

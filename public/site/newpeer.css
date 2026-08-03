@@ -211,6 +211,7 @@ p { margin: 0; }
 .nav { display: flex; gap: clamp(1.2rem, 3vw, 2.6rem); font-weight: 600; font-size: 0.98rem; color: #fff; }
 .nav a { opacity: 0.9; white-space: nowrap; transition: opacity 0.15s ease, color 0.15s ease; }
 .nav a:hover { opacity: 1; color: var(--accent); }
+.site-header__actions { display: flex; align-items: center; gap: 0.6rem; }
 
 /* ---------- Hero ---------- */
 .hero {
@@ -426,6 +427,8 @@ p { margin: 0; }
   .nav .nav__home { display: none; }
   .site-header__inner { gap: 0.6rem; padding-inline: 1rem; }
   .btn--white { padding: 0.5rem 0.9rem; font-size: 0.86rem; }
+  .site-header__actions { gap: 0.4rem; }
+  .site-header__actions .btn--ghost { padding: 0.5rem 0.9rem; font-size: 0.86rem; }
   .brand { gap: 0.45rem; }
   .brand__word { font-size: 1.05rem; }
   .brand__mark { width: 26px; height: 26px; }

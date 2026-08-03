@@ -63,11 +63,48 @@
 
   /* Navy backdrop for signed-out pages (login, signup, onboarding): the
      site's hero navy with a soft top glow so the white card reads as the
-     single lit surface. */
+     single lit surface. Sits behind the hero photo while it loads. */
   .auth-bg {
     background:
       radial-gradient(90% 55% at 50% 0%, rgba(19, 36, 74, 0.85) 0%, rgba(19, 36, 74, 0) 100%),
       linear-gradient(180deg, var(--color-navy-deep) 0%, var(--color-navy) 100%);
+  }
+
+  /* Wash over the hero photo on signed-out pages: the marketing hero's
+     overlay recipe (newpeer.css .hero::after), each stop pushed darker so
+     the login card reads as an overlay on a dimmed site, not a new page. */
+  .auth-overlay {
+    background:
+      linear-gradient(90deg, rgba(6, 15, 32, 0.92) 0%, rgba(6, 15, 32, 0.78) 45%, rgba(6, 15, 32, 0.62) 100%),
+      linear-gradient(0deg, rgba(6, 15, 32, 0.82), rgba(6, 15, 32, 0.30) 60%);
+  }
+
+  /* Brand lockup on signed-out pages, matched to the marketing header's
+     .brand__word (same size, weight, tracking, and gold-gradient Freight)
+     so the two lockups never drift apart. */
+  .auth-brand {
+    display: flex;
+    gap: 0.4rem;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    font-size: 1.5rem;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .auth-brand span:last-child {
+    background: linear-gradient(
+      180deg,
+      var(--color-gold-hi) 0%,
+      var(--color-gold-soft) 55%,
+      var(--color-gold) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* Paint past line-height:1 so the g descender isn't clipped. */
+    padding-bottom: 0.22em;
+    margin-bottom: -0.22em;
   }
 
   /* Alert enter: quick fade + 3px rise. Callers re-key the Alert per submit
