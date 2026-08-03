@@ -14,5 +14,8 @@ export async function sendEmail(opts: { to: string; subject: string; text: strin
     return;
   }
   const resend = new Resend(key);
-  await resend.emails.send({ from: FROM, ...opts });
+  const { error } = await resend.emails.send({ from: FROM, ...opts });
+  if (error) {
+    throw new Error(`Resend delivery failed: ${error.message}`);
+  }
 }
