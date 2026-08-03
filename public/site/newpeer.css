@@ -212,18 +212,32 @@ p { margin: 0; }
 .nav a { opacity: 0.9; white-space: nowrap; transition: opacity 0.15s ease, color 0.15s ease; }
 .nav a:hover { opacity: 1; color: var(--accent); }
 .site-header__actions { display: flex; align-items: center; gap: 0.6rem; }
-/* Header pills carry no icon, so use the symmetric padding. */
-.site-header__actions .btn--yellow { padding: 0.7rem 1.5rem; }
+/* Header pills: the brand CTA at header scale — smaller type, mini icon disc. */
+.site-header__actions .btn { font-size: 0.92rem; padding: 0.4rem 0.5rem 0.4rem 1.2rem; gap: 0.6rem; }
+.site-header__actions .btn__icon { width: 28px; height: 28px; }
+.site-header__actions .btn__icon svg { width: 14px; height: 14px; }
 
 /* ---------- Hero ---------- */
 .hero {
   position: relative;
   min-height: 100svh;
   display: flex; align-items: center;
-  padding: calc(var(--header-h) + clamp(2.5rem, 6vw, 4.5rem)) 0 clamp(2.5rem, 5vw, 4rem);
+  /* Extra bottom padding keeps the CTAs clear of the proof strip. */
+  padding: calc(var(--header-h) + clamp(2.5rem, 6vw, 4.5rem)) 0 clamp(8rem, 13vw, 11rem);
   background: var(--navy);
   overflow: hidden;
 }
+/* Proof strip pinned to the hero's bottom: the mentors/advisors band moved
+   onto the photo, so the first screen carries credibility instead of empty
+   foreground. */
+.hero__band {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 2;
+  padding: clamp(1.1rem, 2vw, 1.6rem) 0 clamp(1.2rem, 2.2vw, 1.8rem);
+  background: linear-gradient(0deg, rgba(6, 15, 32, 0.78), rgba(6, 15, 32, 0));
+}
+.hero__band .logo-band__label { margin-bottom: clamp(0.9rem, 1.6vw, 1.2rem); }
 /* Anchor right so narrow (portrait) crops keep the truck cab, not just the trailer */
 .hero__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: right center; z-index: 0; }
 .hero::after {
@@ -430,7 +444,8 @@ p { margin: 0; }
   .site-header__inner { gap: 0.6rem; padding-inline: 1rem; }
   .btn--white { padding: 0.5rem 0.9rem; font-size: 0.86rem; }
   .site-header__actions { gap: 0.4rem; }
-  .site-header__actions .btn { padding: 0.5rem 0.9rem; font-size: 0.86rem; }
+  .site-header__actions .btn { padding: 0.45rem 0.9rem; font-size: 0.86rem; }
+  .site-header__actions .btn__icon { display: none; }
   .brand { gap: 0.45rem; }
   .brand__word { font-size: 1.05rem; }
   .brand__mark { width: 26px; height: 26px; }

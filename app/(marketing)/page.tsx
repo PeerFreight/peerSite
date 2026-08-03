@@ -59,22 +59,22 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </section>
 
-        {/* MENTORS AND ADVISORS */}
-        <section className="logo-band" id="mentors" aria-label="Mentors and advisors">
-          <div className="wrap">
-            <p className="logo-band__label">Mentors and advisors from</p>
-            <div className="logo-band__row">
-              <img src="/logos/atob.svg" alt="AtoB" />
-              <img src="/logos/cdl1000.svg" alt="CDL1000" />
-              <span className="logo--yc-lockup" role="img" aria-label="Y Combinator">
-                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18v18H3z" fill="none" stroke="currentColor" strokeWidth="1.5"/><path d="M11.5 13.5 8 7h1.9l2.1 4 2.1-4h1.9L12.5 13.5V17h-1z"/></svg>
-                <span>Combinator</span>
-              </span>
-              <img src="/logos/otr-transportation.svg" alt="OTR Transportation" />
-              <img className="logo--md" src="/logos/dynamic-connections.png" alt="Dynamic Connections" />
-              <img className="logo--tall" src="/logos/waylens.svg" alt="Waylens" />
+          {/* Mentors/advisors proof strip, pinned over the hero foreground */}
+          <div className="hero__band" id="mentors" aria-label="Mentors and advisors">
+            <div className="wrap">
+              <p className="logo-band__label">Mentors and advisors from</p>
+              <div className="logo-band__row">
+                <img src="/logos/atob.svg" alt="AtoB" />
+                <img src="/logos/cdl1000.svg" alt="CDL1000" />
+                <span className="logo--yc-lockup" role="img" aria-label="Y Combinator">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18v18H3z" fill="none" stroke="currentColor" strokeWidth="1.5"/><path d="M11.5 13.5 8 7h1.9l2.1 4 2.1-4h1.9L12.5 13.5V17h-1z"/></svg>
+                  <span>Combinator</span>
+                </span>
+                <img src="/logos/otr-transportation.svg" alt="OTR Transportation" />
+                <img className="logo--md" src="/logos/dynamic-connections.png" alt="Dynamic Connections" />
+                <img className="logo--tall" src="/logos/waylens.svg" alt="Waylens" />
+              </div>
             </div>
           </div>
         </section>
