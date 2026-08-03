@@ -148,6 +148,7 @@ export async function startTracking(
       actorId: admin.id,
       eventType: "tracking_started",
       payload: { sessionId, provider: provider.name, intervalMinutes: input.intervalMinutes },
+      via: admin.via,
     });
   });
 
@@ -161,7 +162,7 @@ export async function stopTracking(db: PortalDb, admin: AdminUser, loadId: strin
   if (!detail) throw new Error("Load not found");
   const session = await getLiveSessionForLoad(db, loadId);
   if (!session) throw new Error("No live tracking session on this load");
-  await stopSession(db, session, { actorType: "admin", actorId: admin.id });
+  await stopSession(db, session, { actorType: "admin", actorId: admin.id, via: admin.via });
   return { sessionId: session.id };
 }
 
@@ -169,7 +170,7 @@ export async function stopTracking(db: PortalDb, admin: AdminUser, loadId: strin
 async function stopSession(
   db: PortalDb,
   session: typeof schema.trackingSessions.$inferSelect,
-  actor: { actorType: "admin" | "system"; actorId: string | null },
+  actor: { actorType: "admin" | "system"; actorId: string | null; via?: "web" | "agent" },
   extra?: { publicExpiresAt?: Date; reason?: string },
 ) {
   if (session.externalOrderId) {
@@ -195,6 +196,7 @@ async function stopSession(
       actorId: actor.actorId,
       eventType: "tracking_stopped",
       payload: { sessionId: session.id, ...(extra?.reason ? { reason: extra.reason } : {}) },
+      via: actor.via,
     });
   });
 }
@@ -212,7 +214,7 @@ export async function expirePublicLinkOnDelivery(db: PortalDb, admin: AdminUser,
     await stopSession(
       db,
       live,
-      { actorType: "admin", actorId: admin.id },
+      { actorType: "admin", actorId: admin.id, via: admin.via },
       { publicExpiresAt: expiresAt, reason: "delivered" },
     );
     return;
@@ -253,6 +255,7 @@ export async function revokePublicLink(db: PortalDb, admin: AdminUser, sessionId
       actorId: admin.id,
       eventType: "tracking_link_revoked",
       payload: { sessionId },
+      via: admin.via,
     });
   });
   return { publicToken };

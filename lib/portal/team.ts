@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import * as schema from "@/db/schema";
 import {
   appendEvent,
@@ -74,4 +74,66 @@ export async function inviteTeammateAsAdmin(
     });
   });
   return { invitationId, email: normalized, role, orgName: org.name, expiresAt };
+}
+
+/**
+ * Founder/agent cancel of a pending invitation, by invitation id or invitee
+ * email. Writes the same "canceled" status the Better Auth cancelInvitation
+ * endpoint uses (shipper-side Settings path), so both paths look identical
+ * to the accept page and the pending list.
+ */
+export async function cancelInvitationAsAdmin(db: PortalDb, admin: AdminUser, ref: string) {
+  assertAdmin(admin);
+  const normalized = ref.trim();
+  const byId = await db
+    .select()
+    .from(schema.invitation)
+    .where(eq(schema.invitation.id, normalized))
+    .limit(1);
+  const invitation =
+    byId[0] ?? (await findPendingInvitationRow(db, normalized.toLowerCase()));
+  if (!invitation) throw new Error(`No invitation matching "${ref}"`);
+  if (invitation.status !== "pending") {
+    throw new Error(`That invitation is already ${invitation.status}`);
+  }
+  const orgRows = await db
+    .select({ name: schema.organization.name })
+    .from(schema.organization)
+    .where(eq(schema.organization.id, invitation.organizationId))
+    .limit(1);
+  await db.transaction(async (tx) => {
+    await tx
+      .update(schema.invitation)
+      .set({ status: "canceled" })
+      .where(eq(schema.invitation.id, invitation.id));
+    await appendEvent(tx, {
+      organizationId: invitation.organizationId,
+      actorType: "admin",
+      actorId: admin.id,
+      eventType: "teammate_invite_cancelled",
+      payload: { email: invitation.email },
+      via: admin.via,
+    });
+  });
+  return {
+    invitationId: invitation.id,
+    email: invitation.email,
+    orgName: orgRows[0]?.name ?? invitation.organizationId,
+  };
+}
+
+/** Pending, unexpired invitation row for an email (full row, unlike the
+ * narrow projection in queries.ts). */
+async function findPendingInvitationRow(db: PortalDb, email: string) {
+  const rows = await db
+    .select()
+    .from(schema.invitation)
+    .where(
+      and(
+        sql`lower(${schema.invitation.email}) = ${email}`,
+        eq(schema.invitation.status, "pending"),
+      ),
+    )
+    .limit(1);
+  return rows[0] ?? null;
 }

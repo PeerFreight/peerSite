@@ -37,16 +37,26 @@ import {
   composeLoadStatus,
   composeNeedsInfo,
   composeQuoteSent,
+  composeTrackingLink,
   deliver,
   type ComposedEmail,
 } from "@/lib/portal/notify";
 import { needsInfoSchema, sendQuoteSchema, hazmatSummary, laneSummary } from "@/lib/portal/rfq";
 import { assertAdmin } from "@/lib/portal/roles";
-import { inviteTeammateAsAdmin, INVITABLE_ROLES, type InvitableRole } from "@/lib/portal/team";
-import { trackingPublicUrl } from "@/lib/portal/tracking";
+import {
+  cancelInvitationAsAdmin,
+  inviteTeammateAsAdmin,
+  INVITABLE_ROLES,
+  type InvitableRole,
+} from "@/lib/portal/team";
+import { PUBLIC_LINK_TTL_DAYS, trackingPublicUrl } from "@/lib/portal/tracking";
 import {
   expirePublicLinkOnDelivery,
   getLiveSessionForLoad,
+  getTrackingForAdmin,
+  recordPing,
+  revokePublicLink,
+  startTracking,
   stopTracking,
 } from "@/lib/portal/tracking-queries";
 import { appendEvent, type PortalDb } from "@/lib/portal/queries";
@@ -771,6 +781,159 @@ const COMMANDS: Record<string, Command> = {
     },
   },
 
+  "start-tracking": {
+    usage: "start-tracking <ref> [--interval 30]",
+    describe: "Start live tracking (needs a carrier with a driver phone); prints the public link",
+    positionals: "<ref>",
+    options: { interval: { type: "string" } },
+    run: async (ctx, [ref], values) => {
+      if (!ref) throw new Error("Usage: start-tracking <ref>");
+      const interval = Number(str(values, "interval") ?? "30");
+      if (!Number.isInteger(interval) || interval < 5 || interval > 240) {
+        throw new Error("--interval must be a whole number of minutes, 5-240");
+      }
+      const detail = await resolveLoad(ctx.db, ctx.admin, ref);
+      const result = await startTracking(ctx.db, ctx.admin, detail.load.id, {
+        intervalMinutes: interval,
+      });
+      return {
+        text: [
+          `Tracking started on ${detail.load.reference} via ${result.provider}, pings every ${interval} min.`,
+          `Public link (shareable, no login): ${trackingPublicUrl(result.publicToken)}`,
+          `Use send-link ${detail.load.reference} to email it, or it rides along on the dispatch/in-transit status email.`,
+        ].join("\n"),
+        json: result,
+        emails: [],
+      };
+    },
+  },
+
+  "stop-tracking": {
+    usage: "stop-tracking <ref>",
+    describe: "Stop the live tracking session (no shipper email)",
+    positionals: "<ref>",
+    run: async (ctx, [ref]) => {
+      if (!ref) throw new Error("Usage: stop-tracking <ref>");
+      const detail = await resolveLoad(ctx.db, ctx.admin, ref);
+      const result = await stopTracking(ctx.db, ctx.admin, detail.load.id);
+      return {
+        text: `Tracking stopped on ${detail.load.reference}.`,
+        json: result,
+        emails: [],
+      };
+    },
+  },
+
+  "revoke-link": {
+    usage: "revoke-link <ref>",
+    describe: "Rotate the public tracking link; the old URL dies immediately",
+    positionals: "<ref>",
+    run: async (ctx, [ref]) => {
+      if (!ref) throw new Error("Usage: revoke-link <ref>");
+      const detail = await resolveLoad(ctx.db, ctx.admin, ref);
+      const tracking = await getTrackingForAdmin(ctx.db, ctx.admin, detail.load.id);
+      if (!tracking) throw new Error(`No tracking session on ${detail.load.reference}`);
+      const result = await revokePublicLink(ctx.db, ctx.admin, tracking.session.id);
+      return {
+        text: [
+          `Old tracking link on ${detail.load.reference} is dead.`,
+          `Fresh link (send-link emails it): ${trackingPublicUrl(result.publicToken)}`,
+        ].join("\n"),
+        json: { sessionId: tracking.session.id, publicToken: result.publicToken },
+        emails: [],
+      };
+    },
+  },
+
+  "send-link": {
+    usage: "send-link <ref>",
+    describe: "Email the shipper the public tracking link (logged on the timeline)",
+    positionals: "<ref>",
+    run: async (ctx, [ref]) => {
+      if (!ref) throw new Error("Usage: send-link <ref>");
+      const detail = await resolveLoad(ctx.db, ctx.admin, ref);
+      const tracking = await getTrackingForAdmin(ctx.db, ctx.admin, detail.load.id);
+      if (!tracking || ["stopped", "error"].includes(tracking.session.status)) {
+        throw new Error("No live tracking session on this load");
+      }
+      const email = await deliver(
+        composeTrackingLink({
+          to: detail.requesterEmail,
+          reference: detail.load.reference,
+          publicUrl: trackingPublicUrl(tracking.session.publicToken),
+          ttlDays: PUBLIC_LINK_TTL_DAYS,
+        }),
+      );
+      await appendEvent(ctx.db, {
+        organizationId: detail.load.organizationId,
+        quoteRequestId: detail.load.quoteRequestId,
+        loadId: detail.load.id,
+        actorType: "admin",
+        actorId: ctx.admin.id,
+        eventType: "tracking_link_sent",
+        payload: { sessionId: tracking.session.id, to: detail.requesterEmail },
+        via: ctx.admin.via,
+      });
+      return {
+        text: `Tracking link for ${detail.load.reference} emailed to ${detail.requesterEmail}.`,
+        json: { sessionId: tracking.session.id, to: detail.requesterEmail },
+        emails: [email],
+      };
+    },
+  },
+
+  "record-ping": {
+    usage: "record-ping <ref> --lat 38.24 --lng -122.04 [--city Fairfield --state CA] [--eta 2026-08-06T21:00:00Z]",
+    describe: "Key in a position from a check call (manual ping on the live session)",
+    positionals: "<ref>",
+    options: {
+      lat: { type: "string" },
+      lng: { type: "string" },
+      city: { type: "string" },
+      state: { type: "string" },
+      eta: { type: "string" },
+    },
+    run: async (ctx, [ref], values) => {
+      if (!ref) throw new Error("Usage: record-ping <ref> --lat --lng");
+      const lat = Number(need(values, "lat"));
+      const lng = Number(need(values, "lng"));
+      if (!Number.isFinite(lat) || lat < -90 || lat > 90) {
+        throw new Error("--lat must be decimal degrees, -90 to 90");
+      }
+      if (!Number.isFinite(lng) || lng < -180 || lng > 180) {
+        throw new Error("--lng must be decimal degrees, -180 to 180");
+      }
+      let etaAt: Date | null = null;
+      const eta = str(values, "eta");
+      if (eta) {
+        etaAt = new Date(eta);
+        if (Number.isNaN(etaAt.getTime())) throw new Error("--eta must be an ISO date-time");
+      }
+      const detail = await resolveLoad(ctx.db, ctx.admin, ref);
+      const live = await getLiveSessionForLoad(ctx.db, detail.load.id);
+      if (!live) throw new Error("No live tracking session on this load");
+      const result = await recordPing(ctx.db, live, {
+        kind: "ping",
+        lat,
+        lng,
+        recordedAt: new Date(),
+        city: str(values, "city") ?? null,
+        state: str(values, "state") ?? null,
+        etaAt,
+        providerStatus: null,
+        providerEventId: null,
+        source: "manual",
+      });
+      return {
+        text: result.inserted
+          ? `Manual ping (${lat}, ${lng}) recorded on ${detail.load.reference}.`
+          : `Duplicate ping ignored on ${detail.load.reference}.`,
+        json: { ...result, lat, lng },
+        emails: [],
+      };
+    },
+  },
+
   invite: {
     usage: "invite <email> --org <slug> [--role member|admin]",
     describe: "Invite a teammate into a customer org (emails the invite link)",
@@ -802,6 +965,21 @@ const COMMANDS: Record<string, Command> = {
         text: `Invited ${result.email} to ${result.orgName} as ${role}. Expires ${result.expiresAt.toISOString().slice(0, 10)}.`,
         json: result,
         emails: [composed],
+      };
+    },
+  },
+
+  "cancel-invite": {
+    usage: "cancel-invite <email-or-invitationId>",
+    describe: "Cancel a pending teammate invitation (the invite link stops working)",
+    positionals: "<email-or-invitationId>",
+    run: async ({ db, admin }, [ref]) => {
+      if (!ref) throw new Error("Usage: cancel-invite <email-or-invitationId>");
+      const result = await cancelInvitationAsAdmin(db, admin, ref);
+      return {
+        text: `Invitation to ${result.email} (${result.orgName}) canceled; the invite link no longer works.`,
+        json: result,
+        emails: [],
       };
     },
   },
@@ -848,6 +1026,25 @@ export function usageText(): string {
   return lines.join("\n");
 }
 
+/** parseArgs reads "--lng -122.04" as two options because the value starts
+ * with a dash; negative numbers must ride in the same token (--lng=-122.04).
+ * Join them here so coordinates paste naturally. */
+function joinNegativeNumberValues(args: string[], options: ParseArgsConfig["options"]) {
+  const out: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    const name = arg.startsWith("--") && !arg.includes("=") ? arg.slice(2) : null;
+    const next = args[i + 1];
+    if (name && options?.[name]?.type === "string" && next && /^-\d/.test(next)) {
+      out.push(`${arg}=${next}`);
+      i++;
+    } else {
+      out.push(arg);
+    }
+  }
+  return out;
+}
+
 export async function runCommand(
   db: PortalDb,
   admin: AdminUser,
@@ -860,7 +1057,7 @@ export async function runCommand(
     throw new Error(`Unknown command "${name}". Run "help" for the command list.`);
   }
   const { positionals, values } = parseArgs({
-    args: rest,
+    args: joinNegativeNumberValues(rest, command.options ?? {}),
     options: command.options ?? {},
     allowPositionals: true,
     strict: true,

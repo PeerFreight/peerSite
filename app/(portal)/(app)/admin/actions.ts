@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { LoadStatus } from "@/db/schema";
-import { sendEmail } from "@/lib/email";
 import {
   addDocument,
   bookLoad,
@@ -36,6 +35,7 @@ import {
   composeLoadStatus,
   composeNeedsInfo,
   composeQuoteSent,
+  composeTrackingLink,
   deliver,
 } from "@/lib/portal/notify";
 import { needsInfoSchema, sendQuoteSchema } from "@/lib/portal/rfq";
@@ -641,17 +641,14 @@ export async function sendTrackingLinkAction(
     if (!tracking || ["stopped", "error"].includes(tracking.session.status)) {
       throw new Error("No live tracking session on this load");
     }
-    await sendEmail({
-      to: detail.requesterEmail,
-      subject: `Live tracking for ${detail.load.reference}`,
-      text: [
-        `Follow your freight live on a map: ${trackingPublicUrl(tracking.session.publicToken)}`,
-        "",
-        `Anyone you share the link with can watch — no login needed. It stays live until ${PUBLIC_LINK_TTL_DAYS} days after delivery.`,
-        "",
-        "Peer Freight",
-      ].join("\n"),
-    });
+    await deliver(
+      composeTrackingLink({
+        to: detail.requesterEmail,
+        reference: detail.load.reference,
+        publicUrl: trackingPublicUrl(tracking.session.publicToken),
+        ttlDays: PUBLIC_LINK_TTL_DAYS,
+      }),
+    );
     await appendEvent(db, {
       organizationId: detail.load.organizationId,
       quoteRequestId: detail.load.quoteRequestId,

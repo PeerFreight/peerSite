@@ -268,3 +268,24 @@ export function composeInviteEmail(input: {
     ]),
   };
 }
+
+/** Re-send of the public tracking link. The URL and TTL arrive as data
+ * (this file stays free of tracking imports). */
+export function composeTrackingLink(input: {
+  to: string;
+  reference: string;
+  publicUrl: string;
+  ttlDays: number;
+}): ComposedEmail {
+  return {
+    to: input.to,
+    subject: `Live tracking for ${input.reference}`,
+    text: joinLines([
+      `Follow your freight live on a map: ${input.publicUrl}`,
+      "",
+      `Anyone you share the link with can watch, no login needed. It stays live until ${input.ttlDays} days after delivery.`,
+      "",
+      "Peer Freight",
+    ]),
+  };
+}
