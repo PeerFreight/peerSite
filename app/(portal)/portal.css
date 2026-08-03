@@ -75,8 +75,8 @@
      the login card reads as an overlay on a dimmed site, not a new page. */
   .auth-overlay {
     background:
-      linear-gradient(90deg, rgba(6, 15, 32, 0.92) 0%, rgba(6, 15, 32, 0.78) 45%, rgba(6, 15, 32, 0.62) 100%),
-      linear-gradient(0deg, rgba(6, 15, 32, 0.82), rgba(6, 15, 32, 0.30) 60%);
+      linear-gradient(90deg, rgba(6, 15, 32, 0.96) 0%, rgba(6, 15, 32, 0.88) 45%, rgba(6, 15, 32, 0.78) 100%),
+      linear-gradient(0deg, rgba(6, 15, 32, 0.9), rgba(6, 15, 32, 0.5) 60%);
   }
 
   /* Brand lockup on signed-out pages, matched to the marketing header's

@@ -16,8 +16,8 @@ export function SiteHeader({ cta }: { cta: Cta }) {
           <a href="/carriers">For Carriers</a>
         </nav>
         <div className="site-header__actions">
-          <a className="btn btn--ghost" href="/login">Log in</a>
           <a className="btn btn--white" href={cta.href}>{cta.label}</a>
+          <a className="btn btn--yellow" href="/login">Log in</a>
         </div>
       </div>
     </header>
