@@ -48,6 +48,12 @@ class GcsStorage implements DocumentStorage {
     // lib/db.ts makes for the Cloud SQL connector).
     this.storage = new Storage({
       projectId: process.env.PORTAL_GCP_PROJECT,
+      // Storage's signer needs the impersonated principal's email to call
+      // IAM signBlob. The external-account client has it, but Storage wraps
+      // that client in its own auth-library copy and cannot recognize the
+      // cross-package class at runtime, so provide the non-secret identity
+      // explicitly as credential metadata (there is intentionally no key).
+      credentials: { client_email: process.env.PORTAL_GCP_SERVICE_ACCOUNT },
       authClient: authClient as unknown as NonNullable<StorageOptions["authClient"]>,
     });
   }
