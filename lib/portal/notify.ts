@@ -1,5 +1,6 @@
 import { sendEmail } from "@/lib/email";
 import { LOAD_STATUS_EMAIL } from "@/lib/portal/loads";
+import { hazmatSummary, laneSummary, type RfqInput } from "@/lib/portal/rfq";
 import { baseUrl } from "@/lib/portal/urls";
 import type { LoadStatus } from "@/db/schema";
 
@@ -284,6 +285,67 @@ export function composeTrackingLink(input: {
       `Follow your freight live on a map: ${input.publicUrl}`,
       "",
       `Anyone you share the link with can watch, no login needed. It stays live until ${input.ttlDays} days after delivery.`,
+      "",
+      "Peer Freight",
+    ]),
+  };
+}
+
+/**
+ * Desk alert for a new quote request, shared by the signed-in portal action
+ * and the public guest funnel so the two can never drift. `note` is the
+ * funnel marker (e.g. "New account created through the public quote page").
+ */
+export function composeRfqTeamAlert(input: {
+  orgName: string;
+  requesterName: string;
+  requesterEmail: string;
+  requestId: string;
+  rfq: RfqInput;
+  note?: string | null;
+}): ComposedEmail {
+  const lane = laneSummary(input.rfq);
+  return {
+    to: "team@peer-freight.com",
+    subject: `New quote request: ${lane}`,
+    text: joinLines([
+      `${input.orgName} (${input.requesterName}, ${input.requesterEmail}) submitted a quote request.`,
+      input.note ? `\n${input.note}` : null,
+      "",
+      `- Lane: ${lane}`,
+      `- Pickup: ${input.rfq.pickupDate}`,
+      `- Equipment: ${input.rfq.equipment}`,
+      `- Commodity: ${input.rfq.commodity}`,
+      `- Weight: ${input.rfq.weightLbs} lbs`,
+      input.rfq.hazmat ? `- HAZMAT (${hazmatSummary(input.rfq)}): review before quoting` : null,
+      "",
+      `Quote it: ${baseUrl()}/admin/quotes/${input.requestId}`,
+    ]),
+  };
+}
+
+/** Sent once, right after the guest funnel creates the account and files
+ * the first request. The quote-ready email carries the price later; this
+ * one confirms both things happened and where they live. */
+export function composeGuestWelcome(input: {
+  to: string;
+  name: string;
+  requestId: string;
+}): ComposedEmail {
+  const first = input.name.trim().split(/\s+/)[0] || input.name;
+  return {
+    to: input.to,
+    subject: "Your Peer Freight account and quote request are in",
+    text: joinLines([
+      `Hi ${first}!`,
+      "",
+      "Your Peer Freight account is ready and your quote request is with us. One of the owners prices it personally and gets back to you within the hour during business hours.",
+      "",
+      `Follow it here: ${baseUrl()}/quotes/${input.requestId}`,
+      "",
+      `That page is also where the price lands. Sign in any time at ${baseUrl()}/login with this email address.`,
+      "",
+      "Reply to this email if anything about the shipment changes.",
       "",
       "Peer Freight",
     ]),

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -371,9 +371,15 @@ export function RfqForm({
   }
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    const parsed = rfqSchema.safeParse(rfqFromFormData(new FormData(e.currentTarget)));
+    // Always dispatch the action manually: React 19 auto-resets every
+    // uncontrolled field after a native form-action submission, which would
+    // wipe the wizard whenever the server returns an error (or flips the
+    // guest account step to sign-in). Manual dispatch skips that reset, so
+    // nothing typed is ever lost.
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const parsed = rfqSchema.safeParse(rfqFromFormData(fd));
     if (!parsed.success) {
-      e.preventDefault();
       showErrors(
         z.flattenError(parsed.error).fieldErrors as FieldErrors,
         "Fix the highlighted fields and resubmit.",
@@ -382,10 +388,11 @@ export function RfqForm({
     }
     setErrors({});
     setFormError(null);
+    startTransition(() => formAction(fd));
   }
 
   return (
-    <form ref={formRef} action={formAction} onSubmit={onSubmit} noValidate className="scroll-mt-6 space-y-6">
+    <form ref={formRef} onSubmit={onSubmit} noValidate className="scroll-mt-6 space-y-6">
       <Stepper step={step} erred={erredSteps} onBack={(n) => n < step && goTo(n)} />
 
       {/* Step 1 — Lane & dates: one attached surface, sections at hairline joints. */}

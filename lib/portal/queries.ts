@@ -48,6 +48,41 @@ export async function requireMembership(db: PortalDb, userId: string, orgId: str
   return org;
 }
 
+function slugify(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+}
+
+/**
+ * Company profile for a brand-new guest account: org + owner membership in
+ * one transaction (the server-side twin of the onboarding form's client
+ * call). The random slug suffix keeps same-named companies apart; on the
+ * unlikely collision the unique constraint fires and we retry fresh.
+ */
+export async function createOrganizationWithOwner(db: PortalDb, userId: string, name: string) {
+  for (let attempt = 0; ; attempt++) {
+    const slug = `${slugify(name) || "company"}-${crypto.randomUUID().slice(0, 4)}`;
+    try {
+      return await db.transaction(async (tx) => {
+        const orgId = crypto.randomUUID();
+        await tx.insert(schema.organization).values({ id: orgId, name, slug });
+        await tx.insert(schema.member).values({
+          id: crypto.randomUUID(),
+          organizationId: orgId,
+          userId,
+          role: "owner",
+        });
+        return { id: orgId, name, slug, role: "owner" as const };
+      });
+    } catch (err) {
+      if (attempt >= 2) throw err;
+    }
+  }
+}
+
 /** Whether the user can sign in with a password at all — decides Set vs
  * Change password in Settings (magic-link/social users have no credential
  * account row). */
