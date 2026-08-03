@@ -1,25 +1,73 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { changePasswordAction, setPasswordAction, type SettingsFormState } from "./actions";
+import { ValueRow } from "./value-row";
 
 /**
  * Set vs Change is decided server-side (hasCredentialAccount): magic-link
  * and social accounts have no password yet, so they get the set-a-password
- * form instead of a "current password" field they cannot fill.
+ * form instead of a "current password" field they cannot fill. Either way
+ * the section rests collapsed; the form opens on demand.
  */
 export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
-  return hasPassword ? <ChangePasswordForm /> : <SetPasswordForm />;
+  const [editing, setEditing] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const open = () => {
+    setNotice(null);
+    setEditing(true);
+  };
+  if (editing) {
+    return hasPassword ? (
+      <ChangePasswordForm
+        onCancel={() => setEditing(false)}
+        onDone={() => {
+          setEditing(false);
+          setNotice("Password changed. Your other devices were signed out.");
+        }}
+      />
+    ) : (
+      <SetPasswordForm
+        onCancel={() => setEditing(false)}
+        onDone={() => {
+          setEditing(false);
+          setNotice("Password set.");
+        }}
+      />
+    );
+  }
+  return hasPassword ? (
+    <ValueRow
+      label="Password"
+      value={"•".repeat(10)}
+      notice={notice}
+      hint="Changing it signs out your other devices."
+      actionLabel="Change password"
+      onAction={open}
+    />
+  ) : (
+    <ValueRow
+      label="Password"
+      value="Not set"
+      notice={notice}
+      hint="You sign in with email links (or Google/Microsoft). Set a password to also sign in the classic way."
+      actionLabel="Set password"
+      onAction={open}
+    />
+  );
 }
 
-function ChangePasswordForm() {
+function ChangePasswordForm({ onCancel, onDone }: { onCancel: () => void; onDone: () => void }) {
   const [state, formAction, pending] = useActionState<SettingsFormState, FormData>(
     changePasswordAction,
     null,
   );
+  useEffect(() => {
+    if (state?.ok) onDone();
+  }, [state, onDone]);
   return (
     <form action={formAction} className="space-y-4">
       <Field label="Current password" htmlFor="current-password">
@@ -28,6 +76,7 @@ function ChangePasswordForm() {
           name="currentPassword"
           autoComplete="current-password"
           required
+          autoFocus
         />
       </Field>
       <Field
@@ -48,26 +97,24 @@ function ChangePasswordForm() {
         <Button type="submit" variant="navy" size="sm" disabled={pending}>
           {pending ? "Saving..." : "Change password"}
         </Button>
-        {state?.ok ? (
-          <p className="text-sm font-bold text-green-800">Password changed.</p>
-        ) : null}
+        <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+          Cancel
+        </Button>
       </div>
     </form>
   );
 }
 
-function SetPasswordForm() {
+function SetPasswordForm({ onCancel, onDone }: { onCancel: () => void; onDone: () => void }) {
   const [state, formAction, pending] = useActionState<SettingsFormState, FormData>(
     setPasswordAction,
     null,
   );
+  useEffect(() => {
+    if (state?.ok) onDone();
+  }, [state, onDone]);
   return (
     <form action={formAction} className="space-y-4">
-      <p className="text-sm text-muted">
-        You sign in with email links{" "}
-        <span className="whitespace-nowrap">(or Google/Microsoft)</span>. Set a
-        password to also sign in the classic way.
-      </p>
       <Field
         label="New password"
         htmlFor="set-password"
@@ -80,13 +127,16 @@ function SetPasswordForm() {
           autoComplete="new-password"
           required
           minLength={8}
+          autoFocus
         />
       </Field>
       <div className="flex items-center gap-3">
         <Button type="submit" variant="navy" size="sm" disabled={pending}>
           {pending ? "Saving..." : "Set password"}
         </Button>
-        {state?.ok ? <p className="text-sm font-bold text-green-800">Password set.</p> : null}
+        <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+          Cancel
+        </Button>
       </div>
     </form>
   );
