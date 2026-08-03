@@ -2,11 +2,12 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, normalize } from "node:path";
 import { Storage, type StorageOptions } from "@google-cloud/storage";
+import { getVercelOidcToken } from "@vercel/oidc";
 import { ExternalAccountClient } from "google-auth-library";
 
 /**
  * Document blob storage. Two backends behind one interface, chosen by env:
- * - Deployed on Vercel: the GCS documents bucket (PORTAL_GCS_BUCKET),
+ * - Deployed on Vercel: the GCS documents bucket (PORTAL_DOCUMENTS_BUCKET),
  *   authorized through Workload Identity Federation with Vercel's OIDC token
  *   — same no-keys posture as lib/db.ts. Downloads are short-lived V4 signed
  *   URLs, so unsigned bucket URLs never work.
@@ -37,11 +38,7 @@ class GcsStorage implements DocumentStorage {
       token_url: "https://sts.googleapis.com/v1/token",
       service_account_impersonation_url: `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${process.env.PORTAL_GCP_SERVICE_ACCOUNT}:generateAccessToken`,
       subject_token_supplier: {
-        getSubjectToken: async () => {
-          const token = process.env.VERCEL_OIDC_TOKEN;
-          if (!token) throw new Error("VERCEL_OIDC_TOKEN is not available");
-          return token;
-        },
+        getSubjectToken: getVercelOidcToken,
       },
     })!;
     // V4 signing works without a private key: the auth library signs via the
@@ -100,7 +97,7 @@ let cached: DocumentStorage | undefined;
 
 export function getStorage(): DocumentStorage {
   if (!cached) {
-    const bucket = process.env.PORTAL_GCS_BUCKET;
+    const bucket = process.env.PORTAL_DOCUMENTS_BUCKET;
     cached = bucket
       ? new GcsStorage(bucket)
       : new LocalDiskStorage(process.env.PORTAL_DOCS_DIR ?? ".devdocs");

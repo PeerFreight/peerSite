@@ -1,4 +1,5 @@
 import { Connector, IpAddressTypes, type AuthClient } from "@google-cloud/cloud-sql-connector";
+import { getVercelOidcToken } from "@vercel/oidc";
 import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import { ExternalAccountClient } from "google-auth-library";
 import { Pool } from "pg";
@@ -24,12 +25,9 @@ async function makePool(): Promise<Pool> {
       token_url: "https://sts.googleapis.com/v1/token",
       service_account_impersonation_url: `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${process.env.PORTAL_GCP_SERVICE_ACCOUNT}:generateAccessToken`,
       subject_token_supplier: {
-        // Vercel injects the deployment's OIDC token into the runtime env.
-        getSubjectToken: async () => {
-          const token = process.env.VERCEL_OIDC_TOKEN;
-          if (!token) throw new Error("VERCEL_OIDC_TOKEN is not available");
-          return token;
-        },
+        // Builds/local development receive VERCEL_OIDC_TOKEN as an env var;
+        // deployed Functions receive it through the request context header.
+        getSubjectToken: getVercelOidcToken,
       },
     })!;
     const connector = new Connector({

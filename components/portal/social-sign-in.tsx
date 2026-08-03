@@ -56,10 +56,12 @@ export function SocialSignIn({
   errorCallbackURL: string;
 }) {
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   if (!providers.google && !providers.microsoft) return null;
 
   async function start(provider: "google" | "microsoft") {
     setBusy(true);
+    setError(null);
     // On success this navigates away to the provider; only an immediate
     // failure (network, misconfig) returns here.
     const { error } = await authClient.signIn.social({
@@ -67,7 +69,10 @@ export function SocialSignIn({
       callbackURL,
       errorCallbackURL,
     });
-    if (error) setBusy(false);
+    if (error) {
+      setError("Social sign-in is temporarily unavailable. Try again in a moment or use email instead.");
+      setBusy(false);
+    }
   }
 
   return (
@@ -101,6 +106,7 @@ export function SocialSignIn({
         <span className="text-xs font-bold uppercase tracking-wide text-muted">or</span>
         <span className="h-px flex-1 bg-line" />
       </div>
+      {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
     </div>
   );
 }
