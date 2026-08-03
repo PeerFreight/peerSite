@@ -290,7 +290,7 @@ export const loads = pgTable(
   "loads",
   {
     id: text("id").primaryKey(),
-    /** Human reference, e.g. PEER-1001. What shippers and carriers quote back. */
+    /** Human reference, e.g. PEER-48293 (random, non-sequential). What shippers and carriers quote back. */
     reference: text("reference").notNull(),
     organizationId: text("organization_id")
       .notNull()

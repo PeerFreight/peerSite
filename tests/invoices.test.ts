@@ -122,7 +122,7 @@ describe("createInvoice", () => {
     expect(invoice?.dueDate).toBe("2026-09-05");
   });
 
-  it("increments the INV sequence and takes an explicit amount", async () => {
+  it("assigns distinct random INV numbers and takes an explicit amount", async () => {
     const a = await makeLoad("delivered");
     const b = await makeLoad("delivered");
     const invA = await createInvoice(db, admin, a.loadId, { dueDate: "2026-09-05" });
@@ -130,7 +130,9 @@ describe("createInvoice", () => {
       amountUsd: "2000.00",
       dueDate: "2026-09-10",
     });
-    expect(Number(invB.number.split("-")[1])).toBe(Number(invA.number.split("-")[1]) + 1);
+    // Non-sequential by design: sequential numbers would reveal invoice volume.
+    expect(invB.number).toMatch(/^INV-\d{5}$/);
+    expect(invB.number).not.toBe(invA.number);
     expect(invB.amountUsd).toBe("2000.00");
   });
 

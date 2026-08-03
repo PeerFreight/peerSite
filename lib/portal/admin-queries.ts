@@ -17,6 +17,21 @@ import { assertAdmin, type PortalUser } from "@/lib/portal/roles";
  */
 export type AdminUser = PortalUser & { id: string; via?: "web" | "agent" };
 
+/**
+ * Random 5-digit reference (PEER-48293, INV-73102). Deliberately not
+ * sequential: two sequential references would let a customer count every
+ * load Peer moved between their own bookings. The caller's `taken` check
+ * runs inside its transaction; the unique index is the race backstop.
+ */
+async function uniqueReference(prefix: string, taken: (ref: string) => Promise<boolean>) {
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const n = 10000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 90000);
+    const candidate = `${prefix}-${n}`;
+    if (!(await taken(candidate))) return candidate;
+  }
+  throw new Error(`Could not allocate a unique ${prefix} reference`);
+}
+
 /** Open RFQs oldest-first across all orgs — "quote within the hour" is the
  * product, so the queue surfaces the longest-waiting request on top. */
 export async function listOpenQuoteRequests(db: PortalDb, admin: AdminUser) {
@@ -202,10 +217,17 @@ export async function bookLoad(db: PortalDb, admin: AdminUser, quoteId: string) 
   const loadId = crypto.randomUUID();
   let reference = "";
   await db.transaction(async (tx) => {
-    const seq = (await tx.execute(sql`select nextval('load_reference_seq') as n`)) as unknown as {
-      rows: { n: string | number | bigint }[];
-    };
-    reference = `PEER-${seq.rows[0].n}`;
+    reference = await uniqueReference(
+      "PEER",
+      async (ref) =>
+        (
+          await tx
+            .select({ id: schema.loads.id })
+            .from(schema.loads)
+            .where(eq(schema.loads.reference, ref))
+            .limit(1)
+        ).length > 0,
+    );
     const r = row.request;
     await tx.insert(schema.loads).values({
       id: loadId,
@@ -546,10 +568,17 @@ export async function createInvoice(
   const invoiceId = crypto.randomUUID();
   let number = "";
   await db.transaction(async (tx) => {
-    const seq = (await tx.execute(sql`select nextval('invoice_number_seq') as n`)) as unknown as {
-      rows: { n: string | number | bigint }[];
-    };
-    number = `INV-${seq.rows[0].n}`;
+    number = await uniqueReference(
+      "INV",
+      async (ref) =>
+        (
+          await tx
+            .select({ id: schema.invoices.id })
+            .from(schema.invoices)
+            .where(eq(schema.invoices.number, ref))
+            .limit(1)
+        ).length > 0,
+    );
     await tx.insert(schema.invoices).values({
       id: invoiceId,
       loadId,
