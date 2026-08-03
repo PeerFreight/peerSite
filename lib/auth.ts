@@ -27,14 +27,25 @@ export function enabledSocialProviders() {
 
 export type SocialProviderFlags = ReturnType<typeof enabledSocialProviders>;
 
+function vercelTrustedOrigins() {
+  return [
+    process.env.VERCEL_URL,
+    process.env.VERCEL_BRANCH_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  ]
+    .filter((host): host is string => Boolean(host))
+    .map((host) => new URL(host.startsWith("http") ? host : `https://${host}`).origin);
+}
+
 async function makeAuth() {
   const db = await getDb();
   const social = enabledSocialProviders();
   return betterAuth({
     baseURL: process.env.BETTER_AUTH_URL,
     secret: process.env.BETTER_AUTH_SECRET,
-    // Preview deploys serve from their own vercel.app origin.
-    trustedOrigins: process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : [],
+    // Preview requests commonly use the stable branch alias, while VERCEL_URL
+    // names the unique deployment. Trust only Vercel's exact system URLs.
+    trustedOrigins: vercelTrustedOrigins(),
     database: drizzleAdapter(db, { provider: "pg", schema }),
     emailAndPassword: {
       enabled: true,
