@@ -1,4 +1,5 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from "react";
+import { IconSpinner } from "@/components/ui/icons";
 
 type Variant = "primary" | "navy" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md";
@@ -22,6 +23,8 @@ const sizes: Record<Size, string> = {
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   size?: Size;
+  /** In-flight state: disables the button and prepends a spinner. */
+  loading?: boolean;
 }
 
 export function Button({
@@ -29,14 +32,22 @@ export function Button({
   size = "md",
   className = "",
   type = "button",
+  loading = false,
+  disabled,
+  children,
   ...props
 }: ButtonProps) {
   return (
     <button
       type={type}
       className={`${base} ${variants[variant]} ${sizes[size]} ${className}`}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
-    />
+    >
+      {loading ? <IconSpinner size={16} /> : null}
+      {children}
+    </button>
   );
 }
 

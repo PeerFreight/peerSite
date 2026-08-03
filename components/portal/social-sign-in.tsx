@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { preconnect } from "react-dom";
 import { authClient } from "@/lib/auth-client";
 import type { SocialProviderFlags } from "@/lib/auth";
+import { Alert } from "@/components/ui/alert";
+import { IconSpinner } from "@/components/ui/icons";
 
 /**
  * "Continue with Google/Microsoft" buttons + the "or" divider. Renders
@@ -46,6 +49,13 @@ function MicrosoftMark() {
   );
 }
 
+type Provider = "google" | "microsoft";
+
+const PROVIDER_LABELS: Record<Provider, string> = {
+  google: "Google",
+  microsoft: "Microsoft",
+};
+
 export function SocialSignIn({
   providers,
   callbackURL,
@@ -55,12 +65,30 @@ export function SocialSignIn({
   callbackURL: string;
   errorCallbackURL: string;
 }) {
-  const [busy, setBusy] = useState(false);
+  // The clicked button stays in its "Redirecting…" state through the
+  // navigation to the provider — resetting on response would flash the idle
+  // label while the browser is already leaving the page.
+  const [redirecting, setRedirecting] = useState<Provider | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Coming Back from the provider can restore this page from the bfcache
+  // with the button still stuck on "Redirecting…" — reset it.
+  useEffect(() => {
+    function onPageShow(e: PageTransitionEvent) {
+      if (e.persisted) setRedirecting(null);
+    }
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
   if (!providers.google && !providers.microsoft) return null;
 
-  async function start(provider: "google" | "microsoft") {
-    setBusy(true);
+  // Save the TLS handshake on the upcoming OAuth redirect.
+  if (providers.google) preconnect("https://accounts.google.com");
+  if (providers.microsoft) preconnect("https://login.microsoftonline.com");
+
+  async function start(provider: Provider) {
+    setRedirecting(provider);
     setError(null);
     // On success this navigates away to the provider; only an immediate
     // failure (network, misconfig) returns here.
@@ -71,34 +99,34 @@ export function SocialSignIn({
     });
     if (error) {
       setError("Social sign-in is temporarily unavailable. Try again in a moment or use email instead.");
-      setBusy(false);
+      setRedirecting(null);
     }
+  }
+
+  function ProviderButton({ provider, mark }: { provider: Provider; mark: React.ReactNode }) {
+    const active = redirecting === provider;
+    return (
+      <button
+        type="button"
+        disabled={redirecting !== null}
+        aria-busy={active || undefined}
+        onClick={() => start(provider)}
+        className="flex w-full items-center justify-center gap-2.5 rounded-full border border-line bg-white px-4 py-2.5 text-[0.95rem] font-bold text-ink transition-opacity hover:bg-paper disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
+      >
+        {active ? <IconSpinner size={18} /> : mark}
+        {active
+          ? `Redirecting to ${PROVIDER_LABELS[provider]}…`
+          : `Continue with ${PROVIDER_LABELS[provider]}`}
+      </button>
+    );
   }
 
   return (
     <div className="mt-6">
       <div className="space-y-2.5">
-        {providers.google ? (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => start("google")}
-            className="flex w-full items-center justify-center gap-2.5 rounded-full border border-line bg-white px-4 py-2.5 text-[0.95rem] font-bold text-ink transition-opacity hover:bg-paper disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
-          >
-            <GoogleMark />
-            Continue with Google
-          </button>
-        ) : null}
+        {providers.google ? <ProviderButton provider="google" mark={<GoogleMark />} /> : null}
         {providers.microsoft ? (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => start("microsoft")}
-            className="flex w-full items-center justify-center gap-2.5 rounded-full border border-line bg-white px-4 py-2.5 text-[0.95rem] font-bold text-ink transition-opacity hover:bg-paper disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
-          >
-            <MicrosoftMark />
-            Continue with Microsoft
-          </button>
+          <ProviderButton provider="microsoft" mark={<MicrosoftMark />} />
         ) : null}
       </div>
       <div className="mt-5 flex items-center gap-3" aria-hidden="true">
@@ -106,7 +134,11 @@ export function SocialSignIn({
         <span className="text-xs font-bold uppercase tracking-wide text-muted">or</span>
         <span className="h-px flex-1 bg-line" />
       </div>
-      {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
+      {error ? (
+        <Alert tone="error" className="mt-3">
+          {error}
+        </Alert>
+      ) : null}
     </div>
   );
 }
@@ -115,16 +147,13 @@ export function SocialSignIn({
  * OAuth failures come back on errorCallbackURL as ?error=<message>, where
  * the message is a human sentence with spaces flattened to underscores —
  * not a stable code — so parse defensively: map the one known code-ish
- * value, show the invite-only hook copy verbatim, else stay generic.
+ * value, else stay generic.
  */
 export function oauthErrorMessage(raw: string | null): string | null {
   if (!raw) return null;
   const text = raw.replace(/_/g, " ").trim();
   if (text.includes("account not linked")) {
     return "This email already has a Peer Freight login. Sign in with your email and password (or a sign-in link) instead.";
-  }
-  if (text.toLowerCase().includes("invite-only") || text.toLowerCase().includes("invite only")) {
-    return text;
   }
   return "Sign-in with that provider failed. Try again, or use your email instead.";
 }

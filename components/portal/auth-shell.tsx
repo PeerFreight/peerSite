@@ -18,7 +18,7 @@ export function AuthShell({ children, footer }: { children: ReactNode; footer?: 
             <span className="text-white">Peer</span> <span className="text-gold">Freight</span>
           </span>
         </div>
-        <div className="rounded-xl bg-white p-6 shadow-card sm:p-8">{children}</div>
+        <div className="rounded-xl bg-white p-7 shadow-card sm:p-9">{children}</div>
         {footer ? <p className="mt-5 text-center text-sm text-white/70">{footer}</p> : null}
       </div>
     </div>

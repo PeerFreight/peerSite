@@ -1,15 +1,34 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import type { SocialProviderFlags } from "@/lib/auth";
 import { AuthShell } from "@/components/portal/auth-shell";
 import { SocialSignIn, oauthErrorMessage } from "@/components/portal/social-sign-in";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { CardDescription, CardTitle } from "@/components/ui/card";
 import { Field, Input } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
+
+type Feedback = { tone: "error" | "success" | "info"; text: string };
+
+/**
+ * Better-auth's invalid-credential message is terse; swap it for copy that
+ * says what to do next. Anything else (rate limits, server trouble) shows
+ * the server message verbatim so real errors are never masked.
+ */
+function signInErrorCopy(message: string | null | undefined): { text: string; credential: boolean } {
+  const msg = message ?? "";
+  if (/invalid (email or )?password|invalid credential|user not found/i.test(msg)) {
+    return {
+      text: "That email and password don't match. Check them and try again, or use a sign-in link.",
+      credential: true,
+    };
+  }
+  return { text: msg || "Sign-in failed. Try again.", credential: false };
+}
 
 function LoginFormInner({ providers }: { providers: SocialProviderFlags }) {
   const router = useRouter();
@@ -18,31 +37,54 @@ function LoginFormInner({ providers }: { providers: SocialProviderFlags }) {
   const oauthError = oauthErrorMessage(params.get("error"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [feedback, setFeedback] = useState<Feedback | null>(
+    oauthError ? { tone: "error", text: oauthError } : null,
+  );
+  // Keys the Alert so it re-animates on every new message, including a
+  // repeat of the same failure.
+  const [attempt, setAttempt] = useState(0);
+  const [invalid, setInvalid] = useState(false);
+  const [pending, setPending] = useState<"password" | "link" | null>(null);
+
+  // Pay the auth cold start (lazy auth construction + DB connect) while the
+  // user is still typing instead of after they click a sign-in button.
+  useEffect(() => {
+    void authClient.getSession().catch(() => {});
+  }, []);
+
+  function show(tone: Feedback["tone"], text: string) {
+    setFeedback({ tone, text });
+    setAttempt((a) => a + 1);
+  }
 
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
-    setBusy(true);
-    setError(null);
+    setPending("password");
+    setFeedback(null);
     const { error } = await authClient.signIn.email({ email, password });
-    setBusy(false);
-    if (error) setError(error.message ?? "Sign-in failed.");
-    else router.push(next);
+    if (error) {
+      setPending(null);
+      const copy = signInErrorCopy(error.message);
+      setInvalid(copy.credential);
+      show("error", copy.text);
+    } else {
+      // Keep the button spinning through the client-side navigation.
+      router.push(next);
+    }
   }
 
   async function sendMagicLink() {
+    if (pending) return;
     if (!email) {
-      setError("Enter your email first, then request the link.");
+      show("info", "Enter your email above and we'll send you a one-time sign-in link.");
       return;
     }
-    setBusy(true);
-    setError(null);
+    setPending("link");
+    setFeedback(null);
     const { error } = await authClient.signIn.magicLink({ email, callbackURL: next });
-    setBusy(false);
-    if (error) setError(error.message ?? "Could not send the link.");
-    else setNotice("Check your email for a sign-in link.");
+    setPending(null);
+    if (error) show("error", error.message ?? "Could not send the link. Try again.");
+    else show("success", `Check your inbox — we sent a sign-in link to ${email}.`);
   }
 
   return (
@@ -57,7 +99,9 @@ function LoginFormInner({ providers }: { providers: SocialProviderFlags }) {
       }
     >
       <CardTitle className="text-2xl">Sign in</CardTitle>
-      <CardDescription>The shipper portal is invite-only while we finish setup.</CardDescription>
+      <CardDescription>
+        Welcome back. Sign in to manage your quotes, loads, and invoices.
+      </CardDescription>
       <SocialSignIn providers={providers} callbackURL={next} errorCallbackURL="/login" />
       <form onSubmit={signIn} className="mt-6 space-y-4">
         <Field label="Email" htmlFor="email">
@@ -67,26 +111,62 @@ function LoginFormInner({ providers }: { providers: SocialProviderFlags }) {
             autoComplete="email"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            aria-invalid={invalid || undefined}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setInvalid(false);
+            }}
           />
         </Field>
-        <Field label="Password" htmlFor="password">
+        <Field
+          label="Password"
+          htmlFor="password"
+          labelEnd={
+            <button
+              type="button"
+              disabled={pending !== null}
+              onClick={sendMagicLink}
+              className="text-sm font-bold text-navy hover:underline disabled:opacity-50"
+            >
+              Forgot password?
+            </button>
+          }
+        >
           <PasswordInput
             id="password"
             autoComplete="current-password"
             required
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            aria-invalid={invalid || undefined}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setInvalid(false);
+            }}
           />
         </Field>
-        {error ?? oauthError ? <p className="text-sm text-red-700">{error ?? oauthError}</p> : null}
-        {notice ? <p className="text-sm text-green-800">{notice}</p> : null}
-        <div className="flex items-center gap-3">
-          <Button type="submit" disabled={busy}>Sign in</Button>
-          <Button type="button" variant="secondary" disabled={busy} onClick={sendMagicLink}>
-            Email me a link
-          </Button>
-        </div>
+        {feedback ? (
+          <Alert key={attempt} tone={feedback.tone}>
+            {feedback.text}
+          </Alert>
+        ) : null}
+        <Button
+          type="submit"
+          className="w-full"
+          loading={pending === "password"}
+          disabled={pending !== null}
+        >
+          Sign in
+        </Button>
+        <p className="text-center text-sm">
+          <button
+            type="button"
+            disabled={pending !== null}
+            onClick={sendMagicLink}
+            className="font-bold text-muted hover:text-ink disabled:opacity-50"
+          >
+            {pending === "link" ? "Sending your sign-in link…" : "Email me a one-time sign-in link instead"}
+          </button>
+        </p>
       </form>
     </AuthShell>
   );

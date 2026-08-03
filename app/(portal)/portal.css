@@ -32,6 +32,25 @@
   --spacing-wrap: 1240px;
 }
 
+@keyframes alert-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer base {
+  /* Native checks/radios pick up the brand navy instead of the OS blue. */
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--color-navy);
+  }
+}
+
 @layer components {
   /* Small-caps section label (brand rule): panel headers, KPI labels. */
   .section-label {
@@ -49,6 +68,17 @@
     background:
       radial-gradient(90% 55% at 50% 0%, rgba(19, 36, 74, 0.85) 0%, rgba(19, 36, 74, 0) 100%),
       linear-gradient(180deg, var(--color-navy-deep) 0%, var(--color-navy) 100%);
+  }
+
+  /* Alert enter: quick fade + 3px rise. Callers re-key the Alert per submit
+     attempt so a repeated failure visibly re-announces itself. */
+  .alert-in {
+    animation: alert-in 160ms ease-out;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .alert-in {
+      animation: none;
+    }
   }
 
   /* The one gold-gradient surface, reserved for primary CTAs. */
