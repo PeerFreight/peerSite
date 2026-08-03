@@ -84,7 +84,7 @@ function LoginFormInner({ providers }: { providers: SocialProviderFlags }) {
     const { error } = await authClient.signIn.magicLink({ email, callbackURL: next });
     setPending(null);
     if (error) show("error", error.message ?? "Could not send the link. Try again.");
-    else show("success", `Check your inbox — we sent a sign-in link to ${email}.`);
+    else show("success", `Check your inbox: we sent a sign-in link to ${email}.`);
   }
 
   return (

@@ -66,7 +66,7 @@ function SignupFormInner({ providers }: { providers: SocialProviderFlags }) {
       <CardDescription>
         {inviteId
           ? "You were invited to join a team on Peer Freight. Create your account with the invited email to continue."
-          : "Get instant quotes, book loads, and track shipments. Free to set up — invite your team once you're in."}
+          : "Get instant quotes, book loads, and track shipments. Free to set up. Invite your team once you're in."}
       </CardDescription>
       <SocialSignIn providers={providers} callbackURL={afterSignup} errorCallbackURL="/signup" />
       <form onSubmit={signUp} className="mt-6 space-y-4">

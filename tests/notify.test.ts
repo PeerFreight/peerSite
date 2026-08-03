@@ -14,6 +14,8 @@ import {
   composeNeedsInfo,
   composeQuoteSent,
 } from "../lib/portal/notify";
+import { LOAD_STATUS_EMAIL } from "../lib/portal/loads";
+import type { LoadStatus } from "../db/schema";
 
 describe("composeQuoteSent", () => {
   it("carries rate, service, exclusions, validity, and the pricing note", () => {
@@ -156,5 +158,63 @@ describe("invoice, update, document, needs-info, invite emails", () => {
     expect(email.subject).toBe("Join North Coast Brewing on Peer Freight");
     expect(email.text).toContain("Dana Meyer invited you");
     expect(email.text).toContain("/invite/inv-123");
+  });
+});
+
+describe("writing style", () => {
+  // company/writing-style.md: no em-dashes in anything sent to a customer.
+  // This pins the whole composed surface so a copy edit can't reintroduce one.
+  it("no composed email contains an em-dash", () => {
+    const statuses = Object.keys(LOAD_STATUS_EMAIL) as Exclude<LoadStatus, "booked">[];
+    const emails = [
+      composeQuoteSent({
+        to: "d@s.com",
+        requestId: "rfq-1",
+        allInRateUsd: "1850",
+        serviceDescription: "Dry van 53', door to door.",
+        exclusions: "Detention after 2h",
+        validUntil: "2026-08-04",
+        note: "Priced off lane comps.",
+      }),
+      composeNeedsInfo({ to: "d@s.com", requestId: "rfq-1", message: "Dock hours?" }),
+      composeLoadBooked({ to: "d@s.com", reference: "PEER-1001", loadId: "load-1" }),
+      ...statuses.map((next) =>
+        composeLoadStatus({ to: "d@s.com", reference: "PEER-1001", loadId: "load-1", next }),
+      ),
+      composeDocumentShared({
+        to: "d@s.com",
+        reference: "PEER-1001",
+        loadId: "load-1",
+        typeLabel: "Proof of delivery",
+      }),
+      composeDelaySet({
+        to: "d@s.com",
+        reference: "PEER-1001",
+        loadId: "load-1",
+        reason: "Weather hold",
+        revisedDeliveryDate: "2026-08-09",
+      }),
+      composeDelayCleared({ to: "d@s.com", reference: "PEER-1001", loadId: "load-1" }),
+      composeInvoiceIssued({
+        to: "d@s.com",
+        reference: "PEER-1001",
+        loadId: "load-1",
+        number: "INV-1001",
+        amountUsd: "1850",
+        dueDate: "2026-09-05",
+      }),
+      composeCustomUpdate({
+        to: "d@s.com",
+        reference: "PEER-1001",
+        loadId: "load-1",
+        subject: "Update",
+        body: "Still on time.",
+      }),
+      composeInviteEmail({ to: "d@s.com", orgName: "North Coast Brewing", inviteId: "inv-1" }),
+    ];
+    for (const email of emails) {
+      expect(email.subject).not.toContain("—");
+      expect(email.text).not.toContain("—");
+    }
   });
 });

@@ -85,11 +85,11 @@ export function composeLoadBooked(input: {
     to: input.to,
     subject: `Your load is booked: ${input.reference}`,
     text: joinLines([
-      `Your load is booked. Reference ${input.reference} — quote it in any message about this shipment.`,
+      `Your load is booked. Reference ${input.reference}. Quote it in any message about this shipment.`,
       "",
       "We are sourcing and vetting the carrier now. You will get an email when a carrier is dispatched, and its contact details will be on your load page.",
       "",
-      "Once the truck is rolling you will also get a live tracking link — a map you can watch (and share) without logging in.",
+      "Once the truck is rolling you will also get a live tracking link: a map you can watch (and share) without logging in.",
       "",
       `Track it here: ${baseUrl()}/loads/${input.loadId}`,
       "",

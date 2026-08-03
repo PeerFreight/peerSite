@@ -92,21 +92,21 @@ export const SCHEDULING_OPTIONS = [
 /** DOT hazard classes (49 CFR 173.2), collapsed to the 15 entries shippers
  * actually pick from (class 1 divisions folded into one). */
 export const HAZMAT_CLASS_OPTIONS = [
-  { value: "1", label: "Class 1 — Explosives" },
-  { value: "2.1", label: "2.1 — Flammable gas" },
-  { value: "2.2", label: "2.2 — Non-flammable gas" },
-  { value: "2.3", label: "2.3 — Poison gas" },
-  { value: "3", label: "Class 3 — Flammable liquid" },
-  { value: "4.1", label: "4.1 — Flammable solid" },
-  { value: "4.2", label: "4.2 — Spontaneously combustible" },
-  { value: "4.3", label: "4.3 — Dangerous when wet" },
-  { value: "5.1", label: "5.1 — Oxidizer" },
-  { value: "5.2", label: "5.2 — Organic peroxide" },
-  { value: "6.1", label: "6.1 — Poison (toxic)" },
-  { value: "6.2", label: "6.2 — Infectious substance" },
-  { value: "7", label: "Class 7 — Radioactive" },
-  { value: "8", label: "Class 8 — Corrosive" },
-  { value: "9", label: "Class 9 — Miscellaneous" },
+  { value: "1", label: "Class 1: Explosives" },
+  { value: "2.1", label: "2.1: Flammable gas" },
+  { value: "2.2", label: "2.2: Non-flammable gas" },
+  { value: "2.3", label: "2.3: Poison gas" },
+  { value: "3", label: "Class 3: Flammable liquid" },
+  { value: "4.1", label: "4.1: Flammable solid" },
+  { value: "4.2", label: "4.2: Spontaneously combustible" },
+  { value: "4.3", label: "4.3: Dangerous when wet" },
+  { value: "5.1", label: "5.1: Oxidizer" },
+  { value: "5.2", label: "5.2: Organic peroxide" },
+  { value: "6.1", label: "6.1: Poison (toxic)" },
+  { value: "6.2", label: "6.2: Infectious substance" },
+  { value: "7", label: "Class 7: Radioactive" },
+  { value: "8", label: "Class 8: Corrosive" },
+  { value: "9", label: "Class 9: Miscellaneous" },
 ] as const;
 export type HazmatClass = (typeof HAZMAT_CLASS_OPTIONS)[number]["value"];
 
@@ -116,9 +116,9 @@ const HAZMAT_CLASS_VALUES = HAZMAT_CLASS_OPTIONS.map((o) => o.value) as [
 ];
 
 export const HAZMAT_PACKING_GROUP_OPTIONS = [
-  { value: "I", label: "PG I — high danger" },
-  { value: "II", label: "PG II — medium danger" },
-  { value: "III", label: "PG III — low danger" },
+  { value: "I", label: "PG I (high danger)" },
+  { value: "II", label: "PG II (medium danger)" },
+  { value: "III", label: "PG III (low danger)" },
   { value: "none", label: "Not applicable" },
 ] as const;
 
@@ -194,13 +194,13 @@ export const rfqSchema = z
     dateFlexibility: z.enum(["exact", "flexible"]),
 
     // Freight
-    commodity: trimmed(200).min(1, "Required — be exact (e.g. packaged beer, cases on pallets)"),
+    commodity: trimmed(200).min(1, "Required. Be exact, e.g. packaged beer, cases on pallets"),
     weightLbs: z.coerce
       .number()
       .int("Whole pounds")
       .positive("Required")
-      .max(100000, "Check the weight — that exceeds any legal single-truck load"),
-    pieces: trimmed(120).min(1, "Required — e.g. 26 pallets"),
+      .max(100000, "Check the weight: that exceeds any legal single-truck load"),
+    pieces: trimmed(120).min(1, "Required, e.g. 26 pallets"),
     dims: optionalText(120),
     declaredValueUsd: optionalMoney,
     equipment: z.enum(EQUIPMENT_VALUES),
@@ -259,7 +259,7 @@ export const rfqSchema = z
       if (!v.hazmatShippingName) {
         ctx.issues.push({
           code: "custom",
-          message: "Required — the proper shipping name on the SDS",
+          message: "Required: the proper shipping name on the SDS",
           path: ["hazmatShippingName"],
           input: v.hazmatShippingName,
         });
@@ -431,7 +431,7 @@ export function hazmatSummary(r: HazmatFields): string | null {
     r.hazmatPackingGroup && r.hazmatPackingGroup !== "none" ? `PG ${r.hazmatPackingGroup}` : null,
     r.hazmatQuantity,
   ].filter(Boolean);
-  if (parts.length === 0) return r.hazmatDetails ?? "Yes — details pending";
+  if (parts.length === 0) return r.hazmatDetails ?? "Yes, details pending";
   return parts.join(" · ");
 }
 

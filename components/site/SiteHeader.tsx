@@ -1,10 +1,8 @@
 type Cta = { href: string; label: string };
 
-/**
- * Marketing site header. `signIn` is the portal entry slot — leave unset until
- * the shipper portal ships so the header stays pixel-identical to production.
- */
-export function SiteHeader({ cta, signIn }: { cta: Cta; signIn?: Cta }) {
+/** Marketing site header. `Log in` is the portal entry; the primary CTA
+ * stays per-page. */
+export function SiteHeader({ cta }: { cta: Cta }) {
   return (
     <header className="site-header" aria-label="Peer Freight navigation">
       <div className="site-header__inner">
@@ -15,7 +13,7 @@ export function SiteHeader({ cta, signIn }: { cta: Cta; signIn?: Cta }) {
         <nav className="nav" aria-label="Primary">
           <a className="nav__home" href="/">Home</a>
           <a href="/carriers">For Carriers</a>
-          {signIn ? <a href={signIn.href}>{signIn.label}</a> : null}
+          <a href="/login">Log in</a>
         </nav>
         <a className="btn btn--white" href={cta.href}>{cta.label}</a>
       </div>

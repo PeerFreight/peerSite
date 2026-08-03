@@ -83,7 +83,7 @@ export const LOAD_STATUS_EMAIL: Record<
   { subject: (ref: string) => string; body: string }
 > = {
   dispatched: {
-    subject: (ref) => `${ref} dispatched — carrier assigned`,
+    subject: (ref) => `${ref} dispatched: carrier assigned`,
     body: "A carrier is assigned and dispatched to your pickup. Carrier and driver details are on the load page.",
   },
   in_transit: {

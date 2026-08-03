@@ -440,7 +440,7 @@ const COMMANDS: Record<string, Command> = {
         }),
       );
       return {
-        text: `Quote sent: ${fmtMoney(input.allInRateUsd)} all-in to ${result.orgName} (${result.requesterEmail}). Quote id ${result.quoteId} — book it once they accept.`,
+        text: `Quote sent: ${fmtMoney(input.allInRateUsd)} all-in to ${result.orgName} (${result.requesterEmail}). Quote id ${result.quoteId}. Book it once they accept.`,
         json: { ...result, input },
         emails: [email],
       };
