@@ -5,14 +5,9 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { sendEmail } from "@/lib/email";
 import { createQuoteRequest, declineQuote } from "@/lib/portal/queries";
-import { hazmatSummary, laneSummary, rfqFromFormData, rfqSchema } from "@/lib/portal/rfq";
+import { hazmatSummary, laneSummary, rfqFromFormData, rfqSchema, type RfqFormState } from "@/lib/portal/rfq";
 import { requireOrgSession } from "@/lib/portal/session";
 import { baseUrl } from "@/lib/portal/urls";
-
-export type RfqFormState = {
-  fieldErrors: Record<string, string[] | undefined>;
-  formError: string | null;
-} | null;
 
 export async function submitRfq(_prev: RfqFormState, formData: FormData): Promise<RfqFormState> {
   const { session, db, org } = await requireOrgSession();

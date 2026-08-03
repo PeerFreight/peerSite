@@ -277,6 +277,15 @@ export const rfqSchema = z
 
 export type RfqInput = z.infer<typeof rfqSchema>;
 
+/** Server-action state shared by the portal and guest RFQ forms. */
+export type RfqFormState = {
+  fieldErrors: Record<string, string[] | undefined>;
+  formError: string | null;
+  /** Guest funnel only: the email already has an account, so the client
+   * flips the account step to sign-in mode with the form intact. */
+  accountExists?: boolean;
+} | null;
+
 /** Wizard steps → schema fields, used to filter validation errors to the
  * step being advanced. Fields absent here (e.g. hazmat boolean itself) never
  * error. Kept beside the schema so a new field must pick its step. */

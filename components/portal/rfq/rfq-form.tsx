@@ -17,14 +17,16 @@ import {
   STEP_FIELDS,
   rfqFromFormData,
   rfqSchema,
+  type RfqFormState,
   type RfqInput,
 } from "@/lib/portal/rfq";
-import { submitRfq, type RfqFormState } from "../actions";
+import { saveRfqDraft } from "./draft";
 import { HazmatFields } from "./hazmat-fields";
 import { ReviewStep } from "./review-step";
 
-/** Values used to seed the form when duplicating a previous request.
- * Dates are deliberately absent — they never carry over. */
+/** Values used to seed the form when duplicating a previous request or
+ * restoring a localStorage draft. Duplicate-previous never sets the dates
+ * (they don't carry over to a new shipment); a draft restore does. */
 export type RfqPrefill = {
   originAddress?: string | null;
   originCity?: string;
@@ -38,11 +40,13 @@ export type RfqPrefill = {
   destZip?: string;
   destHours?: string | null;
   destScheduling?: string;
+  pickupDate?: string | null;
   pickupWindow?: string | null;
+  deliveryDate?: string | null;
   deliveryWindow?: string | null;
   dateFlexibility?: string;
   commodity?: string;
-  weightLbs?: number;
+  weightLbs?: number | string;
   pieces?: string;
   dims?: string | null;
   declaredValueUsd?: string | null;
@@ -73,7 +77,28 @@ const STEPS = [
   { n: 4, label: "Review & submit" },
 ] as const;
 
-type FieldErrors = Record<string, string[] | undefined>;
+export type FieldErrors = Record<string, string[] | undefined>;
+
+/** Render prop for the guest funnel's account step, shown on Review &
+ * submit. Gets the live field errors (server errors land here merged with
+ * the RFQ's), the raw action state (for `accountExists`), and the submit
+ * pending flag. */
+export type RfqAccountSection = (ctx: {
+  errors: FieldErrors;
+  state: RfqFormState;
+  pending: boolean;
+}) => React.ReactNode;
+
+export type RfqFormProps = {
+  prefill?: RfqPrefill;
+  /** Server action the form posts to; portal and guest pages differ here. */
+  action: (prev: RfqFormState, formData: FormData) => Promise<RfqFormState>;
+  submitLabel?: string;
+  accountSection?: RfqAccountSection;
+  /** Save a localStorage draft on every step advance, so redirects away
+   * from the page (magic link, OAuth) can restore the answers. */
+  persistDraft?: boolean;
+};
 
 function stepErrors(all: FieldErrors, step: number): FieldErrors {
   const fields = STEP_FIELDS[step] ?? [];
@@ -248,15 +273,21 @@ function StopFields({
   );
 }
 
-export function RfqForm({ prefill }: { prefill?: RfqPrefill }) {
-  const [state, formAction, pending] = useActionState<RfqFormState, FormData>(submitRfq, null);
+export function RfqForm({
+  prefill,
+  action,
+  submitLabel = "Submit quote request",
+  accountSection,
+  persistDraft,
+}: RfqFormProps) {
+  const [state, formAction, pending] = useActionState<RfqFormState, FormData>(action, null);
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [erredSteps, setErredSteps] = useState<Set<number>>(new Set());
   const [equipment, setEquipment] = useState(prefill?.equipment ?? "dry_van_53");
   const [hazmat, setHazmat] = useState(prefill?.hazmat ?? false);
-  const [pickupIso, setPickupIso] = useState<string | null>(null);
+  const [pickupIso, setPickupIso] = useState<string | null>(prefill?.pickupDate ?? null);
   const [review, setReview] = useState<RfqInput | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [focusField, setFocusField] = useState<string | null>(null);
@@ -304,6 +335,10 @@ export function RfqForm({ prefill }: { prefill?: RfqPrefill }) {
   }
 
   function goNext() {
+    // Whatever is filled so far survives a redirect away from the page.
+    if (persistDraft) {
+      saveRfqDraft(rfqFromFormData(new FormData(formRef.current!)) as RfqPrefill);
+    }
     const parsed = parseForm();
     if (parsed.success) {
       setErrors({});
@@ -375,6 +410,7 @@ export function RfqForm({ prefill }: { prefill?: RfqPrefill }) {
               <DateField
                 id="pickupDate"
                 name="pickupDate"
+                defaultValue={prefill?.pickupDate ?? undefined}
                 invalid={Boolean(err("pickupDate"))}
                 onValueChange={setPickupIso}
               />
@@ -390,6 +426,7 @@ export function RfqForm({ prefill }: { prefill?: RfqPrefill }) {
               <DateField
                 id="deliveryDate"
                 name="deliveryDate"
+                defaultValue={prefill?.deliveryDate ?? undefined}
                 min={pickupIso ?? undefined}
                 invalid={Boolean(err("deliveryDate"))}
               />
@@ -628,6 +665,7 @@ export function RfqForm({ prefill }: { prefill?: RfqPrefill }) {
       {/* Step 4 — Review & submit */}
       <div hidden={step !== 4} className="space-y-6">
         <Card>{review ? <ReviewStep data={review} onEdit={goTo} /> : null}</Card>
+        {accountSection ? accountSection({ errors, state, pending }) : null}
       </div>
 
       {formError ? (
@@ -653,7 +691,7 @@ export function RfqForm({ prefill }: { prefill?: RfqPrefill }) {
             <div className="flex flex-wrap items-center justify-end gap-4">
               <p className="text-sm text-muted">One of the owners gets back to you within the hour.</p>
               <Button type="submit" disabled={pending}>
-                {pending ? "Submitting..." : "Submit quote request"}
+                {pending ? "Submitting..." : submitLabel}
               </Button>
             </div>
           )}

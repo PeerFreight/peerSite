@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import type * as schema from "@/db/schema";
+import { DraftAwareRfqForm } from "@/components/portal/rfq/draft-aware-rfq-form";
+import type { RfqPrefill } from "@/components/portal/rfq/rfq-form";
 import { getQuoteRequestDetail, listQuoteRequests } from "@/lib/portal/queries";
 import { laneSummary } from "@/lib/portal/rfq";
 import { requireOrgSession } from "@/lib/portal/session";
+import { submitRfq } from "../actions";
 import { RecentRequestPicker } from "./recent-request-picker";
-import { RfqForm, type RfqPrefill } from "./rfq-form";
 
 export const metadata: Metadata = {
   title: "Request a quote - Peer Freight",
@@ -92,7 +94,9 @@ export default async function NewQuotePage({
           />
         ) : null}
       </div>
-      <RfqForm key={prefill ? from : "blank"} prefill={prefill} />
+      {/* Draft-aware so a guest who took the magic-link detour finds their
+          answers (dates included) restored here. */}
+      <DraftAwareRfqForm key={prefill ? from : "blank"} prefill={prefill} action={submitRfq} />
     </div>
   );
 }
