@@ -38,7 +38,8 @@ class GcsStorage implements DocumentStorage {
       token_url: "https://sts.googleapis.com/v1/token",
       service_account_impersonation_url: `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${process.env.PORTAL_GCP_SERVICE_ACCOUNT}:generateAccessToken`,
       subject_token_supplier: {
-        getSubjectToken: getVercelOidcToken,
+        // Keep the token's Vercel team audience; see the matching DB supplier.
+        getSubjectToken: () => getVercelOidcToken(),
       },
     })!;
     // V4 signing works without a private key: the auth library signs via the

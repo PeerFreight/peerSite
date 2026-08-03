@@ -27,7 +27,10 @@ async function makePool(): Promise<Pool> {
       subject_token_supplier: {
         // Builds/local development receive VERCEL_OIDC_TOKEN as an env var;
         // deployed Functions receive it through the request context header.
-        getSubjectToken: getVercelOidcToken,
+        // Wrap rather than pass the helper directly: Google's supplier calls
+        // this function with its own context object, whose `audience` field
+        // would otherwise make @vercel/oidc exchange and alter the token.
+        getSubjectToken: () => getVercelOidcToken(),
       },
     })!;
     const connector = new Connector({
