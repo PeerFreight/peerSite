@@ -25,10 +25,10 @@ import type { RfqInput } from "../lib/portal/rfq";
 import { documentPath, getStorage } from "../lib/storage";
 
 const rfq: RfqInput = {
-  originAddress: "17700 Boonville Rd",
-  originCity: "Boonville",
+  originAddress: "2201 Industrial Blvd",
+  originCity: "Sacramento",
   originState: "CA",
-  originZip: "95415",
+  originZip: "95814",
   originHours: "7:00-15:00",
   originScheduling: "fcfs",
   destAddress: null,
@@ -42,7 +42,7 @@ const rfq: RfqInput = {
   deliveryDate: "2026-08-06",
   deliveryWindow: null,
   dateFlexibility: "flexible",
-  commodity: "Packaged beer, cases on pallets",
+  commodity: "Packaged beverages, cases on pallets",
   weightLbs: 38000,
   pieces: "26 pallets",
   dims: null,
@@ -56,7 +56,7 @@ const rfq: RfqInput = {
   referenceNumbers: [{ label: "PO", value: "PO-1234" }],
   targetRateUsd: null,
   frequency: "recurring",
-  notes: "Can-dunnage return to Fairfield pairs with this lane.",
+  notes: "Recurring weekly lane; dock can load two trucks at once.",
 };
 
 describe.skipIf(!process.env.DEMO_SEED)("demo seed", () => {
@@ -67,8 +67,8 @@ describe.skipIf(!process.env.DEMO_SEED)("demo seed", () => {
     const byEmail = async (email: string) =>
       (await db.select().from(schema.user).where(eq(schema.user.email, email)).limit(1))[0];
 
-    const founder = await byEmail("admin@peer-freight.com");
-    const customer = await byEmail("customer@peerfreight.com");
+    const founder = await byEmail("aaron@peer-freight.com");
+    const customer = await byEmail("customer@example.com");
     expect(founder, "run the HTTP account setup first").toBeTruthy();
     expect(customer, "run the HTTP account setup first").toBeTruthy();
     const admin: AdminUser = { id: founder.id, email: founder.email, emailVerified: true };
@@ -178,7 +178,7 @@ describe.skipIf(!process.env.DEMO_SEED)("demo seed", () => {
     console.log(
       `seeded ${booked.reference} (load ${booked.loadId}) with live tracking\n` +
         `  public link: /track/${publicToken}\n` +
-        `  simulator:   node scripts/track-sim.ts http://localhost:3000/api/tracking/callback/${sessionId}/${session.webhookSecret} --from 38.23,-122.63 --to 39.52,-119.81`,
+        `  simulator:   node scripts/track-sim.ts http://localhost:3000/api/tracking/callback/${sessionId}/${session.webhookSecret} --from 38.58,-121.49 --to 39.52,-119.81`,
     );
     await pool.end();
   }, 60_000);

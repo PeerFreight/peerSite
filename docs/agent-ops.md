@@ -14,7 +14,7 @@ actor; the agent is a channel).
 node scripts/dev-db.ts &        # local PGlite postgres on :5433
 npm run db:migrate              # DATABASE_URL defaults are in .env / dev docs
 npm run dev                     # only needed for the web portal, not the CLI
-export PORTAL_ACTOR=admin@peer-freight.com
+export PORTAL_ACTOR=aaron@peer-freight.com
 ```
 
 - Actor: `--as founder@peer-freight.com` or `PORTAL_ACTOR`. Must be a

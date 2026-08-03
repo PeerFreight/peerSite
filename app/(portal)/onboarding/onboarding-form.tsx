@@ -50,7 +50,7 @@ export function OnboardingForm() {
       </CardDescription>
       <form onSubmit={createOrg} className="mt-6 space-y-4">
         <Field label="Company name" htmlFor="org-name">
-          <Input id="org-name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Anderson Valley Brewing" />
+          <Input id="org-name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Example Company" />
         </Field>
         {error ? (
           <Alert key={attempt} tone="error">

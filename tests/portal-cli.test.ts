@@ -70,7 +70,7 @@ beforeAll(async () => {
 
   await raw.insert(schema.user).values([
     { id: "user-a", name: "Dana", email: "dana@shipper-a.com", emailVerified: true },
-    { id: "user-admin", name: "Aaron", email: "admin@peer-freight.com", emailVerified: true },
+    { id: "user-admin", name: "Aaron", email: "aaron@peer-freight.com", emailVerified: true },
     { id: "user-unverified", name: "New", email: "new@peer-freight.com", emailVerified: false },
   ]);
   await raw.insert(schema.organization).values([
@@ -80,7 +80,7 @@ beforeAll(async () => {
     { id: "m-a", organizationId: "org-a", userId: "user-a", role: "owner" },
   ]);
 
-  agent = await resolveActor(db, "admin@peer-freight.com");
+  agent = await resolveActor(db, "aaron@peer-freight.com");
   rfqId = await createQuoteRequest(db, "user-a", "org-a", rfq());
 });
 
