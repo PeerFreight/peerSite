@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, normalize } from "node:path";
 import { Storage, type StorageOptions } from "@google-cloud/storage";
 import { getVercelOidcToken } from "@vercel/oidc";
-import { ExternalAccountClient } from "google-auth-library";
+import { ExternalAccountClient } from "google-auth-library-storage";
 
 /**
  * Document blob storage. Two backends behind one interface, chosen by env:
