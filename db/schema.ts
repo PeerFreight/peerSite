@@ -107,8 +107,8 @@ export const invitation = pgTable("invitation", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-// Pre-authority posture: signup is invite-only. A founder seeds a row here
-// before a shipper can create an account. @peer-freight.com is always allowed.
+// Legacy of the pre-launch invite gate (lifted 2026-08 — signup is open).
+// Kept as inert seed data rather than paying a drop migration.
 
 export const allowedEmails = pgTable("allowed_emails", {
   email: text("email").primaryKey(),

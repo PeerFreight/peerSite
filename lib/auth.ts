@@ -3,7 +3,6 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { magicLink, organization } from "better-auth/plugins";
-import { and, eq, gt, sql } from "drizzle-orm";
 import * as schema from "@/db/schema";
 import { getDb } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
@@ -98,37 +97,6 @@ async function makeAuth() {
     },
     databaseHooks: {
       user: {
-        create: {
-          // Pre-authority posture: invite-only. A founder must seed
-          // allowed_emails — or a teammate must hold a pending, unexpired
-          // org invitation — before an outside signup succeeds.
-          before: async (u) => {
-            const email = u.email.toLowerCase();
-            if (email.endsWith(ADMIN_DOMAIN)) return { data: u };
-            const allowed = await db
-              .select()
-              .from(schema.allowedEmails)
-              .where(eq(schema.allowedEmails.email, email))
-              .limit(1);
-            if (allowed.length > 0) return { data: u };
-            const invited = await db
-              .select({ id: schema.invitation.id })
-              .from(schema.invitation)
-              .where(
-                and(
-                  sql`lower(${schema.invitation.email}) = ${email}`,
-                  eq(schema.invitation.status, "pending"),
-                  gt(schema.invitation.expiresAt, new Date()),
-                ),
-              )
-              .limit(1);
-            if (invited.length > 0) return { data: u };
-            throw new APIError("FORBIDDEN", {
-              message:
-                "The portal is invite-only right now. Email team@peer-freight.com and we will set you up.",
-            });
-          },
-        },
         update: {
           // Admin = verified + @peer-freight.com (lib/portal/roles.ts), and
           // the change-email verify step lands here with emailVerified: true.

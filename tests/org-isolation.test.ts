@@ -63,7 +63,9 @@ describe("org isolation", () => {
     await expect(requireMembership(db, "user-a", "org-a")).resolves.toBeTruthy();
   });
 
-  it("seeded founder emails are present and shipper emails are not auto-allowed", async () => {
+  // Signup is open (the invite gate was lifted); allowed_emails persists as
+  // inert seed data, so this only checks the migration still applies.
+  it("allowed_emails migration seeds founder emails only", async () => {
     const allowed = await db.select().from(schema.allowedEmails);
     const emails = allowed.map((r) => r.email);
     expect(emails).toContain("aaron@peer-freight.com");
