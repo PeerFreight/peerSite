@@ -83,27 +83,27 @@ export const LOAD_STATUS_EMAIL: Record<
   { subject: (ref: string) => string; body: string }
 > = {
   dispatched: {
-    subject: (ref) => `${ref} dispatched: carrier assigned`,
-    body: "A carrier is assigned and dispatched to your pickup. Carrier and driver details are on the load page.",
+    subject: (ref) => `${ref}: Your carrier is on the way`,
+    body: "Your carrier has been assigned and dispatched to the pickup. You can find the carrier and driver details on your shipment page.",
   },
   in_transit: {
-    subject: (ref) => `${ref} picked up and in transit`,
-    body: "Your freight is picked up and rolling. We track it and flag anything that threatens the delivery window.",
+    subject: (ref) => `${ref}: Your shipment is on the way`,
+    body: "Your shipment has been picked up and is on the way! We're tracking it and will let you know if anything could affect the delivery window.",
   },
   delivered: {
-    subject: (ref) => `${ref} delivered`,
-    body: "Your freight is delivered. The proof of delivery posts to your documents as soon as we collect it.",
+    subject: (ref) => `${ref}: Your shipment has been delivered`,
+    body: "Your shipment has been delivered! We'll add the proof of delivery to your documents as soon as we receive it.",
   },
   invoiced: {
     subject: (ref) => `${ref} invoiced`,
-    body: "The invoice for this load is posted under its documents.",
+    body: "The invoice for this shipment is ready and available with your documents.",
   },
   closed: {
     subject: (ref) => `${ref} closed`,
-    body: "This load is fully settled and closed. Thanks for shipping with Peer.",
+    body: "This shipment is fully settled and closed. Thanks for shipping with us!",
   },
   cancelled: {
     subject: (ref) => `${ref} cancelled`,
-    body: "This load is cancelled. If that is unexpected, reply to this email and we will sort it out immediately.",
+    body: "This shipment has been cancelled. If that is unexpected, please reply to this email and we'll sort it out right away.",
   },
 };

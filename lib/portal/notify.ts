@@ -16,6 +16,10 @@ import type { LoadStatus } from "@/db/schema";
 
 export type ComposedEmail = { to: string; subject: string; text: string };
 
+/** Shared mailbox operational emails should still feel like they came from
+ * the founders. Invitations are excluded because a shipper may be the inviter. */
+const CUSTOMER_SIGNOFF = ["Best,", "Aaron and Felix", "Peer Freight"] as const;
+
 /** Join body lines, dropping null/undefined (mirrors the old inline style). */
 function joinLines(lines: (string | null | undefined)[]): string {
   return lines.filter((line) => line !== null && line !== undefined).join("\n");
@@ -41,18 +45,18 @@ export function composeQuoteSent(input: {
     to: input.to,
     subject: "Your Peer Freight quote is ready",
     text: joinLines([
-      `Your quote is ready: $${rate} all-in.`,
+      `Good news, your quote is ready! The all-in price is $${rate}.`,
       "",
       input.serviceDescription,
       input.exclusions ? `\nNot included: ${input.exclusions}` : null,
       input.validUntil ? `\nThis quote is valid through ${input.validUntil}.` : null,
       input.note ? `\nHow we priced it: ${input.note}` : null,
       "",
-      `Review it here: ${baseUrl()}/quotes/${input.requestId}`,
+      `View your quote: ${baseUrl()}/quotes/${input.requestId}`,
       "",
-      "Reply to this email to move forward or ask anything.",
+      "If you have any questions, please reply to this email. We're happy to help!",
       "",
-      "Peer Freight",
+      ...CUSTOMER_SIGNOFF,
     ]),
   };
 }
@@ -66,13 +70,13 @@ export function composeNeedsInfo(input: {
     to: input.to,
     subject: "Quick questions before we quote your shipment",
     text: joinLines([
-      "To finish pricing your quote request, we need a few more details:",
+      "Thanks for sending this over. We need a few more details before we can finish your quote:",
       "",
       input.message,
       "",
-      `You can reply to this email, or update us here: ${baseUrl()}/quotes/${input.requestId}`,
+      `Update your request: ${baseUrl()}/quotes/${input.requestId}`,
       "",
-      "Peer Freight",
+      ...CUSTOMER_SIGNOFF,
     ]),
   };
 }
@@ -84,17 +88,19 @@ export function composeLoadBooked(input: {
 }): ComposedEmail {
   return {
     to: input.to,
-    subject: `Your load is booked: ${input.reference}`,
+    subject: `Your shipment is booked! ${input.reference}`,
     text: joinLines([
-      `Your load is booked. Reference ${input.reference}. Quote it in any message about this shipment.`,
+      "Great news, your shipment is booked!",
       "",
-      "We are sourcing and vetting the carrier now. You will get an email when a carrier is dispatched, and its contact details will be on your load page.",
+      `Your reference number is ${input.reference}. Please include it whenever you contact us about this shipment.`,
       "",
-      "Once the truck is rolling you will also get a live tracking link: a map you can watch (and share) without logging in.",
+      "We're finding and vetting the right carrier now. We'll email you as soon as the carrier is dispatched, and you will be able to see the carrier's contact details on your shipment page.",
       "",
-      `Track it here: ${baseUrl()}/loads/${input.loadId}`,
+      "Once the truck is on the road, we'll also send you a live tracking link that you can view and share without logging in.",
       "",
-      "Peer Freight",
+      `View your shipment: ${baseUrl()}/loads/${input.loadId}`,
+      "",
+      ...CUSTOMER_SIGNOFF,
     ]),
   };
 }
@@ -113,7 +119,12 @@ export function composeLoadStatus(input: {
   const lines: (string | null)[] = [email.body];
   if (input.note) lines.push("", input.note);
   for (const extra of input.extraLines ?? []) lines.push("", extra);
-  lines.push("", `Load page: ${baseUrl()}/loads/${input.loadId}`, "", "Peer Freight");
+  lines.push(
+    "",
+    `View your shipment: ${baseUrl()}/loads/${input.loadId}`,
+    "",
+    ...CUSTOMER_SIGNOFF,
+  );
   return { to: input.to, subject: email.subject(input.reference), text: joinLines(lines) };
 }
 
@@ -128,12 +139,12 @@ export function composeDocumentShared(input: {
     to: input.to,
     subject: `New document on ${input.reference}: ${input.typeLabel}`,
     text: joinLines([
-      `A new document is posted on load ${input.reference}: ${input.typeLabel}.`,
+      `A new document is available for shipment ${input.reference}: ${input.typeLabel}.`,
       input.note ? `\n${input.note}` : null,
       "",
-      `Download it from your load page: ${baseUrl()}/loads/${input.loadId}`,
+      `View or download it: ${baseUrl()}/loads/${input.loadId}`,
       "",
-      "Peer Freight",
+      ...CUSTOMER_SIGNOFF,
     ]),
   };
 }
@@ -169,9 +180,9 @@ export function composeDelaySet(input: {
       "",
       "We are working it and will email you the moment anything changes. Reply to this email if the new timing creates a problem on your dock and we will sort it out.",
       "",
-      `Load page: ${baseUrl()}/loads/${input.loadId}`,
+      `View your shipment: ${baseUrl()}/loads/${input.loadId}`,
       "",
-      "Peer Freight",
+      ...CUSTOMER_SIGNOFF,
     ]),
   };
 }
@@ -187,9 +198,9 @@ export function composeDelayCleared(input: {
     text: joinLines([
       `Good news: ${input.reference} is back on schedule. The earlier delay is resolved.`,
       "",
-      `Load page: ${baseUrl()}/loads/${input.loadId}`,
+      `View your shipment: ${baseUrl()}/loads/${input.loadId}`,
       "",
-      "Peer Freight",
+      ...CUSTOMER_SIGNOFF,
     ]),
   };
 }
@@ -207,17 +218,17 @@ export function composeInvoiceIssued(input: {
     to: input.to,
     subject: `Invoice ${input.number} for ${input.reference}`,
     text: joinLines([
-      `Your invoice for load ${input.reference} is ready.`,
+      `Your invoice for shipment ${input.reference} is ready.`,
       "",
       `Invoice ${input.number}`,
       `Amount due: $${amount}`,
       `Due date: ${prettyDate(input.dueDate)}`,
       "",
-      `View it (and the load's documents) here: ${baseUrl()}/loads/${input.loadId}`,
+      `View your invoice: ${baseUrl()}/loads/${input.loadId}`,
       "",
       "Reply to this email with any billing questions.",
       "",
-      "Peer Freight",
+      ...CUSTOMER_SIGNOFF,
     ]),
   };
 }
@@ -235,9 +246,9 @@ export function composeCustomUpdate(input: {
     text: joinLines([
       input.body,
       "",
-      `Load page: ${baseUrl()}/loads/${input.loadId}`,
+      `View your shipment: ${baseUrl()}/loads/${input.loadId}`,
       "",
-      "Peer Freight",
+      ...CUSTOMER_SIGNOFF,
     ]),
   };
 }
@@ -286,7 +297,7 @@ export function composeTrackingLink(input: {
       "",
       `Anyone you share the link with can watch, no login needed. It stays live until ${input.ttlDays} days after delivery.`,
       "",
-      "Peer Freight",
+      ...CUSTOMER_SIGNOFF,
     ]),
   };
 }
@@ -335,19 +346,17 @@ export function composeGuestWelcome(input: {
   const first = input.name.trim().split(/\s+/)[0] || input.name;
   return {
     to: input.to,
-    subject: "Your Peer Freight account and quote request are in",
+    subject: "We received your Peer Freight quote request",
     text: joinLines([
       `Hi ${first}!`,
       "",
-      "Your Peer Freight account is ready and your quote request is with us. One of the owners prices it personally and gets back to you within the hour during business hours.",
+      "Thanks for reaching out! We received your quote request, and one of us will review it personally. We'll get back to you within an hour during business hours.",
       "",
-      `Follow it here: ${baseUrl()}/quotes/${input.requestId}`,
+      `View your request: ${baseUrl()}/quotes/${input.requestId}`,
       "",
-      `That page is also where the price lands. Sign in any time at ${baseUrl()}/login with this email address.`,
+      "If anything about the shipment changes, please reply to this email and let us know.",
       "",
-      "Reply to this email if anything about the shipment changes.",
-      "",
-      "Peer Freight",
+      ...CUSTOMER_SIGNOFF,
     ]),
   };
 }

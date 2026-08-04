@@ -30,12 +30,13 @@ describe("composeQuoteSent", () => {
     });
     expect(email.to).toBe("dana@shipper.com");
     expect(email.subject).toBe("Your Peer Freight quote is ready");
-    expect(email.text).toContain("$1,850.00 all-in");
+    expect(email.text).toContain("The all-in price is $1,850.00");
     expect(email.text).toContain("Dry van 53', door to door.");
     expect(email.text).toContain("Not included: Detention after 2h $75/h");
     expect(email.text).toContain("valid through 2026-08-04");
     expect(email.text).toContain("How we priced it: Priced off 3 recent lane comps.");
     expect(email.text).toContain("/quotes/rfq-1");
+    expect(email.text).toContain("Best,\nAaron and Felix\nPeer Freight");
   });
 
   it("omits the optional paragraphs when absent", () => {
@@ -55,7 +56,8 @@ describe("status and booking emails", () => {
   it("booked email quotes the PEER reference and load link", () => {
     const email = composeLoadBooked({ to: "d@s.com", reference: "PEER-1001", loadId: "load-1" });
     expect(email.subject).toContain("PEER-1001");
-    expect(email.text).toContain("Reference PEER-1001");
+    expect(email.text).toContain("reference number is PEER-1001");
+    expect(email.text).toContain("Please include it whenever you contact us");
     expect(email.text).toContain("/loads/load-1");
   });
 
@@ -71,7 +73,7 @@ describe("status and booking emails", () => {
     expect(email.subject).toContain("PEER-1001");
     const noteAt = email.text.indexOf("Driver got loaded");
     const trackAt = email.text.indexOf("Live tracking");
-    const linkAt = email.text.indexOf("Load page:");
+    const linkAt = email.text.indexOf("View your shipment:");
     expect(noteAt).toBeGreaterThan(-1);
     expect(trackAt).toBeGreaterThan(noteAt);
     expect(linkAt).toBeGreaterThan(trackAt);
@@ -146,6 +148,8 @@ describe("invoice, update, document, needs-info, invite emails", () => {
     expect(doc.text).toContain("Signed clean, no exceptions.");
     const ask = composeNeedsInfo({ to: "d@s.com", requestId: "rfq-1", message: "Dock hours?" });
     expect(ask.text).toContain("Dock hours?");
+    expect(ask.text).toContain("Update your request:");
+    expect(ask.text).not.toContain("reply to this email");
   });
 
   it("invite email links the accept page and names the org", () => {

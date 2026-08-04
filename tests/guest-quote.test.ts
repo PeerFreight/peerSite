@@ -209,16 +209,19 @@ describe("guest funnel emails", () => {
     expect(email.text).toContain("- Weight: 38000 lbs");
   });
 
-  it("welcome email links the request and the login page, no em-dash", () => {
+  it("welcome email gives one clear request link, a founder sign-off, and no em-dash", () => {
     const email = composeGuestWelcome({
       to: "dana@newshipper.com",
       name: "Dana Meyer",
       requestId: "rfq-9",
     });
-    expect(email.subject).toBe("Your Peer Freight account and quote request are in");
+    expect(email.subject).toBe("We received your Peer Freight quote request");
     expect(email.text).toContain("Hi Dana!");
     expect(email.text).toContain("/quotes/rfq-9");
-    expect(email.text).toContain("/login");
+    expect(email.text).not.toContain("/login");
+    expect(email.text).not.toContain("price lands");
+    expect(email.text).toContain("Best,\nAaron and Felix\nPeer Freight");
+    expect(email.text.match(/https?:\/\//g)).toHaveLength(1);
     expect(email.text).not.toContain("—");
   });
 });
