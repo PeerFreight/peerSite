@@ -4,14 +4,14 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { ChromeScript } from "@/components/site/ChromeScript";
 
 export const metadata: Metadata = {
-  title: "Peer Freight - Hazmat-Focused Truckload Brokerage",
+  title: "Peer Freight - Truckload Freight Brokerage",
   description:
-    "Peer Freight is a hazmat-focused truckload brokerage built on modern technology. Fast answers, carriers we screen for fraud ourselves, and status updates before you ask, with the owners reachable on every load. Hazmat, tanker, reefer, dry van, flatbed, and port drayage.",
+    "Peer Freight is a truckload brokerage built on modern technology. Fast answers, carriers we screen for fraud ourselves, and status updates before you ask, with the owners reachable on every load. Dry van, reefer, flatbed, hazmat, tanker, and port drayage.",
   alternates: { canonical: "https://www.peer-freight.com/" },
   openGraph: {
     type: "website",
     siteName: "Peer Freight",
-    title: "Peer Freight - Hazmat-Focused Truckload Brokerage",
+    title: "Peer Freight - Truckload Freight Brokerage",
     description:
       "Fraud-screened carriers, transparent pricing, and status before you ask, with the owners reachable on every load. Licensed, bonded, insured, and a TIA member.",
     url: "https://www.peer-freight.com/",
@@ -22,13 +22,13 @@ export const metadata: Metadata = {
         type: "image/png",
         width: 1200,
         height: 630,
-        alt: "Peer Freight, a hazmat-focused truckload brokerage",
+        alt: "Peer Freight, a truckload freight brokerage",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Peer Freight - Hazmat-Focused Truckload Brokerage",
+    title: "Peer Freight - Truckload Freight Brokerage",
     description:
       "Fraud-screened carriers, transparent pricing, and status before you ask, with the owners reachable on every load.",
     images: ["https://www.peer-freight.com/site/freight-og-card.png"],
@@ -47,7 +47,7 @@ export default function HomePage() {
           <div className="wrap">
             <div className="hero__grid">
               <div className="hero__content">
-                <h1 id="hero-title" className="display">Hazmat freight handled right</h1>
+                <h1 id="hero-title" className="display">Freight handled right</h1>
                 <p className="hero__sub">A new brokerage built on modern technology. Fast quotes, carriers screened for fraud, updates before you ask, and the owners on call for every load.</p>
               </div>
             </div>
