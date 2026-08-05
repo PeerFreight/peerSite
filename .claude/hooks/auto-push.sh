@@ -17,13 +17,25 @@
 # (vercel.json), so every push to main ships the live site — an autosave of the
 # working tree at the end of every message would deploy half-finished edits.
 # The gate stays where AGENTS.md puts it: the agent commits a finished, verified
-# change, and this hook guarantees that commit reaches main immediately. An
-# uncommitted tree is reported so nothing is silently left behind.
+# change, and this hook guarantees that commit reaches main immediately.
+#
+# Pass --warn-dirty to also report an uncommitted working tree, so nothing is
+# silently left behind. The Stop entry uses it (once per message); the
+# PostToolUse entry does not, since that fires after every Bash call.
 
 set -uo pipefail
 
 # Discard any stdin payload the harness pipes in.
 [ -t 0 ] || cat >/dev/null
+
+warn_dirty=0
+[ "${1:-}" = "--warn-dirty" ] && warn_dirty=1
+
+# Bound the git network legs so a stalled remote cannot sit in this hook. The
+# hard `timeout` in .claude/settings.json is the real backstop; these abort a
+# connection that opens and then goes quiet.
+export GIT_HTTP_LOW_SPEED_LIMIT=1000
+export GIT_HTTP_LOW_SPEED_TIME=15
 
 repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 [ -z "$repo_root" ] && exit 0
@@ -33,8 +45,8 @@ cd "$repo_root"
 [ "$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)" = "HEAD" ] && exit 0
 
 # Surface — but never auto-commit — pending working-tree changes.
-if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
-  echo "auto-push: uncommitted changes present; commit them so they reach main"
+if [ "$warn_dirty" = "1" ] && [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+  echo "auto-push: uncommitted changes; commit them so they reach main"
 fi
 
 # Fast path: nothing to push relative to our last-known origin/main. Cheap; runs

@@ -19,7 +19,7 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(bash .claude/hooks/session-start-sync.sh)",
-      "Bash(bash .claude/hooks/auto-push.sh)"
+      "Bash(bash .claude/hooks/auto-push.sh:*)"
     ],
     "deny": [
       "Read(./.env)",
@@ -61,7 +61,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/auto-push.sh",
+            "command": "bash .claude/hooks/auto-push.sh --warn-dirty",
             "timeout": 90
           }
         ]
