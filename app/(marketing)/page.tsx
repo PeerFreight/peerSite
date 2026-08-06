@@ -155,7 +155,7 @@ export default function HomePage() {
           <div className="wrap">
             <div className="section__head">
               <h2 className="heading" id="svc-title">We run every load the same way</h2>
-              <p className="lead">Every load runs through the same four steps, no matter the freight. Open each one to see exactly what we do and what you get.</p>
+              <p className="lead">Every load runs through the same four steps, no matter the freight.</p>
             </div>
 
             <div className="svc">
@@ -170,7 +170,7 @@ export default function HomePage() {
                 </summary>
                 <div className="svc__panel">
                   <div className="svc__stat"><b>Real</b><span>market comps behind every rate</span></div>
-                  <p className="svc__desc">When we quote your lane, we pull the current spot and contract comps and send them along with the rate, so you can see why the number is what it is. If the market moves between quotes, you see the new data, not a vague explanation. The invoice you get matches the rate you approved.</p>
+                  <p className="svc__desc">Every quote comes with the current spot and contract comps for your lane. If the market moves between quotes, you see the new data, and the invoice always matches the rate you approved.</p>
                 </div>
               </details>
               <details name="svc">
@@ -184,7 +184,7 @@ export default function HomePage() {
                 </summary>
                 <div className="svc__panel">
                   <div className="svc__stat"><b>100%</b><span>of carriers verified before dispatch</span></div>
-                  <p className="svc__desc">Before a carrier gets your load, we verify their identity through Carrier411 and check FMCSA for active authority, insurance, and safety history. We rerun those checks on every load, not just once when a carrier signs up, because that is where fraud slips in. If anything looks off, the load goes to a different truck.</p>
+                  <p className="svc__desc">We recheck identity, authority, insurance, and safety history on every load, not only once at signup, because that is where fraud slips in. If anything looks off, the load goes to a different truck.</p>
                 </div>
               </details>
               <details name="svc">
@@ -198,7 +198,7 @@ export default function HomePage() {
                 </summary>
                 <div className="svc__panel">
                   <div className="svc__stat"><b>24/7</b><span>owner access on every load</span></div>
-                  <p className="svc__desc">You get an update at pickup, another in transit, and another at delivery, without having to chase anyone down. If something goes sideways at 2 a.m., you reach one of the owners on the phone, not a call center. We surface problems early, while there is still time to fix them.</p>
+                  <p className="svc__desc">We surface problems early, while there is still time to fix them. If something goes sideways at 2 a.m., you reach one of the owners on the phone, not a call center.</p>
                 </div>
               </details>
               <details name="svc">
@@ -212,7 +212,7 @@ export default function HomePage() {
                 </summary>
                 <div className="svc__panel">
                   <div className="svc__stat"><b>Same day</b><span>signed proof of delivery</span></div>
-                  <p className="svc__desc">The day your load delivers, we collect the signed proof of delivery and send it to you, so your own billing never waits on us. The invoice matches the rate confirmation you approved, with any accessorials spelled out in writing. There are no surprise charges weeks later.</p>
+                  <p className="svc__desc">The signed proof of delivery lands in your inbox the day the load delivers, so your own billing never waits on us. Accessorials are spelled out in writing, with no surprise charges weeks later.</p>
                 </div>
               </details>
             </div>
@@ -308,7 +308,7 @@ export default function HomePage() {
             <div className="cta-band__top">
               <div>
                 <h2>Freight that moves around your schedule</h2>
-                <p className="lead">Hazmat, reefer, dry van, flatbed, or a container sitting at the port. Tell us when it needs to move, and one of the owners takes it from there.</p>
+                <p className="lead">Tell us when it needs to move, and one of the owners takes it from there.</p>
               </div>
             </div>
             <div className="cta-bar">
