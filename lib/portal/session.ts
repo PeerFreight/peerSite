@@ -26,8 +26,10 @@ const getSession = cache(async () => {
 
 /** The org this session operates as: the session's active org when the user
  * is (still) a member of it, else their first membership. Invited teammates
- * are the first real multi-org case — first-row order is not enough. */
-async function resolveOrg(
+ * are the first real multi-org case — first-row order is not enough.
+ * Exported for the session-gated API routes, which must resolve the same
+ * org as the pages that link to them or multi-org users get spurious 404s. */
+export async function resolveOrg(
   db: PortalDb,
   userId: string,
   activeOrganizationId: string | null | undefined,

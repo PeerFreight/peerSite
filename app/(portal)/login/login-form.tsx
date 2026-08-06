@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import type { SocialProviderFlags } from "@/lib/auth";
+import { safeNext } from "@/lib/portal/safe-next";
 import { AuthShell } from "@/components/portal/auth-shell";
 import { SocialSignIn, oauthErrorMessage } from "@/components/portal/social-sign-in";
 import { Alert } from "@/components/ui/alert";
@@ -33,7 +34,9 @@ function signInErrorCopy(message: string | null | undefined): { text: string; cr
 function LoginFormInner({ providers }: { providers: SocialProviderFlags }) {
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next") ?? "/dashboard";
+  // safeNext: ?next= is attacker-controlled; it feeds router.push and the
+  // magic-link/social callbackURL, so it must never leave the site.
+  const next = safeNext(params.get("next"));
   const oauthError = oauthErrorMessage(params.get("error"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

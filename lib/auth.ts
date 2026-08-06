@@ -3,8 +3,9 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { magicLink, organization } from "better-auth/plugins";
+import { sql } from "drizzle-orm";
 import * as schema from "@/db/schema";
-import { getDb } from "@/lib/db";
+import { getDb, type Db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { ADMIN_DOMAIN } from "@/lib/portal/roles";
 import { baseUrl } from "@/lib/portal/urls";
@@ -36,6 +37,27 @@ function vercelTrustedOrigins() {
     .map((host) => new URL(host.startsWith("http") ? host : `https://${host}`).origin);
 }
 
+/**
+ * Rate-limit counters belong in Postgres (in-memory is per-instance and
+ * near-useless on serverless), but Better Auth fails closed if the table is
+ * missing — every auth request would 500. Probe once per cold start so a
+ * deploy that races the 0012 migration degrades to the memory limiter with
+ * a loud log instead of breaking sign-in; the next cold start after the
+ * migration picks the database back up.
+ */
+async function rateLimitStorage(db: Db): Promise<"database" | "memory"> {
+  try {
+    await db.execute(sql`select 1 from rate_limit limit 1`);
+    return "database";
+  } catch (err) {
+    console.error(
+      "rate_limit table unavailable — falling back to in-memory rate limiting; run db:migrate",
+      err,
+    );
+    return "memory";
+  }
+}
+
 async function makeAuth() {
   const db = await getDb();
   const social = enabledSocialProviders();
@@ -46,6 +68,22 @@ async function makeAuth() {
     // names the unique deployment. Trust only Vercel's exact system URLs.
     trustedOrigins: vercelTrustedOrigins(),
     database: drizzleAdapter(db, { provider: "pg", schema }),
+    // Better Auth's default limiter is in-memory per instance — useless on
+    // serverless, where every invocation may be a fresh instance. Store the
+    // counters in Postgres (db/schema.ts rateLimit) so the limits actually
+    // hold, and clamp the credential/email endpoints hardest: they are the
+    // brute-force and email-amplification surfaces.
+    rateLimit: {
+      enabled: true,
+      storage: await rateLimitStorage(db),
+      modelName: "rateLimit",
+      customRules: {
+        "/sign-in/email": { window: 60, max: 5 },
+        "/sign-in/magic-link": { window: 60, max: 3 },
+        "/sign-up/email": { window: 60, max: 3 },
+        "/change-email": { window: 60, max: 3 },
+      },
+    },
     emailAndPassword: {
       enabled: true,
     },

@@ -1,4 +1,5 @@
 import {
+  bigint,
   boolean,
   date,
   index,
@@ -103,6 +104,18 @@ export const invitation = pgTable("invitation", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Better Auth's DB-backed rate-limit counters (rateLimit.storage:
+ * "database" in lib/auth.ts) — the in-memory default is per-instance and
+ * useless on serverless. Also reused by lib/portal/throttle.ts for the
+ * unauthenticated form throttles, under its own key prefixes.
+ * `lastRequest` is epoch milliseconds; rows are pruned by Better Auth. */
+export const rateLimit = pgTable("rate_limit", {
+  id: text("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  count: integer("count").notNull(),
+  lastRequest: bigint("last_request", { mode: "number" }).notNull(),
 });
 
 // Legacy of the pre-launch invite gate (lifted 2026-08 — signup is open).
