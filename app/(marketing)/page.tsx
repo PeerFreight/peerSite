@@ -83,11 +83,23 @@ export default function HomePage() {
                         Invoices
                       </li>
                     </ul>
+                    <div className="mock__user">
+                      <span className="mock__avatar">DK</span>
+                      <span className="mock__userblock">
+                        <b>Dana K.</b>
+                        <i>Shipper</i>
+                      </span>
+                    </div>
                   </div>
                   <div className="mock__main">
                     <div className="mock__head">
                       <strong>Loads</strong>
                       <span className="mock__quote-btn">Request a quote</span>
+                    </div>
+                    <div className="mock__stats">
+                      <div className="mock__stat"><b>4</b><span>In transit</span></div>
+                      <div className="mock__stat"><b>98%</b><span>On time</span></div>
+                      <div className="mock__stat"><b>12</b><span>Delivered</span></div>
                     </div>
                     <div className="mock__panel">
                       <div className="mock__row">
@@ -105,6 +117,14 @@ export default function HomePage() {
                           <span className="mock__meta">Pickup Aug 8 &middot; Reefer 53&apos;</span>
                         </div>
                         <span className="mock__badge mock__badge--navy">Booked</span>
+                      </div>
+                      <div className="mock__row">
+                        <span className="mock__ref">PEER-50871</span>
+                        <div className="mock__laneblock">
+                          <span className="mock__lane">Stockton, CA &rarr; Salt Lake City, UT</span>
+                          <span className="mock__meta">Pickup Aug 8 &middot; Dry van 53&apos;</span>
+                        </div>
+                        <span className="mock__badge mock__badge--gold">In transit</span>
                       </div>
                       <div className="mock__row">
                         <span className="mock__ref">PEER-48293</span>
