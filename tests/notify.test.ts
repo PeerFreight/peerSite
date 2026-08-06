@@ -68,11 +68,11 @@ describe("status and booking emails", () => {
       loadId: "load-1",
       next: "in_transit",
       note: "Driver got loaded 40 minutes early.",
-      extraLines: ["Live tracking (shareable, no login): http://x/track/tok"],
+      extraLines: ["Track your delivery: https://track.example.com/abc"],
     });
     expect(email.subject).toContain("PEER-1001");
     const noteAt = email.text.indexOf("Driver got loaded");
-    const trackAt = email.text.indexOf("Live tracking");
+    const trackAt = email.text.indexOf("Track your delivery");
     const linkAt = email.text.indexOf("View your shipment:");
     expect(noteAt).toBeGreaterThan(-1);
     expect(trackAt).toBeGreaterThan(noteAt);

@@ -6,6 +6,7 @@ export function SiteFooter() {
         <div className="footer__legal">
           <span>USDOT 5766712 · $75K BMC-84 bond on file · FMCSA broker authority pending · TIA member</span>
           <span className="footer__links">
+            <a href="/carriers">For carriers</a>
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
             <a href="/login">Log in</a>

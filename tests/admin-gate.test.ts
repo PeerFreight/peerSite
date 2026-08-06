@@ -6,7 +6,6 @@
 // the export lists so a new admin function can't ship ungated unnoticed.
 import { describe, expect, it } from "vitest";
 import * as adminQueries from "../lib/portal/admin-queries";
-import * as trackingQueries from "../lib/portal/tracking-queries";
 import type { AdminUser } from "../lib/portal/admin-queries";
 import type { PortalDb } from "../lib/portal/queries";
 
@@ -46,24 +45,11 @@ const gated: Record<string, (u: AdminUser) => Promise<unknown>> = {
   setDocumentVisibility: (u) => adminQueries.setDocumentVisibility(db, u, "doc-1", true),
   getDocumentForAdmin: (u) => adminQueries.getDocumentForAdmin(db, u, "doc-1"),
   upsertCarrierAssignment: (u) => adminQueries.upsertCarrierAssignment(db, u, "load-1", {} as never),
-  startTracking: (u) => trackingQueries.startTracking(db, u, "load-1", {} as never),
-  stopTracking: (u) => trackingQueries.stopTracking(db, u, "load-1"),
-  expirePublicLinkOnDelivery: (u) => trackingQueries.expirePublicLinkOnDelivery(db, u, "load-1"),
-  revokePublicLink: (u) => trackingQueries.revokePublicLink(db, u, "session-1"),
-  getTrackingForAdmin: (u) => trackingQueries.getTrackingForAdmin(db, u, "load-1"),
 };
 
-// Exports that deliberately take no admin: the webhook ingest path proves a
-// per-session secret instead, and the rest are pure helpers or internal
-// lookups that never cross an org on their own.
-const exempt = new Set(["callbackUrl", "getLiveSessionForLoad", "recordPing"]);
-
 describe("admin gate covers every admin-surface export", () => {
-  it("sweeps every export of admin-queries and tracking-queries", () => {
-    const exported = [
-      ...Object.keys(adminQueries),
-      ...Object.keys(trackingQueries),
-    ].filter((name) => !exempt.has(name));
+  it("sweeps every export of admin-queries", () => {
+    const exported = Object.keys(adminQueries);
     expect(exported.sort()).toEqual(Object.keys(gated).sort());
   });
 

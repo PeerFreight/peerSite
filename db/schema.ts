@@ -1,9 +1,7 @@
-import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
   date,
-  doublePrecision,
   index,
   integer,
   jsonb,
@@ -434,7 +432,7 @@ export const carrierAssignments = pgTable(
     driverPhone: text("driver_phone"),
     truckNumber: text("truck_number"),
     trailerNumber: text("trailer_number"),
-    /** Pasted share link (MacroPoint / p44 / ELD portal); native tracking is later. */
+    /** Pasted MacroPoint share link — the tracking surface (no API build). */
     trackingUrl: text("tracking_url"),
     visibleToShipper: boolean("visible_to_shipper").notNull().default(false),
     assignedByUserId: text("assigned_by_user_id").notNull().references(() => user.id),
@@ -488,104 +486,5 @@ export const invoices = pgTable(
     uniqueIndex("invoices_load_idx").on(t.loadId),
     uniqueIndex("invoices_number_idx").on(t.number),
     index("invoices_org_idx").on(t.organizationId, t.createdAt),
-  ],
-);
-
-// ---------------------------------------------------------------------------
-// Live tracking (Phase 6). One tracking session per load (app-enforced, not
-// DB — a replaced carrier gets a fresh session and the old rows keep the
-// history). The provider (MacroPoint in production, a stub locally) pings our
-// webhook; pings land here, NOT in the append-only events table — they are
-// high-volume machine data we may want to prune, and events only gets the
-// coarse lifecycle rows (tracking_started / stopped / link_sent / revoked).
-
-export const TRACKING_PROVIDERS = ["macropoint", "stub"] as const;
-export type TrackingProviderName = (typeof TRACKING_PROVIDERS)[number];
-
-export const TRACKING_SESSION_STATUSES = ["requested", "active", "stopped", "error"] as const;
-export type TrackingSessionStatus = (typeof TRACKING_SESSION_STATUSES)[number];
-
-export const trackingSessions = pgTable(
-  "tracking_sessions",
-  {
-    id: text("id").primaryKey(),
-    loadId: text("load_id")
-      .notNull()
-      .references(() => loads.id, { onDelete: "cascade" }),
-    organizationId: text("organization_id")
-      .notNull()
-      .references(() => organization.id, { onDelete: "cascade" }),
-    provider: text("provider").$type<TrackingProviderName>().notNull(),
-    /** Provider's order id, set once startTracking succeeds. */
-    externalOrderId: text("external_order_id"),
-    status: text("status").$type<TrackingSessionStatus>().notNull().default("requested"),
-    /** E.164 snapshot of the driver phone the order was created with. */
-    driverPhone: text("driver_phone").notNull(),
-    intervalMinutes: integer("interval_minutes").notNull().default(30),
-    /** Per-session webhook path secret; compared with timingSafeEqual. */
-    webhookSecret: text("webhook_secret").notNull(),
-    /** Opaque token behind /track/<token>. DB-backed (not a JWT) so revoking
-     * or rotating is a row update. */
-    publicToken: text("public_token").notNull(),
-    /** Audit stamp of the last rotation; the old token dies by lookup miss. */
-    publicTokenRevokedAt: timestamp("public_token_revoked_at", { withTimezone: true }),
-    /** Set at delivery (now + 7d); past this the public link is dead. */
-    publicExpiresAt: timestamp("public_expires_at", { withTimezone: true }),
-    // Best-effort geocode of the load's origin/dest city+zip for map pins;
-    // null when geocoding was unavailable, never blocks tracking.
-    originLat: doublePrecision("origin_lat"),
-    originLng: doublePrecision("origin_lng"),
-    destLat: doublePrecision("dest_lat"),
-    destLng: doublePrecision("dest_lng"),
-    lastPingAt: timestamp("last_ping_at", { withTimezone: true }),
-    startedByUserId: text("started_by_user_id")
-      .notNull()
-      .references(() => user.id),
-    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
-    stoppedAt: timestamp("stopped_at", { withTimezone: true }),
-  },
-  (t) => [
-    uniqueIndex("tracking_sessions_public_token_idx").on(t.publicToken),
-    index("tracking_sessions_load_idx").on(t.loadId, t.startedAt),
-    index("tracking_sessions_org_idx").on(t.organizationId),
-  ],
-);
-
-export const PING_SOURCES = ["webhook", "manual", "sim"] as const;
-export type PingSource = (typeof PING_SOURCES)[number];
-
-export const locationPings = pgTable(
-  "location_pings",
-  {
-    id: text("id").primaryKey(),
-    trackingSessionId: text("tracking_session_id")
-      .notNull()
-      .references(() => trackingSessions.id, { onDelete: "cascade" }),
-    loadId: text("load_id")
-      .notNull()
-      .references(() => loads.id, { onDelete: "cascade" }),
-    organizationId: text("organization_id")
-      .notNull()
-      .references(() => organization.id, { onDelete: "cascade" }),
-    lat: doublePrecision("lat").notNull(),
-    lng: doublePrecision("lng").notNull(),
-    city: text("city"),
-    state: text("state"),
-    /** Provider's delivery ETA as of this ping, when it sends one. */
-    etaAt: timestamp("eta_at", { withTimezone: true }),
-    providerStatus: text("provider_status"),
-    /** Provider's update id when it sends one; the partial unique index below
-     * makes webhook retries idempotent. */
-    providerEventId: text("provider_event_id"),
-    source: text("source").$type<PingSource>().notNull().default("webhook"),
-    /** When the truck was there (provider clock). */
-    recordedAt: timestamp("recorded_at", { withTimezone: true }).notNull(),
-    receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (t) => [
-    index("location_pings_session_idx").on(t.trackingSessionId, t.recordedAt),
-    uniqueIndex("location_pings_provider_event_idx")
-      .on(t.trackingSessionId, t.providerEventId)
-      .where(sql`${t.providerEventId} is not null`),
   ],
 );

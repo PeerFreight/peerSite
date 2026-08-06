@@ -1,9 +1,9 @@
 /**
  * The inline chrome script the static site ran at the end of <body>:
- * header scroll state and non-draggable images. Kept as a synchronous inline
- * script so the scrolled header state is right on first paint. (The old
- * FormSubmit ?sent=1 toggle left with the relay — the carrier setup form now
- * posts to our own server action and renders its own success state.)
+ * header scroll state, kept synchronous so the scrolled header state is
+ * right on first paint. (The old draggable="false" img loop is gone — it
+ * mutated the DOM before React hydrated, which tripped a hydration-mismatch
+ * warning; the stylesheet's img { -webkit-user-drag: none } covers it.)
  */
 export function ChromeScript() {
   const script = `
@@ -11,7 +11,6 @@ export function ChromeScript() {
       var header = document.querySelector('.site-header');
       function onScroll() { header.classList.toggle('is-scrolled', window.scrollY > 8); }
       window.addEventListener('scroll', onScroll, { passive: true });
-      document.querySelectorAll('img').forEach(function (img) { img.setAttribute('draggable', 'false'); });
       onScroll();
     })();
   `;

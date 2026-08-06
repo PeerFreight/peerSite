@@ -2,10 +2,17 @@ type Cta = { href: string; label: string };
 
 /** Marketing site header. The action cluster carries the site's CTAs:
  * gold for the primary (get a quote, arrow icon), white for log in
- * (person icon). The primary CTA stays per-page. */
-export function SiteHeader({ cta }: { cta: Cta }) {
+ * (person icon). The primary CTA stays per-page.
+ *
+ * `tone="solid"` keeps the navy background at all times, for pages with a
+ * light surface at the top (legal pages) where the transparent-at-top header
+ * would render white text on white. */
+export function SiteHeader({ cta, tone }: { cta: Cta; tone?: "solid" }) {
   return (
-    <header className="site-header" aria-label="Peer Freight navigation">
+    <header
+      className={tone === "solid" ? "site-header site-header--solid" : "site-header"}
+      aria-label="Peer Freight navigation"
+    >
       <div className="site-header__inner">
         <a className="brand" href="/" aria-label="Peer Freight home">
           <img className="brand__mark" src="/site/peer-logo-mark.png" alt="" width={34} height={34} />

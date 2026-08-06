@@ -113,18 +113,15 @@ type CarrierDefaults = {
 } | null;
 
 /** Assign or update the carrier. `suggestVisible` pre-checks sharing once the
- * load is dispatched (the runbook default). `hasLiveTracking` hides the
- * start-tracking opt-in when a session is already live. */
+ * load is dispatched (the runbook default). */
 export function CarrierForm({
   loadId,
   carrier,
   suggestVisible,
-  hasLiveTracking = false,
 }: {
   loadId: string;
   carrier: CarrierDefaults;
   suggestVisible: boolean;
-  hasLiveTracking?: boolean;
 }) {
   const [state, formAction, pending] = useActionState<AdminFormState, FormData>(
     assignCarrierAction.bind(null, loadId),
@@ -163,7 +160,7 @@ export function CarrierForm({
       <Field
         label="Tracking link"
         htmlFor="trackingUrl"
-        hint="Pasted MacroPoint / p44 / ELD share link. Optional."
+        hint="MacroPoint share link from the tracking order. Optional."
         error={err("trackingUrl")}
       >
         <Input
@@ -182,25 +179,8 @@ export function CarrierForm({
         />
         Show carrier and tracking to the shipper
       </label>
-      {hasLiveTracking ? null : (
-        <label className="flex items-center gap-2 text-sm font-bold text-ink">
-          <input
-            type="checkbox"
-            name="startTracking"
-            defaultChecked={Boolean(carrier?.driverPhone)}
-          />
-          Start live tracking with this driver
-          <span className="font-normal text-muted">(needs the driver phone)</span>
-        </label>
-      )}
       {state?.formError ? <p className="text-sm font-bold text-red-700">{state.formError}</p> : null}
-      {state?.ok ? (
-        state.notice ? (
-          <p className="text-sm font-bold text-amber-700">{state.notice}</p>
-        ) : (
-          <p className="text-sm font-bold text-green-800">Carrier saved.</p>
-        )
-      ) : null}
+      {state?.ok ? <p className="text-sm font-bold text-green-800">Carrier saved.</p> : null}
       <Button type="submit" variant="secondary" disabled={pending}>
         {pending ? "Saving..." : carrier ? "Update carrier" : "Assign carrier"}
       </Button>
