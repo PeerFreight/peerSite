@@ -96,7 +96,7 @@ export function composeLoadBooked(input: {
       "",
       "We're finding and vetting the right carrier now. We'll email you as soon as the carrier is dispatched, and you will be able to see the carrier's contact details on your shipment page.",
       "",
-      "Once the truck is on the road, we'll also send you a live tracking link that you can view and share without logging in.",
+      "Once the truck is on the road, we'll also send you a tracking link so you can follow your delivery.",
       "",
       `View your shipment: ${baseUrl()}/loads/${input.loadId}`,
       "",
@@ -112,7 +112,7 @@ export function composeLoadStatus(input: {
   next: Exclude<LoadStatus, "booked">;
   /** Founder's context line, rendered as its own paragraph under the update. */
   note?: string | null;
-  /** Extra standalone lines (e.g. the live tracking link) above the load link. */
+  /** Extra standalone lines (e.g. the carrier's tracking link) above the load link. */
   extraLines?: string[];
 }): ComposedEmail {
   const email = LOAD_STATUS_EMAIL[input.next];
@@ -270,34 +270,13 @@ export function composeInviteEmail(input: {
         ? `${input.inviterName} invited you to join ${input.orgName} on the Peer Freight portal.`
         : `You are invited to join ${input.orgName} on the Peer Freight portal.`,
       "",
-      "You will see the company's quotes, loads, live tracking, documents, and invoices in one place.",
+      "You will see the company's quotes, loads, tracking, documents, and invoices in one place.",
       "",
       `Accept the invite here: ${baseUrl()}/invite/${input.inviteId}`,
       "",
       "The link is good for 48 hours. If you were not expecting this, you can ignore it.",
       "",
       "Peer Freight",
-    ]),
-  };
-}
-
-/** Re-send of the public tracking link. The URL and TTL arrive as data
- * (this file stays free of tracking imports). */
-export function composeTrackingLink(input: {
-  to: string;
-  reference: string;
-  publicUrl: string;
-  ttlDays: number;
-}): ComposedEmail {
-  return {
-    to: input.to,
-    subject: `Live tracking for ${input.reference}`,
-    text: joinLines([
-      `Follow your freight live on a map: ${input.publicUrl}`,
-      "",
-      `Anyone you share the link with can watch, no login needed. It stays live until ${input.ttlDays} days after delivery.`,
-      "",
-      ...CUSTOMER_SIGNOFF,
     ]),
   };
 }

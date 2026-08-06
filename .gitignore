@@ -11,3 +11,8 @@ dist/
 *.tsbuildinfo
 .devdb/
 .devdocs/
+
+# Conductor writes machine-local settings here, and each workspace gets its own
+# scratch directory. Neither belongs in the repository.
+.conductor/
+.context/

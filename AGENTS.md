@@ -6,6 +6,8 @@
 - After a code change is finished and verified, commit it with a concise message and push it to the tracked remote without waiting to be asked.
 - Before committing, check `git status` and avoid bundling unrelated in-progress user changes. If the working tree already contained unrelated changes, leave those out or stop and explain the conflict.
 - Do not force-push `main` or `master`.
+- Everything lands on `main`; no feature branches or PRs. `git config remote.origin.push HEAD:refs/heads/main` is set repo-wide, so a plain `git push` from a Conductor workspace goes to `main` and never creates `origin/<branch>`. If the push is rejected as non-fast-forward, `git pull --rebase origin main` and push again.
+- The `.claude/hooks/` scripts pull `origin/main` at session start and push any local commits to `main` after every message. They are a safety net, not a substitute for a scoped commit. They deliberately never commit for you: `main` deploys to production (`vercel.json`), so the commit is the release gate.
 
 ## Engineering Rules
 

@@ -5,12 +5,11 @@ import { EventTimeline } from "@/components/portal/event-timeline";
 import { HazmatBlock } from "@/components/portal/hazmat-block";
 import { LoadProgress } from "@/components/portal/load-progress";
 import { DelayBadge, LoadStatusBadge } from "@/components/portal/status";
-import { TrackingMap } from "@/components/portal/tracking-map";
 import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getInvoiceForLoad, INVOICE_STATUS_LABELS } from "@/lib/portal/invoices";
-import { getLoadDetail, getTrackingForLoad } from "@/lib/portal/queries";
+import { getLoadDetail } from "@/lib/portal/queries";
 import { accessorialLabel, equipmentLabel, laneSummary } from "@/lib/portal/rfq";
 import { requireOrgSession } from "@/lib/portal/session";
 
@@ -20,15 +19,6 @@ export const metadata: Metadata = {
 };
 
 const dateFmt = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
-
-const etaFmt = new Intl.DateTimeFormat("en-US", {
-  weekday: "short",
-  month: "short",
-  day: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-  timeZone: "America/Los_Angeles",
-});
 
 function fmtDate(iso: string) {
   return dateFmt.format(new Date(`${iso}T12:00:00`));
@@ -50,13 +40,16 @@ export default async function LoadPage({ params }: { params: Promise<{ id: strin
   const detail = await getLoadDetail(db, session.user.id, org.id, id);
   if (!detail) notFound();
   const { load, events, documents, carrier } = detail;
-  const tracking = await getTrackingForLoad(db, session.user.id, org.id, id);
   const invoice = await getInvoiceForLoad(db, session.user.id, org.id, id);
   // Carrier details surface once the truck is actually moving on this load.
   const showCarrier = carrier && !["booked", "cancelled"].includes(load.status);
-  const eta =
-    tracking && load.status !== "cancelled" && tracking.pings.length > 0
-      ? tracking.pings[tracking.pings.length - 1].etaAt
+  // The MacroPoint share link pasted on the carrier assignment; the query
+  // already filtered the carrier to shipper-visible rows. Delivered and later
+  // statuses drop the hero CTA (the link may be dead) — the carrier card
+  // still shows it for reference.
+  const trackingUrl =
+    showCarrier && ["dispatched", "in_transit"].includes(load.status)
+      ? carrier.trackingUrl
       : null;
 
   return (
@@ -94,45 +87,28 @@ export default async function LoadPage({ params }: { params: Promise<{ id: strin
       ) : null}
 
       {/* The hero answers the only question that matters — where is my
-          freight? — Amazon-style: status path, big ETA, big map. */}
+          freight? — status path plus the tracking link once the truck moves. */}
       <Card>
         <h2 className="section-label">Where your freight is</h2>
         <div className="mt-4">
           <LoadProgress status={load.status} />
         </div>
-        {eta ? (
-          <p className="mt-4 text-lg font-extrabold text-ink">
-            Estimated delivery: {etaFmt.format(eta)} PT
-          </p>
-        ) : null}
-        {tracking && load.status !== "cancelled" ? (
-          <div className="mt-4">
-            <TrackingMap
-              originLat={tracking.session.originLat}
-              originLng={tracking.session.originLng}
-              destLat={tracking.session.destLat}
-              destLng={tracking.session.destLng}
-              pings={tracking.pings.map((p) => ({
-                lat: p.lat,
-                lng: p.lng,
-                recordedAt: p.recordedAt.toISOString(),
-              }))}
-              lastPingAt={tracking.session.lastPingAt?.toISOString() ?? null}
-              pollUrl={
-                ["requested", "active"].includes(tracking.session.status)
-                  ? `/api/tracking/load/${load.id}`
-                  : null
-              }
-              heightClass="h-[26rem]"
-            />
+        {trackingUrl ? (
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <LinkButton href={trackingUrl} target="_blank" rel="noopener noreferrer">
+              View live tracking →
+            </LinkButton>
+            <p className="text-sm text-muted">
+              Follow your delivery on our tracking partner&apos;s page — no login needed.
+            </p>
           </div>
         ) : load.status !== "cancelled" ? (
           <p className="mt-4 text-sm text-muted">
             {load.status === "booked"
-              ? "Live tracking starts when your driver is dispatched."
+              ? "Your tracking link appears here when your driver is dispatched."
               : ["delivered", "invoiced", "closed"].includes(load.status)
                 ? `Delivered ${fmtDate(load.revisedDeliveryDate ?? load.deliveryDate)}.`
-                : "Your driver is on the road — live tracking appears here as soon as the tracking session starts."}
+                : "Your driver is on the road — we'll post your tracking link here as soon as it's live."}
           </p>
         ) : null}
       </Card>
