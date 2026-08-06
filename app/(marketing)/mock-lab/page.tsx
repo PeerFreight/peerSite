@@ -211,6 +211,125 @@ function TrackMock() {
   );
 }
 
+/** Accordion step 1, "Transparent quoting": a quote card with the market
+ * comps that ship with every rate. */
+function CompsMock() {
+  return (
+    <div className="mocka">
+      <div className="mocka__head">
+        <strong>Your quote</strong>
+        <span className="mock__badge mock__badge--gold">Quote ready</span>
+      </div>
+      <p className="mocka__meta">Sacramento, CA &rarr; Reno, NV &middot; Dry van 53&apos;</p>
+      <div className="mocka__amount">
+        <b>$1,840</b>
+        <span>All-in rate</span>
+      </div>
+      <div className="mocka__rule" />
+      <ul className="mocka__rows">
+        <li>
+          <b>Spot average</b>
+          <span>$1,795</span>
+        </li>
+        <li>
+          <b>Contract average</b>
+          <span>$1,910</span>
+        </li>
+      </ul>
+      <div className="mocka__foot">
+        <span className="mocka__note">Comps included with every rate</span>
+      </div>
+    </div>
+  );
+}
+
+/** Accordion step 2, "Fraud screened coverage": the carrier check card. */
+function VettingMock() {
+  return (
+    <div className="mocka">
+      <div className="mocka__head">
+        <strong>Carrier vetting</strong>
+        <span className="mock__badge mock__badge--green">Cleared</span>
+      </div>
+      <p className="mocka__meta">Summit Ridge Transport &middot; MC 118422</p>
+      <div className="mocka__rule" />
+      <ul className="mocka__rows">
+        <li className="mocka__check">
+          <span className="mocka__tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          Carrier411 &middot; no fraud flags
+        </li>
+        <li className="mocka__check">
+          <span className="mocka__tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          FMCSA authority &middot; active
+        </li>
+        <li className="mocka__check">
+          <span className="mocka__tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          Insurance &middot; verified with the producer
+        </li>
+        <li className="mocka__check">
+          <span className="mocka__tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          Identity &middot; confirmed at dispatch
+        </li>
+      </ul>
+    </div>
+  );
+}
+
+/** Accordion step 3, "Proactive tracking": the update feed (distinct from the
+ * progress-path track mock used on the Why Peer section). */
+function UpdatesMock() {
+  return (
+    <div className="mocka">
+      <div className="mocka__head">
+        <strong>Load updates</strong>
+        <span className="mock__badge mock__badge--gold">In transit</span>
+      </div>
+      <div className="mocka__rule" />
+      <ul className="mocka__rows">
+        <li>
+          <b>Picked up</b>
+          <span>8:12 AM PT</span>
+        </li>
+        <li>
+          <b>Check call &middot; on schedule</b>
+          <span>11:30 AM PT</span>
+        </li>
+        <li>
+          <b>ETA today</b>
+          <span>5:30 PM</span>
+        </li>
+      </ul>
+      <div className="mocka__foot">
+        <span className="mocka__note">Updates sent before you think to ask</span>
+      </div>
+    </div>
+  );
+}
+
+/** Accordion step 4, "A clean close": the delivery documents card. */
+function CloseMock() {
+  return (
+    <div className="mocka">
+      <div className="mocka__head">
+        <strong>Delivery documents</strong>
+        <span className="mock__badge mock__badge--green">Posted same day</span>
+      </div>
+      <p className="mocka__meta">Proof of delivery &middot; signed at receiver</p>
+      <div className="mocka__rule" />
+      <ul className="mocka__rows">
+        <li>
+          <b>Invoice INV-2041</b>
+          <span>$1,840 &middot; matches the quote</span>
+        </li>
+        <li>
+          <b>Accessorials</b>
+          <span>In writing, none this load</span>
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 export default function MockLabPage() {
   return (
     <main className="lab">
@@ -222,6 +341,18 @@ export default function MockLabPage() {
       </div>
       <div className="lab__frame" id="track">
         <TrackMock />
+      </div>
+      <div className="lab__frame lab__frame--sm" id="comps">
+        <CompsMock />
+      </div>
+      <div className="lab__frame lab__frame--sm" id="vetting">
+        <VettingMock />
+      </div>
+      <div className="lab__frame lab__frame--sm" id="updates">
+        <UpdatesMock />
+      </div>
+      <div className="lab__frame lab__frame--sm" id="close">
+        <CloseMock />
       </div>
     </main>
   );

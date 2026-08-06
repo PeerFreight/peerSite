@@ -20,7 +20,7 @@ import { join } from "node:path";
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const LAB_URL = process.env.LAB_URL ?? "http://localhost:3000/mock-lab";
 const OUT_DIR = new URL("../public/site/", import.meta.url).pathname;
-const MOCKS = ["loads", "quote", "track"];
+const MOCKS = ["loads", "quote", "track", "comps", "vetting", "updates", "close"];
 
 const profile = mkdtempSync(join(tmpdir(), "freeze-mocks-"));
 const chrome = spawn(CHROME, [
@@ -106,7 +106,12 @@ await send(
       ...Array.from(document.images).map((img) =>
         img.complete ? null : new Promise((r) => { img.onload = img.onerror = r; })
       ),
-    ]).then(() => true)`,
+    ]).then(() => {
+      // The Next dev-tools indicator is position:fixed and would be baked
+      // into whichever mock happens to sit under it.
+      document.querySelectorAll("nextjs-portal").forEach((el) => el.remove());
+      return true;
+    })`,
     awaitPromise: true,
   },
   sessionId,

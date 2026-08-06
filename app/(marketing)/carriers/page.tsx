@@ -59,46 +59,51 @@ export default function CarriersPage() {
           </div>
         </section>
 
-        <section className="section section--photo" aria-labelledby="perks-title">
-          <img className="section--photo__bg" src="/site/freight-reefer-evening.jpg" alt="" loading="lazy" />
+        <section className="section section--paper" aria-labelledby="perks-title">
           <div className="wrap">
-            <div className="section__head on-dark">
+            <div className="section__head">
               <h2 className="heading" id="perks-title">The loads carriers come back for</h2>
             </div>
-            <div className="gcards gcards--3">
-              <article className="gcard glass">
-                <div className="gcard__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 6.5c0-2-2.2-3-5-3s-5 1-5 3.2c0 4.8 10 2.8 10 7.6 0 2.2-2.2 3.2-5 3.2s-5-1.2-5-3.2"/></svg></div>
+            <div className="perks mosaic">
+              <article className="perk">
+                <div className="perk__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 6.5c0-2-2.2-3-5-3s-5 1-5 3.2c0 4.8 10 2.8 10 7.6 0 2.2-2.2 3.2-5 3.2s-5-1.2-5-3.2"/></svg></div>
                 <h3>Fast pay</h3>
                 <p>24 to 48 hours standard, same day when you need it. Skip your factor&apos;s fee.</p>
               </article>
-              <article className="gcard glass">
-                <div className="gcard__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/><path d="m17 16 2 2 3-3"/></svg></div>
+              <article className="perk">
+                <div className="perk__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/><path d="m17 16 2 2 3-3"/></svg></div>
                 <h3>Accessorials honored</h3>
                 <p>Detention, layover, and TONU, in writing on the rate confirmation.</p>
               </article>
-              <article className="gcard glass">
-                <div className="gcard__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+              <article className="perk">
+                <div className="perk__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
                 <h3>Accurate loads</h3>
                 <p>Real weights and real appointment times.</p>
               </article>
-              <article className="gcard glass">
-                <div className="gcard__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M17 3l4 4-9 9H8v-4Z"/></svg></div>
+              <article className="perk">
+                <div className="perk__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M17 3l4 4-9 9H8v-4Z"/></svg></div>
                 <h3>Easy paperwork</h3>
                 <p>Upload your POD from your phone. No endless check calls.</p>
               </article>
-              <article className="gcard glass">
-                <div className="gcard__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 5 6v5c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+              <article className="perk">
+                <div className="perk__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 5 6v5c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
                 <h3>A broker that does not ghost</h3>
                 <p>Active authority, bonded, and we pay on time.</p>
               </article>
-              <article className="gcard glass">
-                <div className="gcard__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg></div>
+              <article className="perk">
+                <div className="perk__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg></div>
                 <h3>Hazmat and repeat freight</h3>
                 <p>Steady lanes for carriers rated to haul hazmat.</p>
               </article>
+              <div className="tile--img tile--img--wide">
+                <img src="/site/freight-reefer-evening.jpg" alt="Reefer trailers lined up in a yard in the evening" loading="lazy" />
+              </div>
+              <div className="tile--img">
+                <img src="/site/freight-bol-daylight.jpg" alt="Bill of lading paperwork on a trailer door" loading="lazy" />
+              </div>
             </div>
 
-            <div className="setup glass">
+            <div className="setup">
               <div>
                 <h2>One packet, then you are cleared</h2>
                 <p>Tell us who you are, we verify your authority and insurance, and you are set up for our loads.</p>
