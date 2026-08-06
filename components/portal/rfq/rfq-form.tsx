@@ -2,12 +2,14 @@
 
 import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import { z } from "zod";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { JoinedGrid } from "@/components/ui/panel";
 import { DateField } from "@/components/ui/date-field";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
-import { IconCheck } from "@/components/ui/icons";
+import { IconBuilding, IconCheck, IconChevronRight, IconTruck } from "@/components/ui/icons";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   ACCESSORIAL_OPTIONS,
   EQUIPMENT_GROUPS,
@@ -231,9 +233,14 @@ function StopFields({
           />
         </Field>
       </div>
-      <details open={Boolean(address || hours || (scheduling && scheduling !== "fcfs"))}>
-        <summary className="cursor-pointer text-sm font-bold text-navy hover:underline">
-          Add facility details
+      <details className="group" open={Boolean(address || hours || (scheduling && scheduling !== "fcfs"))}>
+        <summary className="flex cursor-pointer list-none items-center gap-1.5 text-sm font-bold text-navy [&::-webkit-details-marker]:hidden">
+          <IconChevronRight
+            size={14}
+            className="shrink-0 transition-transform group-open:rotate-90"
+          />
+          Facility details
+          <Badge>Optional</Badge>
         </summary>
         <div className="mt-3 space-y-4">
           <Field
@@ -253,18 +260,13 @@ function StopFields({
             <Field label="Facility hours" htmlFor={`${prefix}Hours`} optional hint="e.g. 7am-3pm weekdays">
               <Input id={`${prefix}Hours`} name={`${prefix}Hours`} defaultValue={hours ?? ""} />
             </Field>
-            <Field label="Scheduling" htmlFor={`${prefix}Scheduling`}>
-              <Select
-                id={`${prefix}Scheduling`}
+            <Field label="Scheduling">
+              <SegmentedControl
                 name={`${prefix}Scheduling`}
+                ariaLabel={`${prefix === "origin" ? "Pickup" : "Delivery"} scheduling`}
                 defaultValue={scheduling ?? "fcfs"}
-              >
-                {SCHEDULING_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </Select>
+                options={SCHEDULING_OPTIONS}
+              />
             </Field>
           </div>
         </div>
@@ -395,22 +397,27 @@ export function RfqForm({
     <form ref={formRef} onSubmit={onSubmit} noValidate className="scroll-mt-6 space-y-6">
       <Stepper step={step} erred={erredSteps} onBack={(n) => n < step && goTo(n)} />
 
-      {/* Step 1 — Lane & dates: one attached surface, sections at hairline joints. */}
-      <div hidden={step !== 1}>
-        <JoinedGrid>
-          <div className="bg-white p-6">
-            <div className="grid gap-8 lg:grid-cols-2">
-              <div className="space-y-4">
-                <h2 className="section-label">Pickup</h2>
-                <StopFields prefix="origin" errors={errors} prefill={prefill} />
-              </div>
-              <div className="space-y-4">
-                <h2 className="section-label">Delivery</h2>
-                <StopFields prefix="dest" errors={errors} prefill={prefill} />
-              </div>
-            </div>
+      {/* Step 1 — Lane & dates: pickup and delivery as attached cells (the
+          hairline joint is the separation), dates on their own Card below —
+          Card doesn't clip overflow, so the calendar popover stays whole. */}
+      <div hidden={step !== 1} className="space-y-6">
+        <JoinedGrid className="lg:grid-cols-2">
+          <div className="space-y-4 bg-white p-6">
+            <h2 className="section-label flex items-center gap-2">
+              <IconTruck size={16} className="text-navy" />
+              Pickup
+            </h2>
+            <StopFields prefix="origin" errors={errors} prefill={prefill} />
           </div>
-          <div className="bg-white p-6">
+          <div className="space-y-4 bg-white p-6">
+            <h2 className="section-label flex items-center gap-2">
+              <IconBuilding size={16} className="text-navy" />
+              Delivery
+            </h2>
+            <StopFields prefix="dest" errors={errors} prefill={prefill} />
+          </div>
+        </JoinedGrid>
+        <Card>
           <h2 className="section-label">Dates</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <Field label="Pickup date" htmlFor="pickupDate" error={err("pickupDate")}>
@@ -446,20 +453,20 @@ export function RfqForm({
               />
             </Field>
           </div>
-          <div className="mt-4">
-            <Field label="Date flexibility" htmlFor="dateFlexibility">
-              <Select
-                id="dateFlexibility"
+          <div className="mt-4 sm:max-w-sm">
+            <Field label="Date flexibility">
+              <SegmentedControl
                 name="dateFlexibility"
+                ariaLabel="Date flexibility"
                 defaultValue={prefill?.dateFlexibility ?? "exact"}
-              >
-                <option value="exact">Dates are firm</option>
-                <option value="flexible">Dates are flexible</option>
-              </Select>
+                options={[
+                  { value: "exact", label: "Dates are firm" },
+                  { value: "flexible", label: "Dates are flexible" },
+                ]}
+              />
             </Field>
           </div>
-          </div>
-        </JoinedGrid>
+        </Card>
       </div>
 
       {/* Step 2 — Freight */}

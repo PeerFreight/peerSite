@@ -1,6 +1,7 @@
 "use client";
 
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   HAZMAT_CLASS_OPTIONS,
   HAZMAT_PACKING_GROUP_OPTIONS,
@@ -89,18 +90,13 @@ export function HazmatFields({
             defaultValue={prefill?.hazmatQuantity ?? ""}
           />
         </Field>
-        <Field label="Placards required?" htmlFor="hazmatPlacardsRequired" optional>
-          <Select
-            id="hazmatPlacardsRequired"
+        <Field label="Placards required?" optional>
+          <SegmentedControl
             name="hazmatPlacardsRequired"
+            ariaLabel="Placards required?"
             defaultValue={prefill?.hazmatPlacardsRequired ?? "unknown"}
-          >
-            {HAZMAT_PLACARD_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </Select>
+            options={HAZMAT_PLACARD_OPTIONS}
+          />
         </Field>
         <Field
           label="24-hr emergency contact"

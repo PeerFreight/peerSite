@@ -9,6 +9,7 @@ import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { IconClock, IconFileText, IconTruck } from "@/components/ui/icons";
 import { ListPanel, ListRow } from "@/components/ui/list";
 import { JoinedGrid, Panel, PanelBody, PanelHeader } from "@/components/ui/panel";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatTile } from "@/components/ui/stat";
 
@@ -200,6 +201,33 @@ export default function StyleguidePage() {
         <Field label="Notes" htmlFor="sg-notes" optional error="Example of a field error.">
           <Textarea id="sg-notes" placeholder="Anything else we should know?" />
         </Field>
+        <Field label="Date flexibility">
+          <SegmentedControl
+            name="sg-flexibility"
+            ariaLabel="Date flexibility"
+            defaultValue="exact"
+            options={[
+              { value: "exact", label: "Dates are firm" },
+              { value: "flexible", label: "Dates are flexible" },
+            ]}
+          />
+        </Field>
+        <Field label="Placards required?" optional>
+          <SegmentedControl
+            name="sg-placards"
+            ariaLabel="Placards required?"
+            defaultValue="unknown"
+            options={[
+              { value: "unknown", label: "Not sure" },
+              { value: "yes", label: "Yes" },
+              { value: "no", label: "No" },
+            ]}
+          />
+        </Field>
+        <p className="text-sm text-muted">
+          Two- or three-option choices are a SegmentedControl (native radios,
+          attached cells) instead of a dropdown; 4+ options stay a Select.
+        </p>
         <div className="flex items-center gap-3 text-sm">
           <IconFileText size={16} className="text-muted" />
           <span className="text-muted">

@@ -86,7 +86,7 @@ export const FREQUENCY_OPTIONS = [
 
 export const SCHEDULING_OPTIONS = [
   { value: "fcfs", label: "First come, first served" },
-  { value: "appointment", label: "Appointment required" },
+  { value: "appointment", label: "By appointment" },
 ] as const;
 
 /** DOT hazard classes (49 CFR 173.2), collapsed to the 15 entries shippers
