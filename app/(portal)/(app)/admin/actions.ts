@@ -35,30 +35,16 @@ import {
   composeLoadStatus,
   composeNeedsInfo,
   composeQuoteSent,
-  composeTrackingLink,
   deliver,
 } from "@/lib/portal/notify";
 import { needsInfoSchema, sendQuoteSchema } from "@/lib/portal/rfq";
 import { requireAdminSession } from "@/lib/portal/session";
-import { PUBLIC_LINK_TTL_DAYS, trackingPublicUrl } from "@/lib/portal/tracking";
-import {
-  expirePublicLinkOnDelivery,
-  getLiveSessionForLoad,
-  getTrackingForAdmin,
-  recordPing,
-  revokePublicLink,
-  startTracking,
-  stopTracking,
-} from "@/lib/portal/tracking-queries";
-import { appendEvent } from "@/lib/portal/queries";
 import { documentPath, getStorage } from "@/lib/storage";
 
 export type AdminFormState = {
   fieldErrors: Record<string, string[] | undefined>;
   formError: string | null;
   ok?: boolean;
-  /** Success with a caveat (e.g. carrier saved but tracking didn't start). */
-  notice?: string;
 } | null;
 
 function refreshQuotePages(requestId: string) {
@@ -210,34 +196,15 @@ export async function setLoadStatusAction(
     return { fieldErrors: {}, formError: err instanceof Error ? err.message : "Could not update the load." };
   }
 
-  // Delivery stops the provider session and starts the public link's 7-day
-  // expiry clock; a cancelled load stops tracking outright.
-  if (next === "delivered") {
-    try {
-      await expirePublicLinkOnDelivery(db, session.user, loadId);
-    } catch (err) {
-      console.error("tracking expiry on delivery failed", err);
-    }
-  } else if (next === "cancelled") {
-    try {
-      if (await getLiveSessionForLoad(db, loadId)) await stopTracking(db, session.user, loadId);
-    } catch (err) {
-      console.error("tracking stop on cancel failed", err);
-    }
-  }
-
-  // The dispatch / in-transit emails carry the shareable live-tracking link
-  // when a session is live (passed as an extra line so notify.ts stays
-  // tracking-free).
+  // The dispatch / in-transit emails carry the carrier's tracking link (the
+  // MacroPoint share link pasted on the assignment) once the carrier card is
+  // shipper-visible.
   const extraLines: string[] = [];
   if (["dispatched", "in_transit"].includes(next)) {
     try {
-      const live = await getLiveSessionForLoad(db, loadId);
-      if (live) {
-        extraLines.push(
-          `Live tracking (shareable, no login): ${trackingPublicUrl(live.publicToken)}`,
-        );
-      }
+      const detail = await getLoadForAdmin(db, session.user, loadId);
+      const url = detail?.carrier?.visibleToShipper ? detail.carrier.trackingUrl : null;
+      if (url) extraLines.push(`Track your delivery: ${url}`);
     } catch (err) {
       console.error("tracking link lookup failed", err);
     }
@@ -405,24 +372,8 @@ export async function assignCarrierAction(
     return { fieldErrors: {}, formError: err instanceof Error ? err.message : "Could not save the carrier." };
   }
 
-  // Start live tracking with the assignment when asked (per-load opt-in —
-  // MacroPoint bills per tracked load). A tracking failure is a soft note:
-  // the carrier assignment itself must never roll back or read as failed.
-  let notice: string | undefined;
-  if (
-    formData.get("startTracking") === "on" &&
-    parsed.data.driverPhone &&
-    !(await getLiveSessionForLoad(db, loadId))
-  ) {
-    try {
-      await startTracking(db, session.user, loadId, { intervalMinutes: 30 });
-    } catch (err) {
-      notice = `Carrier saved, but tracking did not start: ${err instanceof Error ? err.message : "provider error"}`;
-    }
-  }
-
   refreshLoadPages(loadId);
-  return { fieldErrors: {}, formError: null, ok: true, notice };
+  return { fieldErrors: {}, formError: null, ok: true };
 }
 
 // ---------------------------------------------------------------------------
@@ -564,145 +515,5 @@ export async function markInvoicePaidAction(
 
   refreshLoadPages(loadId);
   revalidatePath("/invoices");
-  return { fieldErrors: {}, formError: null, ok: true };
-}
-
-// ---------------------------------------------------------------------------
-// Live tracking (Phase 6)
-
-const startTrackingSchema = z.object({
-  intervalMinutes: z.coerce.number().int().min(5).max(240),
-});
-
-export async function startTrackingAction(
-  loadId: string,
-  _prev: AdminFormState,
-  formData: FormData,
-): Promise<AdminFormState> {
-  const { session, db } = await requireAdminSession();
-  const parsed = startTrackingSchema.safeParse({
-    intervalMinutes: formData.get("intervalMinutes") ?? "30",
-  });
-  if (!parsed.success) {
-    return { fieldErrors: z.flattenError(parsed.error).fieldErrors, formError: null };
-  }
-  try {
-    await startTracking(db, session.user, loadId, parsed.data);
-  } catch (err) {
-    return { fieldErrors: {}, formError: err instanceof Error ? err.message : "Could not start tracking." };
-  }
-  refreshLoadPages(loadId);
-  return { fieldErrors: {}, formError: null, ok: true };
-}
-
-export async function stopTrackingAction(
-  loadId: string,
-  _prev: AdminFormState,
-  _formData: FormData,
-): Promise<AdminFormState> {
-  const { session, db } = await requireAdminSession();
-  try {
-    await stopTracking(db, session.user, loadId);
-  } catch (err) {
-    return { fieldErrors: {}, formError: err instanceof Error ? err.message : "Could not stop tracking." };
-  }
-  refreshLoadPages(loadId);
-  return { fieldErrors: {}, formError: null, ok: true };
-}
-
-/** Rotate the public token. Anyone holding the old link loses access now. */
-export async function revokeTrackingLinkAction(
-  sessionId: string,
-  loadId: string,
-  _prev: AdminFormState,
-  _formData: FormData,
-): Promise<AdminFormState> {
-  const { session, db } = await requireAdminSession();
-  try {
-    await revokePublicLink(db, session.user, sessionId);
-  } catch (err) {
-    return { fieldErrors: {}, formError: err instanceof Error ? err.message : "Could not revoke the link." };
-  }
-  refreshLoadPages(loadId);
-  return { fieldErrors: {}, formError: null, ok: true };
-}
-
-/** Email the shipper the public tracking link (logged on the timeline). */
-export async function sendTrackingLinkAction(
-  loadId: string,
-  _prev: AdminFormState,
-  _formData: FormData,
-): Promise<AdminFormState> {
-  const { session, db } = await requireAdminSession();
-  try {
-    const detail = await getLoadForAdmin(db, session.user, loadId);
-    if (!detail) throw new Error("Load not found");
-    const tracking = await getTrackingForAdmin(db, session.user, loadId);
-    if (!tracking || ["stopped", "error"].includes(tracking.session.status)) {
-      throw new Error("No live tracking session on this load");
-    }
-    await deliver(
-      composeTrackingLink({
-        to: detail.requesterEmail,
-        reference: detail.load.reference,
-        publicUrl: trackingPublicUrl(tracking.session.publicToken),
-        ttlDays: PUBLIC_LINK_TTL_DAYS,
-      }),
-    );
-    await appendEvent(db, {
-      organizationId: detail.load.organizationId,
-      quoteRequestId: detail.load.quoteRequestId,
-      loadId,
-      actorType: "admin",
-      actorId: session.user.id,
-      eventType: "tracking_link_sent",
-      payload: { sessionId: tracking.session.id, to: detail.requesterEmail },
-    });
-  } catch (err) {
-    return { fieldErrors: {}, formError: err instanceof Error ? err.message : "Could not send the link." };
-  }
-  refreshLoadPages(loadId);
-  return { fieldErrors: {}, formError: null, ok: true };
-}
-
-const manualPingSchema = z.object({
-  lat: z.coerce.number().min(-90).max(90),
-  lng: z.coerce.number().min(-180).max(180),
-});
-
-/** Dev/demo fallback and the answer to drivers who refuse the app: the desk
- * keys in a position from a check call. */
-export async function recordManualPingAction(
-  loadId: string,
-  _prev: AdminFormState,
-  formData: FormData,
-): Promise<AdminFormState> {
-  const { session, db } = await requireAdminSession();
-  const parsed = manualPingSchema.safeParse({
-    lat: formData.get("lat") ?? "",
-    lng: formData.get("lng") ?? "",
-  });
-  if (!parsed.success) {
-    return { fieldErrors: z.flattenError(parsed.error).fieldErrors, formError: "Latitude and longitude, decimal degrees." };
-  }
-  try {
-    const live = await getLiveSessionForLoad(db, loadId);
-    if (!live) throw new Error("No live tracking session on this load");
-    await recordPing(db, live, {
-      kind: "ping",
-      lat: parsed.data.lat,
-      lng: parsed.data.lng,
-      recordedAt: new Date(),
-      city: null,
-      state: null,
-      etaAt: null,
-      providerStatus: null,
-      providerEventId: null,
-      source: "manual",
-    });
-  } catch (err) {
-    return { fieldErrors: {}, formError: err instanceof Error ? err.message : "Could not record the ping." };
-  }
-  refreshLoadPages(loadId);
   return { fieldErrors: {}, formError: null, ok: true };
 }

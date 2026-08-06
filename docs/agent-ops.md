@@ -39,19 +39,14 @@ Writes (each echoes the exact email the client received, when one is sent):
 | `send-quote <rfqId> --rate --service [--exclusions --valid-until --note]` | Quote sent + email; `--note` becomes the "How we priced it" paragraph |
 | `needs-info <rfqId> --message` | One consolidated ask, emailed and logged |
 | `book <quoteId>` | Books PEER-nnnn, emails the confirmation |
-| `set-status <ref> <status> [--note]` | One legal lifecycle step; tracking link rides along when live |
+| `set-status <ref> <status> [--note]` | One legal lifecycle step; the carrier's tracking link rides along on dispatch/in-transit once shared |
 | `add-doc <ref> --file --type [--share --note]` | Upload; `--share` posts it to the shipper and emails them |
 | `share-doc <docId> [--hide]` | Flip visibility on an uploaded document |
-| `assign-carrier <ref> --name [--mc --driver --phone --truck --trailer --share]` | Carrier card upsert |
+| `assign-carrier <ref> --name [--mc --driver --phone --truck --trailer --tracking-url --share]` | Carrier card upsert; `--tracking-url` takes the MacroPoint share link |
 | `set-delay <ref> --reason [--new-eta]` | Flags the exception, emails the shipper |
 | `clear-delay <ref>` | Back on schedule, emailed |
 | `create-invoice <ref> --due [--amount --file]` | Issues INV-nnnn (delivered → invoiced automatically); `--file` attaches the PDF as a shared document |
 | `mark-paid <INV-nnnn>` | Records payment |
-| `start-tracking <ref> [--interval 30]` | Starts live tracking (carrier with driver phone required); prints the public link |
-| `stop-tracking <ref>` | Stops the live session (no shipper email) |
-| `revoke-link <ref>` | Rotates the public token; the old URL dies, a fresh link prints |
-| `send-link <ref>` | Emails the shipper the public tracking link, logged on the timeline |
-| `record-ping <ref> --lat --lng [--city --state --eta]` | Keys in a position from a check call |
 | `invite <email> --org <slug> [--role]` | Teammate invite with a 48-hour accept link |
 | `cancel-invite <email-or-id>` | Cancels a pending invitation; the accept link stops working |
 | `send-update <ref> --subject --body` | Free-form update, emailed and recorded as `update_sent` |

@@ -20,7 +20,6 @@ import {
   type AdminUser,
 } from "../lib/portal/admin-queries";
 import { createQuoteRequest, type PortalDb } from "../lib/portal/queries";
-import { getTrackingForAdmin, startTracking } from "../lib/portal/tracking-queries";
 import type { RfqInput } from "../lib/portal/rfq";
 import { documentPath, getStorage } from "../lib/storage";
 
@@ -127,8 +126,8 @@ describe.skipIf(!process.env.DEMO_SEED)("demo seed", () => {
 
     console.log(`seeded ${reference} (load ${loadId}, ${invoice.number}) for org ${orgId}`);
 
-    // A second load left in transit WITH a live (stub) tracking session, so
-    // the tracking map, public link, and simulator have something to bite.
+    // A second load left in transit with a tracking link on the carrier, so
+    // the load-page tracking CTA has something to bite.
     const second = await createQuoteRequest(db, customer.id, orgId, {
       ...rfq,
       destCity: "Reno",
@@ -153,13 +152,10 @@ describe.skipIf(!process.env.DEMO_SEED)("demo seed", () => {
       driverPhone: "(555) 010-4477",
       truckNumber: "88",
       trailerNumber: "53-1201",
-      trackingUrl: null,
+      trackingUrl: "https://track.example.com/peer-demo-2",
       visibleToShipper: true,
     });
     await setLoadStatus(db, admin, booked.loadId, "dispatched");
-    const { sessionId, publicToken } = await startTracking(db, admin, booked.loadId, {
-      intervalMinutes: 30,
-    });
     await setLoadStatus(db, admin, booked.loadId, "in_transit");
 
     // Leave the moving load flagged delayed with a reassurance update, so
@@ -174,11 +170,8 @@ describe.skipIf(!process.env.DEMO_SEED)("demo seed", () => {
       body: "Replacement tractor is hooked and rolling. We expect to make up most of the lost time overnight.",
     });
 
-    const session = (await getTrackingForAdmin(db, admin, booked.loadId))!.session;
     console.log(
-      `seeded ${booked.reference} (load ${booked.loadId}) with live tracking\n` +
-        `  public link: /track/${publicToken}\n` +
-        `  simulator:   node scripts/track-sim.ts http://localhost:3000/api/tracking/callback/${sessionId}/${session.webhookSecret} --from 38.58,-121.49 --to 39.52,-119.81`,
+      `seeded ${booked.reference} (load ${booked.loadId}) in transit with a tracking link`,
     );
     await pool.end();
   }, 60_000);
