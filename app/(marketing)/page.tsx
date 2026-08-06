@@ -48,7 +48,7 @@ export default function HomePage() {
             <div className="hero__grid">
               <div className="hero__content">
                 <h1 id="hero-title" className="display">Difficult freight handled right</h1>
-                <p className="hero__sub">A modern truckload brokerage built on modern technology. We use AI to get quotes back fast, vet carriers in more depth, and catch problems before they reach you. Track every load live, with a human in the loop whenever you need one.</p>
+                <p className="hero__sub">A new brokerage built on modern technology. We use AI to get quotes back fast, vet carriers in more depth, and catch problems before they reach you. Track every load live, with a human in the loop whenever you need one.</p>
                 <div className="hero__cta">
                   <a className="btn btn--yellow" href="/quote">
                     Get a Quote
@@ -57,34 +57,65 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Static portal preview, decoration only */}
+              {/* Static miniature of the real customer portal (Loads page), decoration only */}
               <div className="hero__panel" aria-hidden="true">
                 <div className="mock">
-                  <div className="mock__top">
-                    <span className="mock__live"><span className="mock__dot" />Shipper portal</span>
-                    <span className="mock__ref">Load #P-2189</span>
+                  <div className="mock__nav">
+                    <div className="mock__brand">
+                      <img src="/site/peer-logo-mark.png" alt="" />
+                      <span>Peer <b>Freight</b></span>
+                    </div>
+                    <ul className="mock__menu">
+                      <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                        Dashboard
+                      </li>
+                      <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                        Quotes
+                      </li>
+                      <li className="is-active">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 8h12v8H2z"/><path d="M14 11h4l3 3v2h-7z"/><circle cx="6.5" cy="17.5" r="1.7"/><circle cx="17" cy="17.5" r="1.7"/></svg>
+                        Loads
+                      </li>
+                      <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 8h8"/><path d="M8 12h8"/></svg>
+                        Invoices
+                      </li>
+                    </ul>
                   </div>
-                  <div className="mock__lane">
-                    <strong>Houston, TX <span className="mock__arrow">&rarr;</span> Baton Rouge, LA</strong>
-                    <span className="mock__pill">In transit</span>
+                  <div className="mock__main">
+                    <div className="mock__head">
+                      <strong>Loads</strong>
+                      <span className="mock__quote-btn">Request a quote</span>
+                    </div>
+                    <div className="mock__panel">
+                      <div className="mock__row">
+                        <span className="mock__ref">PEER-51427</span>
+                        <div className="mock__laneblock">
+                          <span className="mock__lane">Sacramento, CA &rarr; Reno, NV</span>
+                          <span className="mock__meta">Pickup Aug 7 &middot; ETA today 5:30 PM</span>
+                        </div>
+                        <span className="mock__badge mock__badge--gold">In transit</span>
+                      </div>
+                      <div className="mock__row">
+                        <span className="mock__ref">PEER-46108</span>
+                        <div className="mock__laneblock">
+                          <span className="mock__lane">Houston, TX &rarr; Baton Rouge, LA</span>
+                          <span className="mock__meta">Pickup Aug 8 &middot; Reefer 53&apos;</span>
+                        </div>
+                        <span className="mock__badge mock__badge--navy">Booked</span>
+                      </div>
+                      <div className="mock__row">
+                        <span className="mock__ref">PEER-48293</span>
+                        <div className="mock__laneblock">
+                          <span className="mock__lane">Sacramento, CA &rarr; Fairfield, CA</span>
+                          <span className="mock__meta">Delivered Aug 6 &middot; Dry van 53&apos;</span>
+                        </div>
+                        <span className="mock__badge mock__badge--green">Delivered</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="mock__rail">
-                    <span className="mock__rail-fill" />
-                    <span className="mock__rail-dot" />
-                  </div>
-                  <div className="mock__times">
-                    <span>Picked up 8:12 AM</span>
-                    <span>Delivers 4:00 PM appt</span>
-                  </div>
-                  <ul className="mock__list">
-                    <li><span className="mock__check">&#10003;</span>Carrier vetted, insurance and safety verified</li>
-                    <li><span className="mock__check">&#10003;</span>Picked up on time</li>
-                    <li className="mock__list-next"><span className="mock__next-dot" />Next update 2:40 PM</li>
-                  </ul>
-                </div>
-                <div className="mock__chip">
-                  <strong>Quote ready &middot; $1,840</strong>
-                  <span>Sent 22 minutes after request</span>
                 </div>
               </div>
             </div>
