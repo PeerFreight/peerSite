@@ -23,6 +23,7 @@ export const config = {
     "/settings",
     "/quotes/:path*",
     "/loads/:path*",
+    "/invoices/:path*",
     "/admin/:path*",
   ],
 };

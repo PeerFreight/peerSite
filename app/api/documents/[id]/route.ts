@@ -3,8 +3,9 @@ import { NextResponse } from "next/server";
 import { getAuth } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { getDocumentForAdmin } from "@/lib/portal/admin-queries";
-import { getDocumentForUser, listUserOrganizations } from "@/lib/portal/queries";
+import { getDocumentForUser } from "@/lib/portal/queries";
 import { isAdmin } from "@/lib/portal/roles";
+import { resolveOrg } from "@/lib/portal/session";
 import { getStorage } from "@/lib/storage";
 
 /**
@@ -24,9 +25,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   if (isAdmin(session.user)) {
     doc = await getDocumentForAdmin(db, session.user, id);
   } else {
-    const orgs = await listUserOrganizations(db, session.user.id);
-    if (orgs.length > 0) {
-      doc = await getDocumentForUser(db, session.user.id, orgs[0].id, id);
+    // Same active-org resolution as the pages: first-membership order would
+    // 404 a multi-org user whose document lives in their other org.
+    const org = await resolveOrg(db, session.user.id, session.session.activeOrganizationId);
+    if (org) {
+      doc = await getDocumentForUser(db, session.user.id, org.id, id);
     }
   }
   if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -40,6 +43,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       "Content-Type": download.contentType,
       "Content-Disposition": `attachment; filename="${doc.filename.replaceAll('"', "")}"`,
       "Cache-Control": "private, no-store",
+      // The content type is whatever was uploaded; never let the browser
+      // second-guess it into something executable.
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

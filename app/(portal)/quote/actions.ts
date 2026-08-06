@@ -12,6 +12,7 @@ import {
   listUserOrganizations,
 } from "@/lib/portal/queries";
 import { rfqFromFormData, rfqSchema, type RfqFormState } from "@/lib/portal/rfq";
+import { clientIpKey, consumeThrottle } from "@/lib/portal/throttle";
 
 /**
  * The public quote funnel's single submit: create (or sign in to) the
@@ -27,6 +28,18 @@ export async function submitGuestRfq(
   // never see the field; pretend success so bots stop probing.
   const honeypot = formData.get("website");
   if (typeof honeypot === "string" && honeypot !== "") return null;
+
+  // Per-IP throttle before any account or email work: this path creates
+  // accounts and sends two emails per submit, so the honeypot alone is not
+  // enough against a scripted abuser.
+  const db = await getDb();
+  if (!(await consumeThrottle(db, await clientIpKey("guest-rfq"), { windowSeconds: 3600, max: 3 }))) {
+    return {
+      fieldErrors: {},
+      formError:
+        "Too many quote requests from your network in the last hour. Wait a bit and try again, or email team@peer-freight.com.",
+    };
+  }
 
   const rfqParsed = rfqSchema.safeParse(rfqFromFormData(formData));
   const accountParsed = guestAccountSchema.safeParse(guestAccountFromFormData(formData));
@@ -92,7 +105,6 @@ export async function submitGuestRfq(
     }
   }
 
-  const db = await getDb();
   const orgs = await listUserOrganizations(db, user.id);
   const org =
     orgs[0] ??

@@ -2,9 +2,10 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { getAuth } from "@/lib/auth";
 import { getDb } from "@/lib/db";
-import { getTrackingForLoad, listUserOrganizations } from "@/lib/portal/queries";
+import { getTrackingForLoad } from "@/lib/portal/queries";
 import { getTrackingForAdmin } from "@/lib/portal/tracking-queries";
 import { isAdmin } from "@/lib/portal/roles";
+import { resolveOrg } from "@/lib/portal/session";
 
 /**
  * Poll target for the logged-in load pages (shipper and admin), session-gated
@@ -31,9 +32,11 @@ export async function GET(
       lastPingAt = tracking.session.lastPingAt;
     }
   } else {
-    const orgs = await listUserOrganizations(db, session.user.id);
-    if (orgs.length > 0) {
-      const tracking = await getTrackingForLoad(db, session.user.id, orgs[0].id, loadId);
+    // Same active-org resolution as the pages: first-membership order would
+    // 404 a multi-org user polling a load in their other org.
+    const org = await resolveOrg(db, session.user.id, session.session.activeOrganizationId);
+    if (org) {
+      const tracking = await getTrackingForLoad(db, session.user.id, org.id, loadId);
       if (tracking) {
         pings = tracking.pings;
         lastPingAt = tracking.session.lastPingAt;
