@@ -345,7 +345,8 @@ p { margin: 0; }
   border-radius: 50%; background: var(--accent);
 }
 .mock__chip {
-  position: absolute; left: clamp(-2.5rem, -3vw, -1.5rem); bottom: -1.6rem;
+  /* Hangs off the card's bottom-left corner without covering the last list row */
+  position: absolute; left: clamp(-2.5rem, -3vw, -1.5rem); bottom: -3.1rem;
   display: flex; flex-direction: column; gap: 0.15rem;
   background: #fff; border-left: 3px solid var(--accent);
   border-radius: var(--r-lg);
