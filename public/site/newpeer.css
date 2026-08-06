@@ -237,17 +237,6 @@ p { margin: 0; }
   background: var(--navy);
   overflow: hidden;
 }
-/* Proof strip pinned to the hero's bottom: the mentors/advisors band moved
-   onto the photo, so the first screen carries credibility instead of empty
-   foreground. */
-.hero__band {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  z-index: 2;
-  padding: clamp(1.1rem, 2vw, 1.6rem) 0 clamp(1.2rem, 2.2vw, 1.8rem);
-  background: linear-gradient(0deg, rgba(6, 15, 32, 0.78), rgba(6, 15, 32, 0));
-}
-.hero__band .logo-band__label { margin-bottom: clamp(0.9rem, 1.6vw, 1.2rem); }
 /* Anchor right so narrow (portrait) crops keep the truck cab, not just the trailer */
 .hero__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: right center; z-index: 0; }
 .hero::after {
@@ -266,6 +255,105 @@ p { margin: 0; }
 .hero__cta .btn--secondary svg { width: 15px; height: 15px; }
 .hero__cta .btn--secondary:hover { color: var(--accent); }
 
+
+/* ---------- Home hero: two columns, subdued photo, portal preview ---------- */
+/* The homepage-only modifier; the base .hero above is shared with /carriers. */
+.hero--home { padding-bottom: clamp(3.5rem, 6vw, 5.5rem); }
+/* Much heavier scrim than the base hero: the headline sits on near-solid
+   navy and the photo reads as texture behind the portal card. */
+.hero--home::after {
+  background:
+    linear-gradient(90deg, rgba(6,15,32,0.94) 0%, rgba(6,15,32,0.80) 48%, rgba(6,15,32,0.52) 100%),
+    linear-gradient(0deg, rgba(6,15,32,0.50), rgba(6,15,32,0.12) 55%);
+}
+.hero--home .hero__grid {
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(2.5rem, 6vw, 6rem);
+  align-items: center;
+}
+/* Half-width column wants a wide, short headline block, not a tall ribbon */
+.hero--home h1 { font-size: clamp(2.6rem, 4.6vw, 4.4rem); max-width: 14ch; }
+.hero--home .hero__sub { max-width: 46ch; }
+
+/* Portal preview card: static, decoration only */
+.hero__panel {
+  position: relative;
+  justify-self: end;
+  width: min(100%, 440px);
+  pointer-events: none;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+.mock {
+  background: #fff;
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-card);
+  padding: clamp(1.2rem, 1.8vw, 1.6rem);
+  color: var(--ink);
+}
+.mock__top {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted);
+}
+.mock__live { display: inline-flex; align-items: center; gap: 0.45rem; }
+.mock__dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #2f9e64;
+  box-shadow: 0 0 0 3px rgba(47, 158, 100, 0.18);
+}
+.mock__ref { letter-spacing: 0.04em; }
+.mock__lane {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.8rem;
+  margin-top: 1rem;
+}
+.mock__lane strong { font-size: 1.02rem; font-weight: 800; }
+.mock__arrow { color: var(--muted); font-weight: 600; padding: 0 0.15rem; }
+.mock__pill {
+  flex: none;
+  font-size: 0.72rem; font-weight: 700;
+  padding: 0.28rem 0.7rem; border-radius: var(--r-pill);
+  background: rgba(47, 158, 100, 0.12); color: #23744a;
+}
+.mock__rail { position: relative; height: 4px; border-radius: 2px; background: var(--line); margin-top: 1.1rem; }
+.mock__rail-fill { position: absolute; inset: 0 35% 0 0; border-radius: 2px; background: var(--navy); }
+.mock__rail-dot {
+  position: absolute; top: 50%; left: 65%;
+  width: 14px; height: 14px; border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--accent); border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(14, 29, 58, 0.35);
+}
+.mock__times {
+  display: flex; justify-content: space-between; gap: 1rem;
+  margin-top: 0.6rem; font-size: 0.78rem; color: var(--muted);
+}
+.mock__list { list-style: none; margin: 1.1rem 0 0; padding: 0; font-size: 0.86rem; }
+.mock__list li {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.55rem 0; border-top: 1px solid var(--line);
+}
+.mock__check {
+  flex: none; width: 18px; height: 18px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(47, 158, 100, 0.12); color: #23744a;
+  font-size: 0.68rem; font-weight: 800;
+}
+.mock__list-next { font-weight: 700; }
+.mock__next-dot {
+  flex: none; width: 10px; height: 10px; margin-inline: 4px;
+  border-radius: 50%; background: var(--accent);
+}
+.mock__chip {
+  position: absolute; left: clamp(-2.5rem, -3vw, -1.5rem); bottom: -1.6rem;
+  display: flex; flex-direction: column; gap: 0.15rem;
+  background: #fff; border-left: 3px solid var(--accent);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  padding: 0.8rem 1.1rem;
+}
+.mock__chip strong { font-size: 0.95rem; font-weight: 800; color: var(--ink); }
+.mock__chip span { font-size: 0.75rem; color: var(--muted); }
 
 /* ---------- Logo band (mentors and advisors) ---------- */
 .logo-band { background: var(--navy); padding: clamp(2rem, 4vw, 3rem) 0; }
@@ -438,6 +526,12 @@ p { margin: 0; }
 /* ---------- Responsive ---------- */
 @media (max-width: 960px) {
   .hero__grid { grid-template-columns: 1fr; }
+  /* The portal preview is decoration; on small screens it would push the
+     headline and CTA below the fold, so it goes away entirely. */
+  .hero--home .hero__grid { grid-template-columns: 1fr; }
+  .hero__panel { display: none; }
+  .hero--home h1 { max-width: none; }
+  .hero--home .hero__sub { max-width: none; }
   .serve__mosaic { grid-template-columns: repeat(2, 1fr); }
   .svc__panel { grid-template-columns: 1fr; gap: 0.9rem; }
   .steps { grid-template-columns: repeat(2, 1fr); }

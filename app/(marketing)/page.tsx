@@ -42,32 +42,69 @@ export default function HomePage() {
 
       <main id="main">
         {/* HERO */}
-        <section className="hero" aria-labelledby="hero-title">
+        <section className="hero hero--home" aria-labelledby="hero-title">
           <img className="hero__bg" src="/site/freight-tanker-day.jpg" alt="" fetchPriority="high" />
           <div className="wrap">
             <div className="hero__grid">
               <div className="hero__content">
-                <h1 id="hero-title" className="display">Freight handled right</h1>
-                <p className="hero__sub">A new brokerage built on modern technology. Fast quotes, carriers screened for fraud, updates before you ask, and the owners on call for every load.</p>
+                <h1 id="hero-title" className="display">Difficult freight handled right</h1>
+                <p className="hero__sub">A modern truckload brokerage built on modern technology. We use AI to get quotes back fast, vet carriers in more depth, and catch problems before they reach you. Track every load live, with a human in the loop whenever you need one.</p>
+                <div className="hero__cta">
+                  <a className="btn btn--yellow" href="/quote">
+                    Get a Quote
+                    <span className="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Static portal preview, decoration only */}
+              <div className="hero__panel" aria-hidden="true">
+                <div className="mock">
+                  <div className="mock__top">
+                    <span className="mock__live"><span className="mock__dot" />Shipper portal</span>
+                    <span className="mock__ref">Load #P-2189</span>
+                  </div>
+                  <div className="mock__lane">
+                    <strong>Houston, TX <span className="mock__arrow">&rarr;</span> Baton Rouge, LA</strong>
+                    <span className="mock__pill">In transit</span>
+                  </div>
+                  <div className="mock__rail">
+                    <span className="mock__rail-fill" />
+                    <span className="mock__rail-dot" />
+                  </div>
+                  <div className="mock__times">
+                    <span>Picked up 8:12 AM</span>
+                    <span>Delivers 4:00 PM appt</span>
+                  </div>
+                  <ul className="mock__list">
+                    <li><span className="mock__check">&#10003;</span>Carrier vetted, insurance and safety verified</li>
+                    <li><span className="mock__check">&#10003;</span>Picked up on time</li>
+                    <li className="mock__list-next"><span className="mock__next-dot" />Next update 2:40 PM</li>
+                  </ul>
+                </div>
+                <div className="mock__chip">
+                  <strong>Quote ready &middot; $1,840</strong>
+                  <span>Sent 22 minutes after request</span>
+                </div>
               </div>
             </div>
           </div>
+        </section>
 
-          {/* Mentors/advisors proof strip, pinned over the hero foreground */}
-          <div className="hero__band" id="mentors" aria-label="Mentors and advisors">
-            <div className="wrap">
-              <p className="logo-band__label">Mentors and advisors from</p>
-              <div className="logo-band__row">
-                <img src="/logos/atob.svg" alt="AtoB" />
-                <img src="/logos/cdl1000.svg" alt="CDL1000" />
-                <span className="logo--yc-lockup" role="img" aria-label="Y Combinator">
-                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18v18H3z" fill="none" stroke="currentColor" strokeWidth="1.5"/><path d="M11.5 13.5 8 7h1.9l2.1 4 2.1-4h1.9L12.5 13.5V17h-1z"/></svg>
-                  <span>Combinator</span>
-                </span>
-                <img src="/logos/otr-transportation.svg" alt="OTR Transportation" />
-                <img className="logo--md" src="/logos/dynamic-connections.png" alt="Dynamic Connections" />
-                <img className="logo--tall" src="/logos/waylens.svg" alt="Waylens" />
-              </div>
+        {/* Mentors/advisors proof band, first thing below the fold */}
+        <section className="logo-band" id="mentors" aria-label="Mentors and advisors">
+          <div className="wrap">
+            <p className="logo-band__label">Mentors and advisors from</p>
+            <div className="logo-band__row">
+              <img src="/logos/atob.svg" alt="AtoB" />
+              <img src="/logos/cdl1000.svg" alt="CDL1000" />
+              <span className="logo--yc-lockup" role="img" aria-label="Y Combinator">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18v18H3z" fill="none" stroke="currentColor" strokeWidth="1.5"/><path d="M11.5 13.5 8 7h1.9l2.1 4 2.1-4h1.9L12.5 13.5V17h-1z"/></svg>
+                <span>Combinator</span>
+              </span>
+              <img src="/logos/otr-transportation.svg" alt="OTR Transportation" />
+              <img className="logo--md" src="/logos/dynamic-connections.png" alt="Dynamic Connections" />
+              <img className="logo--tall" src="/logos/waylens.svg" alt="Waylens" />
             </div>
           </div>
         </section>
