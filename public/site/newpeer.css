@@ -256,18 +256,13 @@ p { margin: 0; }
 .hero__cta .btn--secondary:hover { color: var(--accent); }
 
 
-/* ---------- Home hero: two columns, subdued photo, portal preview ---------- */
-/* The homepage-only modifier; the base .hero above is shared with /carriers. */
+/* ---------- Two-column hero: subdued photo, glass pane with a product mock ---------- */
+/* The two-column recipe; /carriers carries the modifier alongside its own
+   class, so both heroes share the grid, type scale, scrim, and stacking. */
 .hero--home { padding-bottom: clamp(3.5rem, 6vw, 5.5rem); }
 /* Much heavier scrim than the base hero: the headline sits on near-solid
    navy and the photo reads as texture behind the portal card. */
 .hero--home::after {
-  background:
-    linear-gradient(90deg, rgba(6,15,32,0.94) 0%, rgba(6,15,32,0.80) 48%, rgba(6,15,32,0.52) 100%),
-    linear-gradient(0deg, rgba(6,15,32,0.50), rgba(6,15,32,0.12) 55%);
-}
-/* /carriers hero: same heavy scrim as home, without the panel column. */
-.hero--carriers::after {
   background:
     linear-gradient(90deg, rgba(6,15,32,0.94) 0%, rgba(6,15,32,0.80) 48%, rgba(6,15,32,0.52) 100%),
     linear-gradient(0deg, rgba(6,15,32,0.50), rgba(6,15,32,0.12) 55%);
@@ -296,16 +291,29 @@ p { margin: 0; }
   -webkit-backdrop-filter: blur(10px) saturate(1.1);
 }
 
-/* The same liquid-glass pane recipe for white/paper sections: a whisper of
-   navy instead of a white scrim, so every frozen product snapshot on a light
-   background gets the hero's frosted framing without a dark section. */
-.glass--light {
-  background: rgba(14, 29, 58, 0.05);
-  border: 1px solid rgba(14, 29, 58, 0.08);
+/* Scene-backed glass pane for light sections: its own blurred photo clipped
+   behind the frost ring, so the glass has real texture to sample without a
+   dark section. A blur() on the backdrop img (not backdrop-filter) is cheaper
+   and Safari-safe; the img oversizes past the clip so the blur never fades
+   at the bitmap edges. */
+.split__panel--scene {
+  position: relative; isolation: isolate; overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: calc(var(--r-xl) + 10px);
-  backdrop-filter: blur(10px) saturate(1.1);
-  -webkit-backdrop-filter: blur(10px) saturate(1.1);
 }
+.split__panel--scene .scene {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  transform: scale(1.12);
+  filter: blur(10px) saturate(1.1);
+  z-index: -1;
+}
+.split__panel--scene::after {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background:
+    linear-gradient(rgba(255,255,255,0.10), rgba(255,255,255,0.10)),
+    linear-gradient(rgba(10,22,48,0.45), rgba(10,22,48,0.45));
+}
+.split__panel--scene .mockshot { position: relative; z-index: 1; }
 
 /* Portal preview: a frozen snapshot of the real customer portal (exported by
    tools/freeze-mocks.mjs from /mock-lab). Decoration only. The pane stays at
@@ -521,6 +529,16 @@ p { margin: 0; }
   color: var(--navy); font-size: 0.78rem; font-weight: 800;
   padding: 0.5rem 1.2rem; border-radius: var(--r-pill);
 }
+/* Checkbox pills for the carrier-setup mock, miniatures of the form's .check */
+.mockq__pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.mockq__pill {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.32rem 0.7rem; border-radius: var(--r-pill);
+  border: 1px solid #dfe3ea; background: #fbfbfa;
+  font-size: 0.72rem; font-weight: 700;
+}
+.mockq__pill.is-on { background: var(--navy); border-color: var(--navy); color: #fff; }
+.mockq__pill svg { width: 10px; height: 10px; flex: none; }
 
 /* Tracking mock: the "Where your freight is" card from the portal load page.
    Mirrors components/portal/load-progress.tsx + loads/[id]. */
@@ -666,24 +684,31 @@ p { margin: 0; }
    A single rounded card whose cells are separated by 3px seams: white copy
    cells and full-bleed photo cells (never text over photos). */
 .mosaic { display: grid; gap: 3px; border-radius: 12px; overflow: hidden; }
-.tile--img { position: relative; min-height: 220px; }
+.tile--img { position: relative; min-height: 220px; padding: 0; }
 .tile--img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* The one product-mock cell every mosaic carries: a frozen snapshot sitting
+   on the portal's paper canvas, with an honest "from the portal" caption. */
+.tile--asset {
+  background: #f5f6f8;
+  display: flex; flex-direction: column; justify-content: center; gap: 0.7rem;
+  padding: clamp(1.1rem, 1.8vw, 1.5rem);
+}
+.tile--asset .mockshot { width: min(100%, 460px); margin-inline: auto; }
+.tile--asset__note {
+  text-align: center; font-size: 0.68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
+}
 
 /* ---------- Who we serve (copy cells and photos fused into one mosaic) ---------- */
 .serve__mosaic { margin-top: clamp(2.2rem, 4vw, 3.2rem); grid-template-columns: repeat(4, 1fr); }
 .serve__mosaic .tile--img { grid-column: span 2; min-height: clamp(220px, 26vw, 340px); }
+.serve__mosaic .tile--asset { grid-column: span 2; }
 .card {
   background: #fff; padding: clamp(1.5rem, 2.4vw, 2rem);
 }
-.card__icon {
-  width: 46px; height: 46px;
-  display: grid; place-items: center;
-  border-radius: var(--r-md);
-  background: var(--gold-grad); box-shadow: var(--gold-edge);
-  color: var(--navy);
-  margin-bottom: 1.2rem;
-}
-.card__icon svg { width: 24px; height: 24px; }
+.card__icon { width: 46px; height: 46px; color: var(--navy); margin-bottom: 1.6rem; }
+.card__icon svg { width: 100%; height: 100%; }
 .card h3 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
 .card p { margin-top: 0.6rem; color: var(--muted); font-size: 0.95rem; }
 
@@ -710,8 +735,8 @@ p { margin: 0; }
 .svc__arrow { width: 30px; height: 30px; color: var(--navy); transition: transform 0.2s ease; }
 .svc details[open] .svc__arrow { transform: rotate(90deg); color: var(--accent); }
 /* Open panel: stat + description on the left, the step's frozen product
-   snapshot on the right in a light glass frame. The img has explicit dims,
-   so opening a step never reflows the surrounding sections. */
+   snapshot bare on the right (its shadow is the frame). The img has explicit
+   dims, so opening a step never reflows the surrounding sections. */
 .svc__panel {
   /* The snapshot column is a definite 400px track (not auto): the img inside
      sizes with percentages, which collapse to 0 in an auto track. */
@@ -728,20 +753,22 @@ p { margin: 0; }
 .svc__desc { color: var(--muted); }
 .svc__shot {
   width: min(100%, 400px);
-  padding: clamp(0.6rem, 1vw, 0.9rem);
   pointer-events: none;
   user-select: none;
 }
 
-/* Smooth accordion reveal (fade+slide everywhere; native height animation where supported) */
-@keyframes reveal { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+/* Smooth accordion reveal: opacity-only fade as the fallback; where the
+   browser can animate height (interpolate-size) the fade rides the same
+   ::details-content timeline instead, so open and close are one motion. */
+@keyframes reveal { from { opacity: 0; } to { opacity: 1; } }
 @supports (interpolate-size: allow-keywords) {
   :root { interpolate-size: allow-keywords; }
+  .svc__panel { animation: none; }
   .svc details::details-content {
-    height: 0; overflow: clip;
-    transition: height 0.32s ease, content-visibility 0.32s allow-discrete;
+    height: 0; overflow: clip; opacity: 0;
+    transition: height 0.32s ease, opacity 0.32s ease, content-visibility 0.32s allow-discrete;
   }
-  .svc details[open]::details-content { height: auto; }
+  .svc details[open]::details-content { height: auto; opacity: 1; }
 }
 
 /* ---------- How it works (step list beside the quote snapshot) ---------- */
@@ -751,35 +778,24 @@ p { margin: 0; }
   gap: clamp(1.2rem, 2vw, 1.7rem);
 }
 .steplist__row { display: grid; grid-template-columns: auto 1fr; gap: 1.1rem; align-items: start; }
-.steplist__icon {
-  width: 26px; height: 26px; flex: none;
-  display: grid; place-items: center;
-  border-radius: 6px;
-  background: var(--gold-grad); box-shadow: var(--gold-edge);
-  color: var(--navy);
-  margin-top: 0.15rem;
-}
-.steplist__icon svg { width: 15px; height: 15px; }
+.steplist__icon { width: 26px; height: 26px; flex: none; color: var(--navy); margin-top: 0.15rem; }
+.steplist__icon svg { width: 100%; height: 100%; }
 .steplist h3 { font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink); }
 .steplist p { color: var(--muted); font-size: 0.95rem; margin-top: 0.35rem; }
 
-/* ---------- Why Peer (one joined proof card beside the tracking snapshot) ----------
-   A single white card with one outer border; internal 1px hairlines separate
-   the 2x2 cells. */
-.joined {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1px;
-  background: #e4e7ee;
-  border: 1px solid #e4e7ee;
-  border-radius: var(--r-xl);
-  overflow: hidden;
+/* ---------- Why Peer (navy bento: photos and white proof tiles in one mosaic) ---------- */
+.bento {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(160px, auto);
 }
-.joined__cell { background: #fff; padding: clamp(1.2rem, 2vw, 1.6rem); display: flex; flex-direction: column; gap: 0.55rem; }
-.joined__label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--navy); }
-.joined__stat { font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; color: var(--gold-lo); }
-.joined__icon { width: 34px; height: 34px; color: var(--navy); }
-.joined__desc { font-size: 0.92rem; color: var(--muted); }
+.tile { padding: clamp(1.3rem, 2vw, 1.7rem); display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; overflow: hidden; }
+.tile--white { background: #fff; color: var(--navy); }
+.tile__label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+.tile__stat { font-size: clamp(2rem, 3.6vw, 2.9rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+.tile__desc { font-size: 0.92rem; opacity: 0.85; }
+.tile__icon { width: 40px; height: 40px; }
+.tile--wide { grid-column: span 2; }
 
 
 /* ---------- Final CTA (full-bleed photo band) ---------- */
@@ -812,21 +828,14 @@ p { margin: 0; }
 .subhero .lead { color: rgba(233,238,245,0.85); margin-top: 1.3rem; }
 .subhero .btn { margin-top: 2rem; }
 /* Perks: the same fused mosaic as the specialties grid — white copy cells
-   with gold icon squares plus two full-bleed photo cells filling the last
-   3-across row (one wide, one single). */
+   with flat navy glyphs, plus a photo cell and the product-mock cell filling
+   the last 3-across row. */
 .perks { grid-template-columns: repeat(3, 1fr); margin-top: clamp(2.2rem, 4vw, 3.2rem); }
 .perks .tile--img { min-height: clamp(200px, 20vw, 280px); }
-.perks .tile--img--wide { grid-column: span 2; }
+.perks .tile--asset { grid-column: span 2; }
 .perk { background: #fff; padding: clamp(1.4rem, 2.2vw, 1.9rem); }
-.perk__icon {
-  width: 46px; height: 46px;
-  display: grid; place-items: center;
-  border-radius: var(--r-md);
-  background: var(--gold-grad); box-shadow: var(--gold-edge);
-  color: var(--navy);
-  margin-bottom: 1.2rem;
-}
-.perk__icon svg { width: 24px; height: 24px; }
+.perk__icon { width: 42px; height: 42px; color: var(--navy); margin-bottom: 1.2rem; }
+.perk__icon svg { width: 100%; height: 100%; }
 .perk h3 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
 .perk p { color: var(--muted); margin-top: 0.6rem; font-size: 0.95rem; }
 .setup { background: var(--navy); color: #fff; border-radius: var(--r-xl); padding: clamp(2rem, 4vw, 3.4rem); margin-top: clamp(2.5rem, 5vw, 4rem); display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; }
@@ -858,8 +867,10 @@ p { margin: 0; }
   /* Open accordion panels stack: stat + copy first, snapshot centered below. */
   .svc__panel { grid-template-columns: 1fr; gap: 1.2rem; }
   .svc__shot { margin-inline: auto; }
+  .bento { grid-template-columns: repeat(2, 1fr); }
   .perks { grid-template-columns: repeat(2, 1fr); }
-  .perks .tile--img--wide { grid-column: span 1; }
+  /* Photo and mock cells take a full row each on the 2-col perks grid. */
+  .perks .tile--img, .perks .tile--asset { grid-column: span 2; }
   .cta-band__top { flex-direction: column; }
   .setup { grid-template-columns: 1fr; }
 }
@@ -884,31 +895,32 @@ p { margin: 0; }
   .svc__sub { font-size: 0.88rem; }
 
   .card { padding: 1rem; }
-  .card__icon { width: 36px; height: 36px; margin-bottom: 0.9rem; }
-  .card__icon svg { width: 19px; height: 19px; }
+  .card__icon { width: 34px; height: 34px; margin-bottom: 0.9rem; }
   .card h3 { font-size: 0.92rem; }
   .card p { font-size: 0.88rem; margin-top: 0.5rem; }
   .serve__mosaic .tile--img { min-height: 200px; }
 
   .perk { padding: 1rem; }
-  .perk__icon { width: 36px; height: 36px; margin-bottom: 0.9rem; }
-  .perk__icon svg { width: 19px; height: 19px; }
+  .perk__icon { width: 34px; height: 34px; margin-bottom: 0.8rem; }
   .perk h3 { font-size: 0.92rem; }
   .perk p { font-size: 0.88rem; margin-top: 0.5rem; }
 
-  .joined__cell { padding: 1rem; gap: 0.45rem; }
-  .joined__stat { font-size: 1.7rem; }
-  .joined__desc { font-size: 0.88rem; }
-  .joined__icon { width: 28px; height: 28px; }
+  .tile { padding: 1rem; gap: 0.6rem; }
+  .tile--img { min-height: 150px; }
+  .tile--wide { grid-column: span 2; }
+  .tile__stat { font-size: 1.7rem; }
+  .tile__desc { font-size: 0.88rem; }
+  .tile__icon { width: 30px; height: 30px; }
 
   .hero__cta { gap: 0.8rem; }
   .footer__word { font-size: clamp(4.5rem, 33vw, 9rem); }
 }
-/* Mosaics and the joined proof card go single column on phones. */
+/* All mosaics go single column on phones; spans collapse with them. The
+   asset cell keeps its centered max-width from the base rule. */
 @media (max-width: 480px) {
-  .serve__mosaic, .perks { grid-template-columns: 1fr; }
-  .serve__mosaic .tile--img, .perks .tile--img--wide { grid-column: auto; }
-  .joined { grid-template-columns: 1fr; }
+  .serve__mosaic, .perks, .bento { grid-template-columns: 1fr; }
+  .serve__mosaic .tile--img, .serve__mosaic .tile--asset,
+  .perks .tile--img, .perks .tile--asset, .tile--wide { grid-column: auto; }
 }
 /* Below ~350px the wordmark plus both pills cannot coexist; keep the mark. */
 @media (max-width: 349px) {

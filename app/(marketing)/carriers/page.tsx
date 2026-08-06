@@ -41,19 +41,25 @@ export default function CarriersPage() {
       <SiteHeader cta={{ href: "/carrier-setup", label: "Get Set Up" }} />
 
       <main id="main">
-        <section className="hero hero--carriers" aria-labelledby="carrier-title">
+        {/* Hero parity with home: two columns, glass pane over the photo,
+            frozen carrier-setup form mock (tools/freeze-mocks.mjs). */}
+        <section className="hero hero--home hero--carriers" aria-labelledby="carrier-title">
           <img className="hero__bg" src="/site/freight-oversize-morning.jpg" alt="" fetchPriority="high" />
           <div className="wrap">
             <div className="hero__grid">
               <div className="hero__content">
                 <h1 id="carrier-title" className="display">Get loaded and get paid fast</h1>
-                <p className="hero__sub">Paid within 24 to 48 hours. Detention and TONU in writing on the rate con. No surprises at the dock.</p>
+                <p className="hero__sub">We pay you within 24 to 48 hours of a clean POD, put detention, layover, and TONU in writing on the rate confirmation, and run loads with real weights and real appointment times. Upload your POD from your phone and you are done.</p>
                 <div className="hero__cta">
                   <a className="btn btn--yellow" href="/carrier-setup">
                     Get Set Up
                     <span className="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
                   </a>
                 </div>
+              </div>
+
+              <div className="hero__panel glass" aria-hidden="true">
+                <img className="mockshot" src="/site/mock-carrier@2x.png" alt="" width={640} height={461} fetchPriority="high" />
               </div>
             </div>
           </div>
@@ -62,7 +68,7 @@ export default function CarriersPage() {
         <section className="section section--paper" aria-labelledby="perks-title">
           <div className="wrap">
             <div className="section__head">
-              <h2 className="heading" id="perks-title">The loads carriers come back for</h2>
+              <h2 className="heading" id="perks-title">The loads you come back for</h2>
             </div>
             <div className="perks mosaic">
               <article className="perk">
@@ -95,11 +101,14 @@ export default function CarriersPage() {
                 <h3>Hazmat and repeat freight</h3>
                 <p>Steady lanes for carriers rated to haul hazmat.</p>
               </article>
-              <div className="tile--img tile--img--wide">
-                <img src="/site/freight-reefer-evening.jpg" alt="Reefer trailers lined up in a yard in the evening" loading="lazy" />
-              </div>
               <div className="tile--img">
                 <img src="/site/freight-bol-daylight.jpg" alt="Bill of lading paperwork on a trailer door" loading="lazy" />
+              </div>
+              {/* Frozen delivery-documents snapshot (tools/freeze-mocks.mjs),
+                  labeled as such — pairs with the easy-paperwork perk. */}
+              <div className="tile--asset" aria-hidden="true">
+                <img className="mockshot" src="/site/mock-close@2x.png" alt="" width={560} height={171} loading="lazy" />
+                <span className="tile--asset__note">From the shipper portal</span>
               </div>
             </div>
 

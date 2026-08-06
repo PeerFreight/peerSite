@@ -117,8 +117,10 @@ export default function HomePage() {
               <div className="tile--img">
                 <img src="/site/freight-hero-terminal-morning.jpg" alt="Placarded chemical tanker truck at a terminal at sunrise" loading="lazy" />
               </div>
-              <div className="tile--img">
-                <img src="/site/freight-drayage-port.jpg" alt="Drayage truck hauling a container beneath port cranes" loading="lazy" />
+              {/* Frozen load-details snapshot (tools/freeze-mocks.mjs), labeled as such */}
+              <div className="tile--asset" aria-hidden="true">
+                <img className="mockshot" src="/site/mock-freight@2x.png" alt="" width={560} height={200} loading="lazy" />
+                <span className="tile--asset__note">From the shipper portal</span>
               </div>
             </div>
           </div>
@@ -147,7 +149,7 @@ export default function HomePage() {
                     <div className="svc__stat"><b>Real</b><span>market comps behind every rate</span></div>
                     <p className="svc__desc">Every quote comes with the current spot and contract comps for your lane. If the market moves between quotes, you see the new data, and the invoice always matches the rate you approved.</p>
                   </div>
-                  <div className="svc__shot glass--light" aria-hidden="true">
+                  <div className="svc__shot" aria-hidden="true">
                     <img className="mockshot" src="/site/mock-comps@2x.png" alt="" width={560} height={257} loading="lazy" />
                   </div>
                 </div>
@@ -166,7 +168,7 @@ export default function HomePage() {
                     <div className="svc__stat"><b>100%</b><span>of carriers verified before dispatch</span></div>
                     <p className="svc__desc">We recheck identity, authority, insurance, and safety history on every load, not only once at signup, because that is where fraud slips in. If anything looks off, the load goes to a different truck.</p>
                   </div>
-                  <div className="svc__shot glass--light" aria-hidden="true">
+                  <div className="svc__shot" aria-hidden="true">
                     <img className="mockshot" src="/site/mock-vetting@2x.png" alt="" width={560} height={229} loading="lazy" />
                   </div>
                 </div>
@@ -185,7 +187,7 @@ export default function HomePage() {
                     <div className="svc__stat"><b>24/7</b><span>owner access on every load</span></div>
                     <p className="svc__desc">We surface problems early, while there is still time to fix them. If something goes sideways at 2 a.m., you reach one of the owners on the phone, not a call center.</p>
                   </div>
-                  <div className="svc__shot glass--light" aria-hidden="true">
+                  <div className="svc__shot" aria-hidden="true">
                     <img className="mockshot" src="/site/mock-updates@2x.png" alt="" width={560} height={210} loading="lazy" />
                   </div>
                 </div>
@@ -204,7 +206,7 @@ export default function HomePage() {
                     <div className="svc__stat"><b>Same day</b><span>signed proof of delivery</span></div>
                     <p className="svc__desc">The signed proof of delivery lands in your inbox the day the load delivers, so your own billing never waits on us. Accessorials are spelled out in writing, with no surprise charges weeks later.</p>
                   </div>
-                  <div className="svc__shot glass--light" aria-hidden="true">
+                  <div className="svc__shot" aria-hidden="true">
                     <img className="mockshot" src="/site/mock-close@2x.png" alt="" width={560} height={171} loading="lazy" />
                   </div>
                 </div>
@@ -253,50 +255,53 @@ export default function HomePage() {
                   </li>
                 </ol>
               </div>
-              {/* Frozen snapshot of the portal quote wizard (tools/freeze-mocks.mjs) */}
-              <div className="split__panel glass--light" aria-hidden="true">
+              {/* Frozen snapshot of the portal quote wizard (tools/freeze-mocks.mjs)
+                  in the scene-backed glass pane: its own blurred photo bleeds
+                  through the frost ring on this light section. */}
+              <div className="split__panel split__panel--scene" aria-hidden="true">
+                <img className="scene" src="/site/freight-dock-dusk.jpg" alt="" loading="lazy" />
                 <img className="mockshot" src="/site/mock-quote@2x.png" alt="" width={640} height={462} loading="lazy" />
               </div>
             </div>
           </div>
         </section>
 
-        {/* WHY PEER */}
-        <section className="section section--paper" aria-labelledby="why-title">
+        {/* WHY PEER (navy bento: photo, white proof tiles, and the tracking mock) */}
+        <section className="section section--navy" aria-labelledby="why-title">
           <div className="wrap">
-            <div className="section__head">
+            <div className="section__head on-dark">
               <h2 className="heading" id="why-title">Built to be reliable, not just cheap</h2>
               <p className="lead">We take the loads other brokers turn down: oversize freight, hazmat, and the lanes nobody wants to run. If it absolutely has to move, we are built to move it.</p>
             </div>
 
-            <div className="split split--rev">
-              {/* Frozen snapshot of the portal tracking card (tools/freeze-mocks.mjs) */}
-              <div className="split__panel glass--light" aria-hidden="true">
-                <img className="mockshot" src="/site/mock-track@2x.png" alt="" width={640} height={281} loading="lazy" />
+            <div className="bento mosaic">
+              <div className="tile--img tile--wide">
+                <img src="/site/freight-yard-aerial-night.jpg" alt="Intermodal container yard at night" loading="lazy" />
               </div>
-              <div className="split__copy">
-                <div className="joined">
-                  <div className="joined__cell">
-                    <span className="joined__label">Owner access</span>
-                    <span className="joined__stat">24/7</span>
-                    <span className="joined__desc">Reach an owner directly on any load, at any hour.</span>
-                  </div>
-                  <div className="joined__cell">
-                    <span className="joined__label">Carrier pay</span>
-                    <span className="joined__stat">24-48h</span>
-                    <span className="joined__desc">Fast pay is why the best trucks take our loads first.</span>
-                  </div>
-                  <div className="joined__cell">
-                    <div className="joined__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="9" r="6"/><path d="m8.5 13.5-1.5 7 5-3 5 3-1.5-7"/></svg></div>
-                    <span className="joined__label">TIA member</span>
-                    <span className="joined__desc">Held to the Transportation Intermediaries Association anti-fraud standard.</span>
-                  </div>
-                  <div className="joined__cell">
-                    <div className="joined__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v1.5"/><path d="M3.5 12a8.5 8.5 0 0 1 17 0Z"/><path d="M12 12v6a2.5 2.5 0 0 0 5 0"/></svg></div>
-                    <span className="joined__label">Fully insured</span>
-                    <span className="joined__desc">Contingent cargo and auto, general liability, E&amp;O, and cyber.</span>
-                  </div>
-                </div>
+              <div className="tile tile--white">
+                <span className="tile__label">Owner access</span>
+                <span className="tile__stat">24/7</span>
+                <span className="tile__desc">Reach an owner directly on any load, at any hour.</span>
+              </div>
+              <div className="tile tile--white">
+                <span className="tile__label">Carrier pay</span>
+                <span className="tile__stat">24-48h</span>
+                <span className="tile__desc">Fast pay is why the best trucks take our loads first.</span>
+              </div>
+              <div className="tile tile--white">
+                <div className="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="9" r="6"/><path d="m8.5 13.5-1.5 7 5-3 5 3-1.5-7"/></svg></div>
+                <span className="tile__label">TIA member</span>
+                <span className="tile__desc">Held to the Transportation Intermediaries Association anti-fraud standard.</span>
+              </div>
+              <div className="tile tile--white">
+                <div className="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v1.5"/><path d="M3.5 12a8.5 8.5 0 0 1 17 0Z"/><path d="M12 12v6a2.5 2.5 0 0 0 5 0"/></svg></div>
+                <span className="tile__label">Fully insured</span>
+                <span className="tile__desc">Contingent cargo and auto, general liability, E&amp;O, and cyber.</span>
+              </div>
+              {/* Frozen tracking snapshot (tools/freeze-mocks.mjs), labeled as such */}
+              <div className="tile--asset tile--wide" aria-hidden="true">
+                <img className="mockshot" src="/site/mock-track@2x.png" alt="" width={640} height={281} loading="lazy" />
+                <span className="tile--asset__note">From the shipper portal</span>
               </div>
             </div>
           </div>

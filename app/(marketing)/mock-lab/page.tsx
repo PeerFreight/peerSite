@@ -276,7 +276,8 @@ function VettingMock() {
 }
 
 /** Accordion step 3, "Proactive tracking": the update feed (distinct from the
- * progress-path track mock used on the Why Peer section). */
+ * progress-path track mock used on the Why Peer section). Event labels are the
+ * product's real timeline vocabulary (event-timeline.tsx), em dash verbatim. */
 function UpdatesMock() {
   return (
     <div className="mocka">
@@ -287,12 +288,12 @@ function UpdatesMock() {
       <div className="mocka__rule" />
       <ul className="mocka__rows">
         <li>
-          <b>Picked up</b>
-          <span>8:12 AM PT</span>
+          <b>Carrier dispatched</b>
+          <span>6:40 AM PT</span>
         </li>
         <li>
-          <b>Check call &middot; on schedule</b>
-          <span>11:30 AM PT</span>
+          <b>Picked up &mdash; in transit</b>
+          <span>8:12 AM PT</span>
         </li>
         <li>
           <b>ETA today</b>
@@ -300,7 +301,7 @@ function UpdatesMock() {
         </li>
       </ul>
       <div className="mocka__foot">
-        <span className="mocka__note">Updates sent before you think to ask</span>
+        <span className="mocka__note">Live tracking link with every dispatch. No login needed.</span>
       </div>
     </div>
   );
@@ -319,13 +320,112 @@ function CloseMock() {
       <ul className="mocka__rows">
         <li>
           <b>Invoice INV-2041</b>
-          <span>$1,840 &middot; matches the quote</span>
+          <span>$1,840.00 &middot; matches the quote</span>
         </li>
         <li>
           <b>Accessorials</b>
           <span>In writing, none this load</span>
         </li>
       </ul>
+    </div>
+  );
+}
+
+/** The load details card for the specialties mosaic: hazmat freight in the
+ * portal's vocabulary. */
+function FreightMock() {
+  return (
+    <div className="mocka">
+      <div className="mocka__head">
+        <strong>Load details</strong>
+        <span className="mock__badge mock__badge--gold">Hazmat</span>
+      </div>
+      <p className="mocka__meta">PEER-51427 &middot; Sacramento, CA &rarr; Reno, NV</p>
+      <div className="mocka__rule" />
+      <ul className="mocka__rows">
+        <li>
+          <b>Equipment</b>
+          <span>Tanker 42&apos;</span>
+        </li>
+        <li>
+          <b>Commodity</b>
+          <span>Packaged chemicals, drums on pallets</span>
+        </li>
+        <li>
+          <b>Placards</b>
+          <span>Supplied and posted</span>
+        </li>
+      </ul>
+    </div>
+  );
+}
+
+/** Miniature of the real carrier setup form (carrier-setup-form.tsx), for the
+ * /carriers hero pane. */
+function CarrierMock() {
+  return (
+    <div className="mockq">
+      <div className="mockq__head">
+        <strong>Get set up</strong>
+      </div>
+      <div className="mockq__card">
+        <div className="mockq__grid">
+          <div className="mockq__field">
+            <label>Company (legal name)</label>
+            <span className="mockq__input">Summit Ridge Transport LLC</span>
+          </div>
+          <div className="mockq__field">
+            <label>Your name</label>
+            <span className="mockq__input">Ray Delgado</span>
+          </div>
+        </div>
+        <div className="mockq__grid">
+          <div className="mockq__field">
+            <label>MC number</label>
+            <span className="mockq__input">MC 118422</span>
+          </div>
+          <div className="mockq__field">
+            <label>USDOT number</label>
+            <span className="mockq__input">3120984</span>
+          </div>
+        </div>
+        <div className="mockq__field">
+          <label>Equipment you run</label>
+          <div className="mockq__pills">
+            <span className="mockq__pill is-on">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              Dry van
+            </span>
+            <span className="mockq__pill is-on">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              Reefer
+            </span>
+            <span className="mockq__pill">Flatbed</span>
+            <span className="mockq__pill is-on">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              Tanker
+            </span>
+            <span className="mockq__pill">Drayage</span>
+          </div>
+        </div>
+        <div className="mockq__grid">
+          <div className="mockq__field">
+            <label>Hazmat certified drivers?</label>
+            <span className="mockq__input mockq__input--select">
+              Yes
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </span>
+          </div>
+          <div className="mockq__field">
+            <label>Home base (city, state)</label>
+            <span className="mockq__input">Fresno, CA</span>
+          </div>
+        </div>
+      </div>
+      <div className="mockq__foot">
+        <span className="mockq__note">Goes straight to the owners.</span>
+        <span className="mockq__btn">Send request</span>
+      </div>
     </div>
   );
 }
@@ -353,6 +453,12 @@ export default function MockLabPage() {
       </div>
       <div className="lab__frame lab__frame--sm" id="close">
         <CloseMock />
+      </div>
+      <div className="lab__frame lab__frame--sm" id="freight">
+        <FreightMock />
+      </div>
+      <div className="lab__frame" id="carrier">
+        <CarrierMock />
       </div>
     </main>
   );
