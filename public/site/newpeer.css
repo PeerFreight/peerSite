@@ -266,6 +266,12 @@ p { margin: 0; }
     linear-gradient(90deg, rgba(6,15,32,0.94) 0%, rgba(6,15,32,0.80) 48%, rgba(6,15,32,0.52) 100%),
     linear-gradient(0deg, rgba(6,15,32,0.50), rgba(6,15,32,0.12) 55%);
 }
+/* /carriers hero: same heavy scrim as home, without the panel column. */
+.hero--carriers::after {
+  background:
+    linear-gradient(90deg, rgba(6,15,32,0.94) 0%, rgba(6,15,32,0.80) 48%, rgba(6,15,32,0.52) 100%),
+    linear-gradient(0deg, rgba(6,15,32,0.50), rgba(6,15,32,0.12) 55%);
+}
 .hero--home .hero__grid {
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: clamp(2.5rem, 5vw, 5rem);
@@ -280,27 +286,39 @@ p { margin: 0; }
 .hero--home h1 { font-size: clamp(2.3rem, 3.6vw, 3.4rem); max-width: 16ch; }
 .hero--home .hero__sub { font-size: clamp(1.1rem, 1.5vw, 1.45rem); max-width: 48ch; }
 
-/* Portal preview: a static miniature of the real customer portal, matching
-   its design system (navy rail, paper canvas, white bordered panels,
-   uppercase status pills). Decoration only. */
-/* Frosted frame around the miniature (the Flexport treatment): a translucent
-   pane over the photo, at least as tall as the text column (stretch above),
-   with the card filling it. */
+/* The frosted pane (the Flexport treatment): a translucent surface that only
+   ever sits over a photo section, so the blur always has texture to sample. */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: calc(var(--r-xl) + 10px);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+}
+
+/* Portal preview: a frozen snapshot of the real customer portal (exported by
+   tools/freeze-mocks.mjs from /mock-lab). Decoration only. The pane stays at
+   least as tall as the text column (stretch above); the image centers inside
+   and scales proportionally at any width. */
 .hero__panel {
   justify-self: end;
   align-self: stretch;
   width: min(100%, 660px);
   min-height: min(34rem, 62vh);
   display: flex;
+  align-items: center;
   padding: clamp(0.8rem, 1.3vw, 1.2rem);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: calc(var(--r-xl) + 10px);
-  backdrop-filter: blur(10px) saturate(1.1);
-  -webkit-backdrop-filter: blur(10px) saturate(1.1);
   pointer-events: none;
   user-select: none;
-  font-variant-numeric: tabular-nums;
+}
+
+/* A frozen product snapshot inside a glass pane. Explicit width/height
+   attributes on the img prevent layout shift; the CSS keeps it fluid. */
+.mockshot {
+  width: 100%;
+  height: auto;
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-card);
 }
 .mock {
   flex: 1;
@@ -410,6 +428,132 @@ p { margin: 0; }
 .mock__badge--navy { background: var(--navy); color: #fff; }
 .mock__badge--green { background: #dcfce7; color: #14532d; }
 
+/* ---------- Mock lab (/mock-lab, export-only; see tools/freeze-mocks.mjs) ----------
+   The mocks only ever render here, at a fixed export width, so none of the
+   mock CSS needs responsive care. Transparent canvas: the freeze script
+   captures with a transparent background so the cards keep round corners. */
+.lab { background: transparent; padding: 24px; display: flex; flex-direction: column; gap: 48px; align-items: flex-start; }
+.lab__frame { width: 640px; }
+/* The loads mock matches the hero pane's proportions; the fixed height lets
+   the table rows stretch exactly as they did when the card was live DOM. */
+.lab__frame--loads { height: 520px; display: flex; }
+
+/* Quote mock: the RFQ wizard at step 2 (Freight), on the portal's paper
+   canvas. Mirrors components/portal/rfq/rfq-form.tsx. */
+.mockq {
+  background: #f5f6f8;
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  padding: 1.2rem 1.3rem 1.3rem;
+  display: flex; flex-direction: column; gap: 0.95rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.mockq__head strong { font-size: 1.08rem; font-weight: 800; }
+.mockq__steps {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; align-items: center; gap: 0.55rem;
+  font-size: 0.72rem; font-weight: 700; color: var(--muted);
+}
+.mockq__steps li { display: flex; align-items: center; gap: 0.45rem; }
+.mockq__steps li + li::before { content: ""; width: 18px; height: 1px; background: #dfe3ea; margin-right: 0.55rem; }
+.mockq__steps li.is-done, .mockq__steps li.is-current { color: var(--ink); }
+.mockq__dot {
+  display: grid; place-items: center;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; color: var(--muted);
+  font-size: 0.62rem; font-weight: 800;
+}
+.mockq__dot svg { width: 10px; height: 10px; }
+.mockq__steps li.is-done .mockq__dot { background: var(--accent); color: var(--navy); }
+.mockq__steps li.is-current .mockq__dot { background: var(--navy); color: #fff; }
+.mockq__card {
+  background: #fff;
+  border: 1px solid #e4e7ee; border-radius: 12px;
+  box-shadow: 0 1px 2px 0 rgba(14, 29, 58, 0.04);
+  padding: 1rem 1.1rem 1.1rem;
+  display: flex; flex-direction: column; gap: 0.85rem;
+}
+.mockq__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+.mockq__field { display: flex; flex-direction: column; gap: 0.32rem; min-width: 0; }
+.mockq__field label { font-size: 0.7rem; font-weight: 700; color: var(--ink); }
+.mockq__input {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  padding: 0.48rem 0.65rem;
+  border: 1px solid #dfe3ea; border-radius: 8px;
+  background: #fbfbfa;
+  font-size: 0.78rem; font-weight: 600;
+  white-space: nowrap; overflow: hidden;
+}
+.mockq__input--select svg { width: 12px; height: 12px; color: var(--muted); flex: none; }
+.mockq__check {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.76rem; font-weight: 700;
+}
+.mockq__box {
+  display: grid; place-items: center; flex: none;
+  width: 16px; height: 16px; border-radius: 4px;
+  background: var(--navy); color: #fff;
+}
+.mockq__box svg { width: 10px; height: 10px; }
+.mockq__foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.9rem;
+  border-top: 1px solid #e4e7ee; padding-top: 0.95rem;
+}
+.mockq__note { font-size: 0.72rem; color: var(--muted); }
+.mockq__btn {
+  flex: none;
+  background: var(--gold-grad); box-shadow: var(--gold-edge);
+  color: var(--navy); font-size: 0.78rem; font-weight: 800;
+  padding: 0.5rem 1.2rem; border-radius: var(--r-pill);
+}
+
+/* Tracking mock: the "Where your freight is" card from the portal load page.
+   Mirrors components/portal/load-progress.tsx + loads/[id]. */
+.mockt {
+  background: #fff;
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  padding: 1.25rem 1.35rem 1.35rem;
+  display: flex; flex-direction: column; gap: 0.85rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.mockt__head { display: flex; align-items: center; justify-content: space-between; gap: 0.9rem; }
+.mockt__head strong {
+  font-size: 0.78rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);
+}
+.mockt__meta { font-size: 0.98rem; font-weight: 800; color: var(--navy); }
+.mockt__path {
+  list-style: none; margin: 0.15rem 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; align-items: center; row-gap: 0.4rem;
+  font-size: 0.7rem; font-weight: 700; color: var(--muted);
+}
+.mockt__path li { display: flex; align-items: center; gap: 0.32rem; }
+.mockt__path li.is-done { color: var(--ink); }
+.mockt__path li.is-current { color: var(--navy); }
+.mockt__line { width: 16px; height: 1px; background: var(--navy); margin-inline: 0.35rem; }
+.mockt__line--todo { background: #dfe3ea; }
+.mockt__dot { width: 9px; height: 9px; border-radius: 50%; background: #dfe3ea; flex: none; }
+.mockt__path li.is-done .mockt__dot { background: var(--navy); }
+.mockt__path li.is-current .mockt__dot { background: var(--accent); }
+.mockt__rule { height: 1px; background: #e4e7ee; }
+.mockt__events { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+.mockt__events li { display: flex; align-items: baseline; justify-content: space-between; gap: 0.9rem; }
+.mockt__events b { font-size: 0.8rem; font-weight: 700; }
+.mockt__events span { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+.mockt__foot { display: flex; align-items: center; gap: 0.9rem; border-top: 1px solid #e4e7ee; padding-top: 0.95rem; }
+.mockt__btn {
+  flex: none;
+  background: var(--gold-grad); box-shadow: var(--gold-edge);
+  color: var(--navy); font-size: 0.78rem; font-weight: 800;
+  padding: 0.5rem 1.2rem; border-radius: var(--r-pill);
+}
+.mockt__note { font-size: 0.72rem; color: var(--muted); }
+
 /* ---------- Logo band (mentors and advisors) ---------- */
 .logo-band { background: var(--navy); padding: clamp(2rem, 4vw, 3rem) 0; }
 .logo-band__label {
@@ -442,29 +586,83 @@ p { margin: 0; }
 .section--navy { background: var(--navy); color: #fff; }
 .section__head .lead { margin-top: 1rem; max-width: none; }
 
-/* One fused block: flush 3px seams between square tiles, rounding on the group only */
-.mosaic { display: grid; gap: 3px; border-radius: 12px; overflow: hidden; }
-
-/* ---------- Who we serve (cards and photos fused into one mosaic) ---------- */
-.serve__mosaic { margin-top: clamp(2.2rem, 4vw, 3.2rem); grid-template-columns: repeat(4, 1fr); }
-.serve__mosaic .tile--img { grid-column: span 2; min-height: clamp(220px, 26vw, 340px); }
-.card {
-  background: #fff; padding: clamp(1.5rem, 2.4vw, 2rem);
+/* Photo section: the hero's language carried through the page — flat navy,
+   a lazy scene photo behind, and the hero scrim (heaviest on the text side)
+   so headings stay legible. Frosted panes only ever sit on these. */
+.section--photo { position: relative; background: var(--navy); color: #fff; overflow: hidden; }
+.section--photo__bg {
+  position: absolute; inset: 0; z-index: 0;
+  width: 100%; height: 100%; object-fit: cover;
 }
-.card__icon { width: 46px; height: 46px; color: var(--navy); margin-bottom: 1.6rem; }
-.card__icon svg { width: 100%; height: 100%; }
-.card h3 { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
-.card p { margin-top: 0.7rem; color: var(--muted); font-size: 0.97rem; }
-
-/* ---------- Services accordion ---------- */
-.svc { margin-top: clamp(1.8rem, 3.5vw, 2.6rem); border-top: 1px solid var(--line); }
-.svc details { border-bottom: 1px solid var(--line); }
-.svc summary {
-  list-style: none; cursor: pointer;
-  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: clamp(1rem, 2vw, 1.5rem);
-  padding: clamp(1.1rem, 2vw, 1.6rem) 0;
+.section--photo::after {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(6,15,32,0.94) 0%, rgba(6,15,32,0.80) 48%, rgba(6,15,32,0.52) 100%),
+    linear-gradient(0deg, rgba(6,15,32,0.50), rgba(6,15,32,0.12) 55%);
 }
-.svc summary::-webkit-details-marker { display: none; }
+/* Mirrored variant for sections whose text column sits on the right. */
+.section--photo--rev::after {
+  background:
+    linear-gradient(270deg, rgba(6,15,32,0.94) 0%, rgba(6,15,32,0.80) 48%, rgba(6,15,32,0.52) 100%),
+    linear-gradient(0deg, rgba(6,15,32,0.50), rgba(6,15,32,0.12) 55%);
+}
+.section--photo .wrap { position: relative; z-index: 2; }
+
+/* The hero's two-column recipe for text + glass panel sections. */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(2.5rem, 5vw, 5rem);
+  align-items: stretch;
+  margin-top: clamp(2.2rem, 4vw, 3.2rem);
+}
+.split--rev { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
+.split__copy { align-self: center; min-width: 0; }
+.split__panel {
+  display: flex;
+  align-items: center;
+  padding: clamp(0.8rem, 1.3vw, 1.2rem);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Glass copy cards (specialties, carrier perks): frosted panes with the
+   gold icon square, only ever on photo sections. */
+.gcards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(0.8rem, 1.4vw, 1.1rem);
+  margin-top: clamp(2.2rem, 4vw, 3.2rem);
+}
+.gcards--3 { grid-template-columns: repeat(3, 1fr); }
+.gcard { padding: clamp(1.4rem, 2.2vw, 1.9rem); color: #fff; }
+.gcard__icon {
+  width: 46px; height: 46px;
+  display: grid; place-items: center;
+  border-radius: var(--r-md);
+  background: var(--gold-grad); box-shadow: var(--gold-edge);
+  color: var(--navy);
+  margin-bottom: 1.2rem;
+}
+.gcard__icon svg { width: 24px; height: 24px; }
+.gcard h3 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+.gcard p { margin-top: 0.6rem; color: rgba(233, 238, 245, 0.82); font-size: 0.95rem; }
+
+/* ---------- How we run a load (all-visible 2x2 grid, nothing to click) ---------- */
+.svc-grid {
+  margin-top: clamp(1.8rem, 3.5vw, 2.6rem);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0.9rem, 1.6vw, 1.2rem);
+}
+.svc-card {
+  background: var(--navy-card);
+  border: 1px solid var(--line-dark);
+  border-radius: var(--r-xl);
+  padding: clamp(1.4rem, 2.4vw, 2rem);
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.svc-card__head { display: flex; align-items: center; gap: 1.1rem; }
 .svc__icon {
   width: 52px; height: 52px; flex: none;
   display: grid; place-items: center;
@@ -473,71 +671,53 @@ p { margin: 0; }
   color: var(--navy);
 }
 .svc__icon svg { width: 26px; height: 26px; }
-.svc__num { font-size: 1rem; font-weight: 600; color: var(--muted); }
 .svc__titles { display: flex; flex-direction: column; gap: 0.2rem; }
-.svc__title { font-size: clamp(1.25rem, 2.4vw, 1.75rem); font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; }
-.svc__sub { display: block; font-size: 0.95rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); }
-.svc__arrow { width: 30px; height: 30px; color: var(--navy); transition: transform 0.2s ease; }
-.svc details[open] .svc__arrow { transform: rotate(90deg); color: var(--accent); }
-.svc__panel {
-  display: grid; grid-template-columns: minmax(220px, 0.8fr) 2.2fr; gap: clamp(1.2rem, 3vw, 2.6rem);
-  align-items: center;
-  background: var(--paper); border-radius: var(--r-md);
-  padding: clamp(1.2rem, 2.4vw, 1.8rem); margin-bottom: 1.4rem;
-  animation: reveal 0.32s ease;
+.svc__title { font-size: clamp(1.1rem, 1.8vw, 1.35rem); font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+.svc__sub { display: block; font-size: 0.95rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted-on-dark); }
+.svc-card__rule { border: 0; height: 1px; margin: 0; background: var(--line-dark); }
+.svc-card__stat { display: flex; align-items: baseline; gap: 0.7rem; }
+.svc-card__stat b {
+  font-size: clamp(1.7rem, 2.8vw, 2.3rem); font-weight: 800;
+  letter-spacing: -0.02em; line-height: 1;
+  color: var(--accent);
 }
-.svc__stat { display: flex; align-items: center; gap: 0.7rem; }
-.svc__stat b { font-size: clamp(1.8rem, 3.4vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
-.svc__stat span { color: var(--muted); font-size: 0.95rem; max-width: 18ch; }
-.svc__desc { color: var(--muted); }
+.svc-card__stat span { color: var(--muted-on-dark); font-size: 0.95rem; }
+.svc-card__desc { color: var(--muted-on-dark); font-size: 0.97rem; }
 
-/* Smooth accordion reveal (fade+slide everywhere; native height animation where supported) */
-@keyframes reveal { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
-@supports (interpolate-size: allow-keywords) {
-  :root { interpolate-size: allow-keywords; }
-  .svc details::details-content {
-    height: 0; overflow: clip;
-    transition: height 0.32s ease, content-visibility 0.32s allow-discrete;
-  }
-  .svc details[open]::details-content { height: auto; }
+/* ---------- How it works (numbered step list beside the quote snapshot) ---------- */
+.steplist {
+  margin-top: clamp(1.8rem, 3vw, 2.4rem);
+  display: grid;
+  gap: clamp(1.2rem, 2vw, 1.7rem);
 }
+.steplist__row { display: grid; grid-template-columns: auto 1fr; gap: 1.1rem; align-items: start; }
+.steplist__num {
+  font-size: 0.95rem; font-weight: 800; letter-spacing: 0.08em;
+  color: var(--accent);
+  padding-top: 0.22rem;
+  font-variant-numeric: tabular-nums;
+}
+.steplist h3 { font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: #fff; }
+.steplist p { color: rgba(233, 238, 245, 0.8); font-size: 0.95rem; margin-top: 0.35rem; }
 
-/* ---------- How it works (mosaic of photo tiles, titles overlaid) ---------- */
-.steps { margin-top: clamp(2.2rem, 4vw, 3.2rem); grid-template-columns: repeat(4, 1fr); }
-.step { position: relative; display: flex; overflow: hidden; min-height: clamp(320px, 26vw, 420px); }
-.step img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.step__overlay {
-  position: relative; z-index: 1; margin-top: auto; width: 100%;
-  padding: 3.5rem clamp(1.1rem, 1.8vw, 1.5rem) 1.25rem;
-  background: linear-gradient(0deg, rgba(6, 15, 32, 0.88) 0%, rgba(6, 15, 32, 0.45) 55%, rgba(6, 15, 32, 0) 100%);
-  color: #fff;
+/* ---------- Why Peer (proof tiles beside the tracking snapshot) ---------- */
+.why-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0.9rem, 1.6vw, 1.2rem);
+  align-content: center;
 }
-.step h3 { font-size: 1.02rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
-.step p { color: rgba(233, 238, 245, 0.88); font-size: 0.92rem; margin-top: 0.4rem; }
-
-/* ---------- Bento (Why Peer) ---------- */
-.bento {
-  margin-top: clamp(2.5rem, 5vw, 3.5rem);
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: minmax(160px, auto);
+.why-tile {
+  background: var(--navy-card);
+  border: 1px solid var(--line-dark);
+  border-radius: var(--r-xl);
+  padding: clamp(1.2rem, 2vw, 1.6rem);
+  display: flex; flex-direction: column; gap: 0.55rem;
 }
-.tile { padding: clamp(1.3rem, 2vw, 1.7rem); display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; overflow: hidden; }
-.tile--white { background: #fff; color: var(--navy); }
-.tile--img { padding: 0; position: relative; min-height: 220px; }
-.tile--img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.tile__overlay {
-  position: absolute; inset: auto 0 0 0; z-index: 1;
-  padding: 2.4rem clamp(1.3rem, 2vw, 1.7rem) 1.1rem;
-  background: linear-gradient(0deg, rgba(6, 15, 32, 0.72), rgba(6, 15, 32, 0));
-  color: #fff; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
-}
-.tile__label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
-.tile__stat { font-size: clamp(2rem, 3.6vw, 2.9rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
-.tile__desc { font-size: 0.92rem; opacity: 0.85; }
-.tile__desc--strong { font-size: 1rem; opacity: 1; font-weight: 600; }
-.tile__icon { width: 40px; height: 40px; }
-.tile--big { grid-row: span 2; }
-.tile--wide { grid-column: span 2; }
+.why-tile__label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-on-dark); }
+.why-tile__stat { font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; color: var(--accent); }
+.why-tile__icon { width: 34px; height: 34px; color: var(--accent); }
+.why-tile__desc { font-size: 0.92rem; color: var(--muted-on-dark); }
 
 
 /* ---------- Final CTA (full-bleed photo band) ---------- */
@@ -569,31 +749,37 @@ p { margin: 0; }
 .subhero h1 { font-size: clamp(2.6rem, 6vw, 5rem); }
 .subhero .lead { color: rgba(233,238,245,0.85); margin-top: 1.3rem; }
 .subhero .btn { margin-top: 2rem; }
-.perks { grid-template-columns: repeat(3, 1fr); margin-top: clamp(2.2rem, 4vw, 3.2rem); }
-.perk { background: #fff; padding: clamp(1.4rem, 2.2vw, 1.9rem); }
-.perk__icon { width: 42px; height: 42px; color: var(--navy); margin-bottom: 1.2rem; }
-.perk h3 { font-size: 1.1rem; font-weight: 700; }
-.perk p { color: var(--muted); margin-top: 0.6rem; font-size: 0.96rem; }
-.setup { background: var(--navy); color: #fff; border-radius: var(--r-xl); padding: clamp(2rem, 4vw, 3.4rem); margin-top: clamp(2.5rem, 5vw, 4rem); display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; }
+/* The setup band keeps its grid and copy; the fill is now the shared glass
+   pane (it sits on the perks photo section). */
+.setup { color: #fff; padding: clamp(2rem, 4vw, 3.4rem); margin-top: clamp(2.5rem, 5vw, 4rem); display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; }
 .setup h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); font-weight: 700; }
 .setup p { color: var(--muted-on-dark); margin-top: 1rem; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 960px) {
   .hero__grid { grid-template-columns: 1fr; }
-  /* The portal preview is decoration; on small screens it would push the
-     headline and CTA below the fold, so it goes away entirely. */
-  .hero--home .hero__grid { grid-template-columns: 1fr; }
-  .hero__panel { display: none; }
+  /* The portal preview is a frozen image now, so instead of hiding it the
+     hero stacks it below the CTA (the Flexport treatment on phones). */
+  .hero--home .hero__grid { grid-template-columns: 1fr; gap: 2.4rem; }
+  .hero__panel {
+    justify-self: auto;
+    align-self: auto;
+    width: 100%;
+    max-width: 560px;
+    margin-inline: auto;
+    min-height: 0;
+  }
   .hero--home h1 { max-width: none; }
   .hero--home .hero__sub { max-width: none; }
-  .serve__mosaic { grid-template-columns: repeat(2, 1fr); }
-  .svc__panel { grid-template-columns: 1fr; gap: 0.9rem; }
-  .steps { grid-template-columns: repeat(2, 1fr); }
-  .step { min-height: clamp(240px, 38vw, 320px); }
-  .bento { grid-template-columns: repeat(2, 1fr); }
+  /* Split sections collapse to one column, text first; the glass panel
+     stacks below at phone-card width. Frozen images make any width safe. */
+  .split, .split--rev { grid-template-columns: 1fr; gap: 2.2rem; }
+  .split__panel { order: 2; width: 100%; max-width: 560px; margin-inline: auto; }
+  .split__copy { order: 1; }
+  .gcards, .gcards--3 { grid-template-columns: repeat(2, 1fr); }
+  .svc-grid { grid-template-columns: 1fr; }
+  .why-tiles { grid-template-columns: repeat(2, 1fr); }
   .cta-band__top { flex-direction: column; }
-  .perks { grid-template-columns: repeat(2, 1fr); }
   .setup { grid-template-columns: 1fr; }
 }
 @media (max-width: 680px) {
@@ -612,37 +798,29 @@ p { margin: 0; }
   .brand__mark { width: 26px; height: 26px; }
   .logo-band__row { justify-content: center; gap: 1.5rem 2.2rem; }
 
-  .card { padding: 1rem; }
-  .card__icon { width: 34px; height: 34px; margin-bottom: 0.9rem; }
-  .card h3 { font-size: 0.92rem; }
-  .card p { font-size: 0.88rem; margin-top: 0.5rem; }
-  .serve__mosaic .tile--img { min-height: 200px; }
-  .serve__mosaic .tile--img:last-child { display: none; }
-
   .svc__icon { width: 42px; height: 42px; border-radius: 8px; }
   .svc__icon svg { width: 21px; height: 21px; }
   .svc__sub { font-size: 0.88rem; }
+  .svc-card { padding: 1.1rem; }
 
-  .step { min-height: 200px; }
-  .step__overlay { padding: 2.4rem 0.9rem 0.9rem; }
-  .step h3 { font-size: 0.92rem; }
-  .step p { font-size: 0.85rem; }
+  .gcard { padding: 1.1rem; }
+  .gcard__icon { width: 36px; height: 36px; margin-bottom: 0.9rem; }
+  .gcard__icon svg { width: 19px; height: 19px; }
+  .gcard h3 { font-size: 0.92rem; }
+  .gcard p { font-size: 0.88rem; margin-top: 0.5rem; }
 
-  .tile { padding: 1rem; gap: 0.6rem; }
-  .tile--img { min-height: 150px; }
-  .tile--wide { grid-column: span 2; }
-  .tile__stat { font-size: 1.7rem; }
-  .tile__desc { font-size: 0.88rem; }
-  .tile__icon { width: 30px; height: 30px; }
-  .tile--big { grid-row: auto; }
-
-  .perk { padding: 1rem; }
-  .perk__icon { width: 34px; height: 34px; margin-bottom: 0.8rem; }
-  .perk h3 { font-size: 0.95rem; }
-  .perk p { font-size: 0.88rem; margin-top: 0.4rem; }
+  .why-tile { padding: 1rem; gap: 0.45rem; }
+  .why-tile__stat { font-size: 1.7rem; }
+  .why-tile__desc { font-size: 0.88rem; }
+  .why-tile__icon { width: 28px; height: 28px; }
 
   .hero__cta { gap: 0.8rem; }
   .footer__word { font-size: clamp(4.5rem, 33vw, 9rem); }
+}
+/* Glass copy cards go single column on phones. */
+@media (max-width: 480px) {
+  .gcards, .gcards--3 { grid-template-columns: 1fr; }
+  .why-tiles { grid-template-columns: 1fr; }
 }
 /* Below ~350px the wordmark plus both pills cannot coexist; keep the mark. */
 @media (max-width: 349px) {

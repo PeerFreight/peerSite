@@ -11,7 +11,7 @@ export default function MarketingLayout({
         crossOrigin=""
       />
       <link rel="stylesheet" href="/styles/tokens.css?v=2" precedence="default" />
-      <link rel="stylesheet" href="/site/newpeer.css?v=52" precedence="default" />
+      <link rel="stylesheet" href="/site/newpeer.css?v=53" precedence="default" />
       <a className="skip-link" href="#main">Skip to content</a>
       {children}
     </>
