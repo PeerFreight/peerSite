@@ -104,6 +104,13 @@ export default function HomePage() {
                 <h3>Reefer and dry van</h3>
                 <p>Temperature controlled and standard truckload, delivered on time.</p>
               </article>
+              <div className="tile--img">
+                <img src="/site/freight-hero-terminal-morning.jpg" alt="Placarded chemical tanker truck at a terminal at sunrise" loading="lazy" />
+              </div>
+              {/* Frozen load-details snapshot (tools/freeze-mocks.mjs) */}
+              <div className="tile--asset" aria-hidden="true">
+                <img className="mockshot" src="/site/mock-freight@2x.png" alt="" width={560} height={200} loading="lazy" />
+              </div>
               <article className="card">
                 <div className="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M2 8h12v8H2z"/><path d="M14 11h4l3 3v2h-7z"/><circle cx="6.5" cy="17.5" r="1.7"/><circle cx="17" cy="17.5" r="1.7"/></svg></div>
                 <h3>Flatbed and specialized</h3>
@@ -114,14 +121,6 @@ export default function HomePage() {
                 <h3>Port drayage</h3>
                 <p>Containers in and out of ports and rail ramps, hazmat endorsed when needed.</p>
               </article>
-              <div className="tile--img">
-                <img src="/site/freight-hero-terminal-morning.jpg" alt="Placarded chemical tanker truck at a terminal at sunrise" loading="lazy" />
-              </div>
-              {/* Frozen load-details snapshot (tools/freeze-mocks.mjs), labeled as such */}
-              <div className="tile--asset" aria-hidden="true">
-                <img className="mockshot" src="/site/mock-freight@2x.png" alt="" width={560} height={200} loading="lazy" />
-                <span className="tile--asset__note">From the shipper portal</span>
-              </div>
             </div>
           </div>
         </section>
@@ -142,7 +141,7 @@ export default function HomePage() {
                     <span className="svc__title">Transparent quoting</span>
                     <span className="svc__sub">Market comps sent with every rate, so you see why the number is the number.</span>
                   </span>
-                  <svg className="svc__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+                  <span className="svc__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
                 </summary>
                 <div className="svc__panel">
                   <div className="svc__body">
@@ -161,7 +160,7 @@ export default function HomePage() {
                     <span className="svc__title">Fraud screened coverage</span>
                     <span className="svc__sub">Every carrier verified through Carrier411 and FMCSA before they touch your freight.</span>
                   </span>
-                  <svg className="svc__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+                  <span className="svc__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
                 </summary>
                 <div className="svc__panel">
                   <div className="svc__body">
@@ -180,7 +179,7 @@ export default function HomePage() {
                     <span className="svc__title">Proactive tracking</span>
                     <span className="svc__sub">Updates at pickup, in transit, and at delivery, before you think to ask.</span>
                   </span>
-                  <svg className="svc__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+                  <span className="svc__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
                 </summary>
                 <div className="svc__panel">
                   <div className="svc__body">
@@ -199,7 +198,7 @@ export default function HomePage() {
                     <span className="svc__title">A clean close</span>
                     <span className="svc__sub">A signed POD the same day it delivers, and an invoice that matches the quote.</span>
                   </span>
-                  <svg className="svc__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+                  <span className="svc__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
                 </summary>
                 <div className="svc__panel">
                   <div className="svc__body">
@@ -227,31 +226,19 @@ export default function HomePage() {
                 <ol className="steplist">
                   <li className="steplist__row">
                     <span className="steplist__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></span>
-                    <div>
-                      <h3>Send us the load</h3>
-                      <p>Lane, dates, and equipment, by email or from your TMS.</p>
-                    </div>
+                    <h3>Send us the load</h3>
                   </li>
                   <li className="steplist__row">
                     <span className="steplist__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 6.5c0-2-2.2-3-5-3s-5 1-5 3.2c0 4.8 10 2.8 10 7.6 0 2.2-2.2 3.2-5 3.2s-5-1.2-5-3.2"/></svg></span>
-                    <div>
-                      <h3>Get your rate</h3>
-                      <p>Backed by your lane, with no hidden fees.</p>
-                    </div>
+                    <h3>Get your rate</h3>
                   </li>
                   <li className="steplist__row">
                     <span className="steplist__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
-                    <div>
-                      <h3>We cover and track it</h3>
-                      <p>A fraud-screened carrier hauls it, with updates through delivery.</p>
-                    </div>
+                    <h3>We cover and track it</h3>
                   </li>
                   <li className="steplist__row">
                     <span className="steplist__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m9 15 2 2 4-4"/></svg></span>
-                    <div>
-                      <h3>We close it out clean</h3>
-                      <p>Same day POD, invoice that matches the quote.</p>
-                    </div>
+                    <h3>We close it out clean</h3>
                   </li>
                 </ol>
               </div>
@@ -260,7 +247,7 @@ export default function HomePage() {
                   through the frost ring on this light section. */}
               <div className="split__panel split__panel--scene" aria-hidden="true">
                 <img className="scene" src="/site/freight-dock-dusk.jpg" alt="" loading="lazy" />
-                <img className="mockshot" src="/site/mock-quote@2x.png" alt="" width={640} height={462} loading="lazy" />
+                <img className="mockshot" src="/site/mock-quote@2x.png" alt="" width={640} height={707} loading="lazy" />
               </div>
             </div>
           </div>
@@ -284,24 +271,23 @@ export default function HomePage() {
                 <span className="tile__desc">Reach an owner directly on any load, at any hour.</span>
               </div>
               <div className="tile tile--white">
-                <span className="tile__label">Carrier pay</span>
-                <span className="tile__stat">24-48h</span>
-                <span className="tile__desc">Fast pay is why the best trucks take our loads first.</span>
-              </div>
-              <div className="tile tile--white">
-                <div className="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="9" r="6"/><path d="m8.5 13.5-1.5 7 5-3 5 3-1.5-7"/></svg></div>
                 <span className="tile__label">TIA member</span>
+                <div className="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="9" r="6"/><path d="m8.5 13.5-1.5 7 5-3 5 3-1.5-7"/></svg></div>
                 <span className="tile__desc">Held to the Transportation Intermediaries Association anti-fraud standard.</span>
               </div>
               <div className="tile tile--white">
-                <div className="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v1.5"/><path d="M3.5 12a8.5 8.5 0 0 1 17 0Z"/><path d="M12 12v6a2.5 2.5 0 0 0 5 0"/></svg></div>
                 <span className="tile__label">Fully insured</span>
+                <div className="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v1.5"/><path d="M3.5 12a8.5 8.5 0 0 1 17 0Z"/><path d="M12 12v6a2.5 2.5 0 0 0 5 0"/></svg></div>
                 <span className="tile__desc">Contingent cargo and auto, general liability, E&amp;O, and cyber.</span>
               </div>
-              {/* Frozen tracking snapshot (tools/freeze-mocks.mjs), labeled as such */}
+              <div className="tile tile--white">
+                <span className="tile__label">Carrier pay</span>
+                <span className="tile__stat">Same day</span>
+                <span className="tile__desc">Same-day pay when carriers need it, 24 to 48 hours standard &mdash; why the best trucks take our loads first.</span>
+              </div>
+              {/* Frozen tracking snapshot (tools/freeze-mocks.mjs) */}
               <div className="tile--asset tile--wide" aria-hidden="true">
                 <img className="mockshot" src="/site/mock-track@2x.png" alt="" width={640} height={281} loading="lazy" />
-                <span className="tile--asset__note">From the shipper portal</span>
               </div>
             </div>
           </div>

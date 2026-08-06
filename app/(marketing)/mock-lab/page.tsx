@@ -100,9 +100,12 @@ function LoadsMock() {
   );
 }
 
-/** Static miniature of the portal quote request wizard, step 2 (Freight).
- * Faithful to components/portal/rfq/rfq-form.tsx + lib/portal/rfq.ts. */
+/** Static miniature of the portal quote request wizard, step 3 (Services &
+ * extras). Faithful to components/portal/rfq/rfq-form.tsx + lib/portal/rfq.ts. */
 function QuoteMock() {
+  const tick = (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+  );
   return (
     <div className="mockq">
       <div className="mockq__head">
@@ -115,11 +118,13 @@ function QuoteMock() {
           </span>
           Lane &amp; dates
         </li>
-        <li className="is-current">
-          <span className="mockq__dot">2</span>
+        <li className="is-done">
+          <span className="mockq__dot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </span>
           Freight
         </li>
-        <li>
+        <li className="is-current">
           <span className="mockq__dot">3</span>
           Services &amp; extras
         </li>
@@ -129,42 +134,53 @@ function QuoteMock() {
         </li>
       </ol>
       <div className="mockq__card">
+        <span className="mockq__hint">All optional &mdash; skip anything that doesn&apos;t apply.</span>
         <div className="mockq__field">
-          <label>Commodity</label>
-          <span className="mockq__input">Packaged chemicals, drums on pallets</span>
+          <span className="mockq__legend">Special services at pickup or delivery</span>
+          <div className="mockq__checks">
+            <span className="mockq__check"><span className="mockq__box mockq__box--off">{tick}</span>Liftgate at pickup</span>
+            <span className="mockq__check"><span className="mockq__box">{tick}</span>Liftgate at delivery</span>
+            <span className="mockq__check"><span className="mockq__box">{tick}</span>Driver assist / count</span>
+            <span className="mockq__check"><span className="mockq__box mockq__box--off">{tick}</span>Pallet jack</span>
+            <span className="mockq__check"><span className="mockq__box mockq__box--off">{tick}</span>Lumper</span>
+            <span className="mockq__check"><span className="mockq__box mockq__box--off">{tick}</span>Pallet exchange</span>
+            <span className="mockq__check"><span className="mockq__box mockq__box--off">{tick}</span>Straps</span>
+            <span className="mockq__check"><span className="mockq__box mockq__box--off">{tick}</span>Tarps</span>
+            <span className="mockq__check"><span className="mockq__box">{tick}</span>Seal required</span>
+          </div>
+        </div>
+        <div className="mockq__field">
+          <span className="mockq__legend">Reference numbers</span>
+          <span className="mockq__hint">PO, BOL, or pickup numbers your receiver requires.</span>
+          <div className="mockq__refrow">
+            <span className="mockq__input">PO #</span>
+            <span className="mockq__input">PO-88214</span>
+          </div>
+          <div className="mockq__refrow">
+            <span className="mockq__input">Pickup #</span>
+            <span className="mockq__input">WHS-2207</span>
+          </div>
         </div>
         <div className="mockq__grid">
           <div className="mockq__field">
-            <label>Total weight (lbs)</label>
-            <span className="mockq__input">38,000</span>
+            <label>Target rate (USD)</label>
+            <span className="mockq__input">$1,850</span>
           </div>
           <div className="mockq__field">
-            <label>Pieces / pallets</label>
-            <span className="mockq__input">26 pallets</span>
-          </div>
-        </div>
-        <div className="mockq__grid">
-          <div className="mockq__field">
-            <label>Equipment</label>
+            <label>How often does this ship?</label>
             <span className="mockq__input mockq__input--select">
-              Dry van 53&apos;
+              Recurring lane
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </span>
           </div>
-          <div className="mockq__field">
-            <label>Declared cargo value (USD)</label>
-            <span className="mockq__input">$45,000</span>
-          </div>
         </div>
-        <div className="mockq__check">
-          <span className="mockq__box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-          </span>
-          Any of this freight is hazardous material
+        <div className="mockq__field">
+          <label>Anything else we should know?</label>
+          <span className="mockq__area">Dock closes at 3 pm. Call the warehouse 30 minutes out.</span>
         </div>
       </div>
       <div className="mockq__foot">
-        <span className="mockq__note">One of the owners gets back to you within the hour.</span>
+        <span className="mockq__btn mockq__btn--ghost">Back</span>
         <span className="mockq__btn">Continue</span>
       </div>
     </div>

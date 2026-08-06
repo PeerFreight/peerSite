@@ -20,6 +20,8 @@
   --muted-on-dark: rgba(233, 238, 245, 0.72);
   --line: rgba(14, 29, 58, 0.10);
   --line-dark: rgba(255, 255, 255, 0.14);
+  --line-strong: rgba(14, 29, 58, 0.16);
+  --frame-w: 4px;
 
   --r-xl: 14px;
   --r-lg: 10px;
@@ -298,7 +300,7 @@ p { margin: 0; }
    at the bitmap edges. */
 .split__panel--scene {
   position: relative; isolation: isolate; overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  border: var(--frame-w) solid rgba(255, 255, 255, 0.5);
   border-radius: calc(var(--r-xl) + 10px);
 }
 .split__panel--scene .scene {
@@ -459,8 +461,8 @@ p { margin: 0; }
 /* Small frames: the four accordion step mocks export at 560px natural width. */
 .lab__frame--sm { width: 560px; }
 
-/* Quote mock: the RFQ wizard at step 2 (Freight), on the portal's paper
-   canvas. Mirrors components/portal/rfq/rfq-form.tsx. */
+/* Quote mock: the RFQ wizard at step 3 (Services & extras), on the portal's
+   paper canvas. Mirrors components/portal/rfq/rfq-form.tsx. */
 .mockq {
   background: #f5f6f8;
   border-radius: var(--r-xl);
@@ -539,6 +541,20 @@ p { margin: 0; }
 }
 .mockq__pill.is-on { background: var(--navy); border-color: var(--navy); color: #fff; }
 .mockq__pill svg { width: 10px; height: 10px; flex: none; }
+/* Step-3 extras: legends, hints, the two-column accessorial checklist,
+   reference rows, and the notes textarea, miniatures of the real controls. */
+.mockq__legend { font-size: 0.7rem; font-weight: 700; color: var(--ink); }
+.mockq__hint { font-size: 0.7rem; color: var(--muted); }
+.mockq__checks { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem 0.85rem; }
+.mockq__box--off { background: #fff; border: 1px solid #dfe3ea; color: transparent; }
+.mockq__refrow { display: grid; grid-template-columns: 8rem 1fr; gap: 0.5rem; }
+.mockq__area {
+  padding: 0.48rem 0.65rem 1.5rem;
+  border: 1px solid #dfe3ea; border-radius: 8px;
+  background: #fbfbfa;
+  font-size: 0.78rem; font-weight: 600;
+}
+.mockq__btn--ghost { background: #fff; box-shadow: none; border: 1px solid #dfe3ea; color: var(--ink); }
 
 /* Tracking mock: the "Where your freight is" card from the portal load page.
    Mirrors components/portal/load-progress.tsx + loads/[id]. */
@@ -663,12 +679,12 @@ p { margin: 0; }
    tight around the image exactly like the hero pane does. */
 .split {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
   gap: clamp(2.5rem, 5vw, 5rem);
   align-items: center;
   margin-top: clamp(2.2rem, 4vw, 3.2rem);
 }
-.split--rev { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
+.split--rev { grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); }
 .split__copy { align-self: center; min-width: 0; }
 .split__panel {
   display: flex;
@@ -680,25 +696,27 @@ p { margin: 0; }
   user-select: none;
 }
 
-/* ---------- Fused mosaic (one card, straight hairline seams) ----------
-   A single rounded card whose cells are separated by 3px seams: white copy
-   cells and full-bleed photo cells (never text over photos). */
-.mosaic { display: grid; gap: 3px; border-radius: 12px; overflow: hidden; }
+/* ---------- Fused mosaic (one framed card, straight hairline seams) ----------
+   A single rounded card behind a heavy frame — the same stroke as the scene
+   pane — whose cells are separated by 3px seams: white copy cells and
+   full-bleed photo cells (never text over photos). */
+.mosaic {
+  display: grid; gap: 3px;
+  border: var(--frame-w) solid var(--line-strong);
+  border-radius: calc(var(--r-xl) + 10px);
+  overflow: hidden;
+}
 .tile--img { position: relative; min-height: 220px; padding: 0; }
 .tile--img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
-/* The one product-mock cell every mosaic carries: a frozen snapshot sitting
-   on the portal's paper canvas, with an honest "from the portal" caption. */
+/* The one product-mock cell every mosaic carries: a frozen snapshot filling
+   its cell on the portal's paper canvas. */
 .tile--asset {
   background: #f5f6f8;
-  display: flex; flex-direction: column; justify-content: center; gap: 0.7rem;
-  padding: clamp(1.1rem, 1.8vw, 1.5rem);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(0.9rem, 1.4vw, 1.2rem);
 }
-.tile--asset .mockshot { width: min(100%, 460px); margin-inline: auto; }
-.tile--asset__note {
-  text-align: center; font-size: 0.68rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
-}
+.tile--asset .mockshot { width: 100%; }
 
 /* ---------- Who we serve (copy cells and photos fused into one mosaic) ---------- */
 .serve__mosaic { margin-top: clamp(2.2rem, 4vw, 3.2rem); grid-template-columns: repeat(4, 1fr); }
@@ -712,14 +730,19 @@ p { margin: 0; }
 .card h3 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
 .card p { margin-top: 0.6rem; color: var(--muted); font-size: 0.95rem; }
 
-/* ---------- Services accordion ---------- */
-.svc { margin-top: clamp(1.8rem, 3.5vw, 2.6rem); border-top: 1px solid var(--line); }
-.svc details { border-bottom: 1px solid var(--line); }
+/* ---------- Services accordion (bordered summary buttons, framed panels) ---------- */
+.svc { margin-top: clamp(1.8rem, 3.5vw, 2.6rem); display: grid; gap: 0.9rem; }
 .svc summary {
   list-style: none; cursor: pointer;
   display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: clamp(1rem, 2vw, 1.5rem);
-  padding: clamp(1.1rem, 2vw, 1.6rem) 0;
+  padding: clamp(1.1rem, 2vw, 1.6rem) clamp(1rem, 1.8vw, 1.4rem);
+  background: #fff;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  transition: border-color 0.18s ease;
 }
+.svc summary:hover { border-color: rgba(14, 29, 58, 0.32); }
+.svc details[open] summary { border-color: var(--accent); }
 .svc summary::-webkit-details-marker { display: none; }
 .svc__icon {
   width: 52px; height: 52px; flex: none;
@@ -732,8 +755,17 @@ p { margin: 0; }
 .svc__titles { display: flex; flex-direction: column; gap: 0.2rem; }
 .svc__title { font-size: clamp(1.25rem, 2.4vw, 1.75rem); font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; }
 .svc__sub { display: block; font-size: 0.95rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); }
-.svc__arrow { width: 30px; height: 30px; color: var(--navy); transition: transform 0.2s ease; }
-.svc details[open] .svc__arrow { transform: rotate(90deg); color: var(--accent); }
+/* The Get-a-Quote disc at summary scale: gold circle, navy arrow, a touch
+   smaller than .btn__icon so the row reads as a button without competing. */
+.svc__arrow {
+  display: grid; place-items: center; flex: none;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent); color: var(--navy);
+  box-shadow: var(--gold-edge);
+  transition: transform 0.2s ease;
+}
+.svc__arrow svg { width: 15px; height: 15px; }
+.svc details[open] .svc__arrow { transform: rotate(90deg); }
 /* Open panel: stat + description on the left, the step's frozen product
    snapshot bare on the right (its shadow is the frame). The img has explicit
    dims, so opening a step never reflows the surrounding sections. */
@@ -742,8 +774,10 @@ p { margin: 0; }
      sizes with percentages, which collapse to 0 in an auto track. */
   display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: clamp(1.2rem, 3vw, 2.6rem);
   align-items: center;
-  background: var(--paper); border-radius: var(--r-md);
-  padding: clamp(1.2rem, 2.4vw, 1.8rem); margin-bottom: 1.4rem;
+  background: var(--paper);
+  border: var(--frame-w) solid var(--line-strong);
+  border-radius: calc(var(--r-xl) + 10px);
+  padding: clamp(1.2rem, 2.4vw, 1.8rem); margin: 0.9rem 0 0;
   animation: reveal 0.32s ease;
 }
 .svc__body { display: flex; flex-direction: column; gap: 0.9rem; min-width: 0; }
@@ -759,16 +793,19 @@ p { margin: 0; }
 
 /* Smooth accordion reveal: opacity-only fade as the fallback; where the
    browser can animate height (interpolate-size) the fade rides the same
-   ::details-content timeline instead, so open and close are one motion. */
+   ::details-content timeline instead, so open and close are one motion. The
+   summary→panel gap moves into the transitioned padding so nothing (border,
+   margin, hairline) pops outside the animated box. */
 @keyframes reveal { from { opacity: 0; } to { opacity: 1; } }
 @supports (interpolate-size: allow-keywords) {
   :root { interpolate-size: allow-keywords; }
-  .svc__panel { animation: none; }
+  .svc__panel { animation: none; margin-top: 0; }
   .svc details::details-content {
-    height: 0; overflow: clip; opacity: 0;
-    transition: height 0.32s ease, opacity 0.32s ease, content-visibility 0.32s allow-discrete;
+    height: 0; overflow: clip; opacity: 0; padding-top: 0;
+    transition: height 0.32s ease, padding-top 0.32s ease, opacity 0.32s ease,
+      content-visibility 0.32s allow-discrete;
   }
-  .svc details[open]::details-content { height: auto; opacity: 1; }
+  .svc details[open]::details-content { height: auto; opacity: 1; padding-top: 0.9rem; }
 }
 
 /* ---------- How it works (step list beside the quote snapshot) ---------- */
@@ -777,18 +814,21 @@ p { margin: 0; }
   display: grid;
   gap: clamp(1.2rem, 2vw, 1.7rem);
 }
-.steplist__row { display: grid; grid-template-columns: auto 1fr; gap: 1.1rem; align-items: start; }
-.steplist__icon { width: 26px; height: 26px; flex: none; color: var(--navy); margin-top: 0.15rem; }
+.steplist { justify-items: start; }
+.steplist__row { display: grid; grid-template-columns: auto 1fr; gap: 1.1rem; align-items: center; }
+.steplist__icon { width: 26px; height: 26px; flex: none; color: var(--navy); }
 .steplist__icon svg { width: 100%; height: 100%; }
-.steplist h3 { font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink); }
-.steplist p { color: var(--muted); font-size: 0.95rem; margin-top: 0.35rem; }
+.steplist h3 { font-size: 1.15rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink); }
 
 /* ---------- Why Peer (navy bento: photos and white proof tiles in one mosaic) ---------- */
 .bento {
   margin-top: clamp(2.5rem, 5vw, 3.5rem);
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: minmax(160px, auto);
+  grid-auto-rows: minmax(220px, 1fr);
+  border-color: rgba(255, 255, 255, 0.30);
 }
+.bento .tile--img img { object-position: center 35%; }
+.bento .tile__icon { width: 56px; height: 56px; }
 .tile { padding: clamp(1.3rem, 2vw, 1.7rem); display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; overflow: hidden; }
 .tile--white { background: #fff; color: var(--navy); }
 .tile__label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
@@ -838,9 +878,6 @@ p { margin: 0; }
 .perk__icon svg { width: 100%; height: 100%; }
 .perk h3 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
 .perk p { color: var(--muted); margin-top: 0.6rem; font-size: 0.95rem; }
-.setup { background: var(--navy); color: #fff; border-radius: var(--r-xl); padding: clamp(2rem, 4vw, 3.4rem); margin-top: clamp(2.5rem, 5vw, 4rem); display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; }
-.setup h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); font-weight: 700; }
-.setup p { color: var(--muted-on-dark); margin-top: 1rem; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 960px) {
@@ -872,7 +909,6 @@ p { margin: 0; }
   /* Photo and mock cells take a full row each on the 2-col perks grid. */
   .perks .tile--img, .perks .tile--asset { grid-column: span 2; }
   .cta-band__top { flex-direction: column; }
-  .setup { grid-template-columns: 1fr; }
 }
 @media (max-width: 680px) {
   :root { --section-y: 3rem; }
@@ -915,8 +951,7 @@ p { margin: 0; }
   .hero__cta { gap: 0.8rem; }
   .footer__word { font-size: clamp(4.5rem, 33vw, 9rem); }
 }
-/* All mosaics go single column on phones; spans collapse with them. The
-   asset cell keeps its centered max-width from the base rule. */
+/* All mosaics go single column on phones; spans collapse with them. */
 @media (max-width: 480px) {
   .serve__mosaic, .perks, .bento { grid-template-columns: 1fr; }
   .serve__mosaic .tile--img, .serve__mosaic .tile--asset,

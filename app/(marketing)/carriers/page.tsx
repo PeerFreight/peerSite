@@ -81,6 +81,14 @@ export default function CarriersPage() {
                 <h3>Accessorials honored</h3>
                 <p>Detention, layover, and TONU, in writing on the rate confirmation.</p>
               </article>
+              <div className="tile--img">
+                <img src="/site/freight-bol-daylight.jpg" alt="Bill of lading paperwork on a trailer door" loading="lazy" />
+              </div>
+              {/* Frozen delivery-documents snapshot (tools/freeze-mocks.mjs) —
+                  pairs with the easy-paperwork perk. */}
+              <div className="tile--asset" aria-hidden="true">
+                <img className="mockshot" src="/site/mock-close@2x.png" alt="" width={560} height={171} loading="lazy" />
+              </div>
               <article className="perk">
                 <div className="perk__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
                 <h3>Accurate loads</h3>
@@ -91,6 +99,9 @@ export default function CarriersPage() {
                 <h3>Easy paperwork</h3>
                 <p>Upload your POD from your phone. No endless check calls.</p>
               </article>
+              <div className="tile--img">
+                <img src="/site/freight-reefer-evening.jpg" alt="Refrigerated trailer at a dock in the evening" loading="lazy" />
+              </div>
               <article className="perk">
                 <div className="perk__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 5 6v5c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
                 <h3>A broker that does not ghost</h3>
@@ -101,23 +112,27 @@ export default function CarriersPage() {
                 <h3>Hazmat and repeat freight</h3>
                 <p>Steady lanes for carriers rated to haul hazmat.</p>
               </article>
-              <div className="tile--img">
-                <img src="/site/freight-bol-daylight.jpg" alt="Bill of lading paperwork on a trailer door" loading="lazy" />
-              </div>
-              {/* Frozen delivery-documents snapshot (tools/freeze-mocks.mjs),
-                  labeled as such — pairs with the easy-paperwork perk. */}
-              <div className="tile--asset" aria-hidden="true">
-                <img className="mockshot" src="/site/mock-close@2x.png" alt="" width={560} height={171} loading="lazy" />
-                <span className="tile--asset__note">From the shipper portal</span>
+              <div className="tile--img tile--wide">
+                <img src="/site/freight-drayage-port.jpg" alt="Container trucks working a port terminal" loading="lazy" />
               </div>
             </div>
+          </div>
+        </section>
 
-            <div className="setup">
+        {/* One-packet CTA: the same full-bleed gold band treatment as the
+            bottom of home. */}
+        <section className="cta-band" aria-label="Get set up">
+          <img className="cta-band__bg" src="/site/freight-dock-dusk.jpg" alt="" />
+          <div className="wrap">
+            <div className="cta-band__top">
               <div>
                 <h2>One packet, then you are cleared</h2>
-                <p>Tell us who you are, we verify your authority and insurance, and you are set up for our loads.</p>
+                <p className="lead">Tell us who you are, we verify your authority and insurance, and you are set up for our loads.</p>
               </div>
-              <a className="btn btn--yellow" href="/carrier-setup">
+            </div>
+            <div className="cta-bar">
+              <strong>Ready to haul for us?</strong>
+              <a className="btn btn--navy" href="/carrier-setup">
                 Get Set Up
                 <span className="btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
               </a>
