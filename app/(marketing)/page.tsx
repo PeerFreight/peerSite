@@ -203,7 +203,7 @@ export default function HomePage() {
               <article className="card">
                 <div className="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.2"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg></div>
                 <h3>Same-day carrier pay</h3>
-                <p>Same-day pay when carriers need it, 24 to 48 hours standard &mdash; why the best trucks take our loads first.</p>
+                <p>Same-day pay when carriers need it, 24 to 48 hours standard.</p>
               </article>
               {/* Frozen tracking snapshot (tools/freeze-mocks.mjs) over its
                   own blurred scene */}

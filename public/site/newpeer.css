@@ -734,13 +734,15 @@ p { margin: 0; }
 .pane {
   margin-top: clamp(2.2rem, 4vw, 3.2rem);
   border: 1px solid var(--line-strong);
-  border-radius: calc(var(--r-xl) + 16px);
-  padding: clamp(0.7rem, 1.4vw, 1.1rem);
-  background: rgba(255, 255, 255, 0.5);
+  border-radius: calc(var(--r-xl) + 26px);
+  /* A wide mat, and a tinted fill so the ring between the cells and the
+     outer hairline reads as a colored surround, not leftover page. */
+  padding: clamp(1.1rem, 2.2vw, 1.9rem);
+  background: rgba(14, 29, 58, 0.07);
 }
 .section--navy .pane, .section--photo .pane {
   border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.08);
 }
 .mosaic {
   display: grid; gap: 3px;
@@ -798,73 +800,48 @@ p { margin: 0; }
 .card h3 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
 .card p { margin-top: 0.6rem; color: var(--muted); font-size: 1.02rem; }
 
-/* ---------- How we run a load (split-screen tabs over the section photo) ----------
-   Steps on the left as glass rows, one glass pane on the right where the
-   active step's snapshot cross-fades. The active row expands its stat + copy
-   in place via the 0fr→1fr grid-row transition, so open and close are one
-   smooth motion with no layout pop. */
+/* ---------- How we run a load (photo-backed split, steps as a 2x2 grid) ----------
+   The four steps sit on the left as quiet cells — gold disc, uppercase
+   title, one line of copy, no glass chrome on the cells themselves — so the
+   column stays as compact as the pane beside it. The glass outline lives
+   only on the generated asset; clicking a step cross-fades its snapshot in. */
 .howrun {
   margin-top: clamp(1.8rem, 3.5vw, 2.6rem);
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  gap: clamp(1.6rem, 3.5vw, 3rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 4.5vw, 4rem);
   align-items: center;
 }
-.howrun__tabs { display: grid; gap: 0.9rem; align-content: center; min-width: 0; }
-.howtab {
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: var(--r-xl);
-  backdrop-filter: blur(10px) saturate(1.1);
-  -webkit-backdrop-filter: blur(10px) saturate(1.1);
-  transition: background 0.3s ease, border-color 0.3s ease;
+.howrun__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.8rem, 3.2vw, 2.8rem) clamp(1.4rem, 2.5vw, 2.2rem);
+  align-content: center;
+  min-width: 0;
 }
-.howtab:hover { border-color: rgba(255, 255, 255, 0.3); }
-.howtab.is-active { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.34); }
-.howtab__btn {
-  width: 100%;
-  display: grid; grid-template-columns: auto 1fr auto; align-items: center;
-  gap: clamp(1rem, 2vw, 1.4rem);
-  padding: clamp(1rem, 1.8vw, 1.4rem) clamp(1rem, 1.8vw, 1.4rem);
-  background: none; border: 0; cursor: pointer;
-  font: inherit; text-align: left; color: #fff;
+.howcell {
+  display: flex; flex-direction: column; align-items: flex-start;
+  background: none; border: 0; padding: 0; min-width: 0;
+  font: inherit; text-align: left; color: #fff; cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.35s ease;
 }
+.howcell:hover { opacity: 0.85; }
+.howcell.is-active { opacity: 1; }
+.howcell:focus-visible { outline: 2px solid #fff; outline-offset: 6px; border-radius: 4px; }
 /* The Get-a-Quote recipe: gold disc, navy glyph — it pops over the photo. */
-.howtab__icon {
-  width: 52px; height: 52px; flex: none;
+.howcell__icon {
+  width: 52px; height: 52px;
   display: grid; place-items: center;
   border-radius: 50%;
   background: var(--gold-grad);
   box-shadow: var(--gold-edge);
   color: var(--navy);
+  margin-bottom: 1.1rem;
 }
-.howtab__icon svg { width: 24px; height: 24px; }
-.howtab__titles { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
-.howtab__title { font-size: clamp(1.15rem, 2vw, 1.5rem); font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; }
-.howtab__sub { display: block; font-size: 0.92rem; font-weight: 500; color: rgba(233, 238, 245, 0.72); }
-.howtab__arrow {
-  display: grid; place-items: center; flex: none;
-  width: 32px; height: 32px; border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14); color: #fff;
-  transition: transform 0.35s ease;
-}
-.howtab__arrow svg { width: 15px; height: 15px; }
-.howtab.is-active .howtab__arrow { transform: rotate(90deg); }
-.howtab__body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.45s cubic-bezier(0.33, 1, 0.68, 1); }
-.howtab.is-active .howtab__body { grid-template-rows: 1fr; }
-.howtab__clip { min-height: 0; overflow: hidden; }
-.howtab__content {
-  padding: 0 clamp(1rem, 1.8vw, 1.4rem) clamp(1.1rem, 1.8vw, 1.4rem);
-  display: flex; flex-direction: column; gap: 0.7rem;
-  opacity: 0; transform: translateY(6px);
-  transition: opacity 0.35s ease, transform 0.35s ease;
-}
-.howtab.is-active .howtab__content { opacity: 1; transform: none; transition-delay: 0.12s; }
-.howtab__stat { display: flex; align-items: center; gap: 0.7rem; }
-.howtab__stat b { font-size: clamp(1.7rem, 3vw, 2.3rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
-.howtab__stat span { color: rgba(233, 238, 245, 0.72); font-size: 0.95rem; max-width: 20ch; }
-.howtab__desc { color: rgba(233, 238, 245, 0.78); font-size: 0.98rem; }
+.howcell__icon svg { width: 24px; height: 24px; }
+.howcell__title { font-size: clamp(1.05rem, 1.6vw, 1.3rem); font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+.howcell__sub { margin-top: 0.55rem; font-size: 0.98rem; font-weight: 500; color: rgba(233, 238, 245, 0.78); }
 /* The swap pane: every snapshot occupies the same grid cell, sized by the
    tallest one, and cross-fades — the pane itself never moves. */
 .howrun__panel {
@@ -940,7 +917,9 @@ p { margin: 0; }
    system. */
 .bento {
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: minmax(220px, 1fr);
+  /* auto, not 1fr: each row hugs its own content, so one long card cannot
+     stretch every other cell into dead white space. */
+  grid-auto-rows: minmax(200px, auto);
 }
 .bento .tile--img img { object-position: center 35%; }
 .tile--wide { grid-column: span 2; }
@@ -1034,9 +1013,10 @@ p { margin: 0; }
   .brand__mark { width: 26px; height: 26px; }
   .logo-band__row { justify-content: center; gap: 1.5rem 2.2rem; }
 
-  .howtab__icon { width: 42px; height: 42px; }
-  .howtab__icon svg { width: 21px; height: 21px; }
-  .howtab__sub { font-size: 0.88rem; }
+  .howcell__icon { width: 42px; height: 42px; margin-bottom: 0.8rem; }
+  .howcell__icon svg { width: 21px; height: 21px; }
+  .howcell__sub { font-size: 0.88rem; }
+  .howrun__grid { gap: 1.6rem 1.1rem; }
   /* The timeline wraps to a 2x2 grid; the track only makes sense on one
      row, so it hides. */
   .timeline { grid-template-columns: repeat(2, 1fr); gap: 1.4rem 1rem; }
@@ -1065,6 +1045,7 @@ p { margin: 0; }
 /* All mosaics go single column on phones; spans collapse with them. */
 @media (max-width: 480px) {
   .serve__mosaic, .perks, .bento { grid-template-columns: 1fr; }
+  .howrun__grid { grid-template-columns: 1fr; gap: 1.6rem; }
   .serve__mosaic .tile--img, .serve__mosaic .tile--asset,
   .perks .tile--img, .perks .tile--asset, .tile--wide { grid-column: auto; }
 }
