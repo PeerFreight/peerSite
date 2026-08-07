@@ -1,7 +1,7 @@
 export function SiteFooter() {
   return (
     <footer className="footer">
-      <div className="footer__word" aria-hidden="true">Peer</div>
+      <div className="footer__word" aria-hidden="true" data-reveal>Peer</div>
       <div className="wrap">
         <div className="footer__legal">
           <span>USDOT 5766712 · $75K BMC-84 bond on file · FMCSA broker authority pending · TIA member</span>

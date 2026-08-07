@@ -289,6 +289,19 @@ p { margin: 0; }
 .hero--home h1 { font-size: clamp(2.3rem, 3.6vw, 3.4rem); max-width: 16ch; }
 .hero--home .hero__sub { font-size: clamp(1.1rem, 1.5vw, 1.45rem); max-width: 48ch; }
 
+/* Load-time entrance for the heroes: headline, sub, CTA, and pane rise in
+   with a short stagger on arrival (scroll reveals cover everything below the
+   fold). Pure CSS so it needs no hydration; the global reduced-motion rule
+   kills it. */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+.hero__content > * { animation: rise-in 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+.hero__content > :nth-child(2) { animation-delay: 100ms; }
+.hero__content > :nth-child(3) { animation-delay: 200ms; }
+.hero__panel { animation: rise-in 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) 260ms both; }
+
 /* The frosted pane (the Flexport treatment): a translucent surface that only
    ever sits over a photo section, so the blur always has texture to sample. */
 .glass {
@@ -735,10 +748,11 @@ p { margin: 0; }
   margin-top: clamp(2.2rem, 4vw, 3.2rem);
   border: 1px solid var(--line-strong);
   border-radius: calc(var(--r-xl) + 26px);
-  /* A wide mat, and a tinted fill so the ring between the cells and the
-     outer hairline reads as a colored surround, not leftover page. */
+  /* A wide mat with a solid colored fill (not a translucent wash over the
+     page), so the ring between the cells and the outer hairline reads as a
+     deliberate colored surround. */
   padding: clamp(1.1rem, 2.2vw, 1.9rem);
-  background: rgba(14, 29, 58, 0.07);
+  background: #e2e8f2;
 }
 .section--navy .pane, .section--photo .pane {
   border-color: rgba(255, 255, 255, 0.2);
@@ -815,20 +829,26 @@ p { margin: 0; }
 .howrun__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(1.8rem, 3.2vw, 2.8rem) clamp(1.4rem, 2.5vw, 2.2rem);
+  gap: clamp(0.9rem, 1.6vw, 1.3rem);
   align-content: center;
   min-width: 0;
 }
 .howcell {
-  display: flex; flex-direction: column; align-items: flex-start;
-  background: none; border: 0; padding: 0; min-width: 0;
+  display: flex; flex-direction: column; align-items: flex-start; min-width: 0;
+  padding: clamp(1.2rem, 2vw, 1.6rem);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--r-xl);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
   font: inherit; text-align: left; color: #fff; cursor: pointer;
-  opacity: 0.6;
-  transition: opacity 0.35s ease;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
-.howcell:hover { opacity: 0.85; }
-.howcell.is-active { opacity: 1; }
-.howcell:focus-visible { outline: 2px solid #fff; outline-offset: 6px; border-radius: 4px; }
+.howcell:hover { border-color: rgba(255, 255, 255, 0.35); }
+/* The selected card is unmistakable: the accordion's gold-on-open recipe —
+   a gold hairline and a brighter fill. */
+.howcell.is-active { background: rgba(255, 255, 255, 0.13); border-color: var(--accent); }
+.howcell:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 /* The Get-a-Quote recipe: gold disc, navy glyph — it pops over the photo. */
 .howcell__icon {
   width: 52px; height: 52px;
@@ -1013,10 +1033,11 @@ p { margin: 0; }
   .brand__mark { width: 26px; height: 26px; }
   .logo-band__row { justify-content: center; gap: 1.5rem 2.2rem; }
 
+  .howcell { padding: 1rem; }
   .howcell__icon { width: 42px; height: 42px; margin-bottom: 0.8rem; }
   .howcell__icon svg { width: 21px; height: 21px; }
   .howcell__sub { font-size: 0.88rem; }
-  .howrun__grid { gap: 1.6rem 1.1rem; }
+  .howrun__grid { gap: 0.9rem; }
   /* The timeline wraps to a 2x2 grid; the track only makes sense on one
      row, so it hides. */
   .timeline { grid-template-columns: repeat(2, 1fr); gap: 1.4rem 1rem; }

@@ -35,7 +35,7 @@ const STEPS: Step[] = [
     icon: (
       <svg viewBox="0 0 24 24" {...STROKE}><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" /><path d="M12 18V6" /></svg>
     ),
-    mock: { src: "/site/mock-comps@2x.png", width: 560, height: 257 },
+    mock: { src: "/site/mock-comps@2x.png", width: 560, height: 286 },
   },
   {
     id: "screening",
@@ -44,7 +44,7 @@ const STEPS: Step[] = [
     icon: (
       <svg viewBox="0 0 24 24" {...STROKE}><path d="M12 3 5 6v5c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z" /><path d="m9 12 2 2 4-4" /></svg>
     ),
-    mock: { src: "/site/mock-vetting@2x.png", width: 560, height: 229 },
+    mock: { src: "/site/mock-vetting@2x.png", width: 560, height: 275 },
   },
   {
     id: "tracking",
@@ -53,7 +53,7 @@ const STEPS: Step[] = [
     icon: (
       <svg viewBox="0 0 24 24" {...STROKE}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
     ),
-    mock: { src: "/site/mock-updates@2x.png", width: 560, height: 210 },
+    mock: { src: "/site/mock-updates@2x.png", width: 560, height: 239 },
   },
   {
     id: "close",
@@ -62,7 +62,7 @@ const STEPS: Step[] = [
     icon: (
       <svg viewBox="0 0 24 24" {...STROKE}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="m9 15 2 2 4-4" /></svg>
     ),
-    mock: { src: "/site/mock-close@2x.png", width: 560, height: 171 },
+    mock: { src: "/site/mock-close@2x.png", width: 560, height: 275 },
   },
 ];
 

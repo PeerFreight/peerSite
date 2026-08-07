@@ -72,7 +72,7 @@ export default function HomePage() {
 
         {/* Mentors/advisors proof band, first thing below the fold */}
         <section className="logo-band" id="mentors" aria-label="Mentors and advisors">
-          <div className="wrap">
+          <div className="wrap" data-reveal>
             <p className="logo-band__label">Mentors and advisors from</p>
             <div className="logo-band__row">
               <img src="/logos/atob.svg" alt="AtoB" />

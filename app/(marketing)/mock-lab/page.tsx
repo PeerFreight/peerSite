@@ -237,6 +237,10 @@ function CompsMock() {
           <b>Contract average</b>
           <span>$1,910</span>
         </li>
+        <li>
+          <b>Fuel</b>
+          <span>Included in the all-in rate</span>
+        </li>
       </ul>
       <div className="mocka__foot">
         <span className="mocka__note">Comps included with every rate</span>
@@ -273,6 +277,9 @@ function VettingMock() {
           Identity &middot; confirmed at dispatch
         </li>
       </ul>
+      <div className="mocka__foot">
+        <span className="mocka__note">Rechecked on every load, not only at signup.</span>
+      </div>
     </div>
   );
 }
@@ -289,6 +296,10 @@ function UpdatesMock() {
       </div>
       <div className="mocka__rule" />
       <ul className="mocka__rows">
+        <li>
+          <b>Load booked</b>
+          <span>Aug 6, 4:18 PM PT</span>
+        </li>
         <li>
           <b>Carrier dispatched</b>
           <span>6:40 AM PT</span>
@@ -309,7 +320,9 @@ function UpdatesMock() {
   );
 }
 
-/** Accordion step 4, "A clean close": the delivery documents card. */
+/** Step 4, "A clean close": the delivery documents card. The fullest of the
+ * four step mocks (Aaron: the short version read thin), so it lists every
+ * closing artifact and the same-day promise. */
 function CloseMock() {
   return (
     <div className="mocka">
@@ -317,9 +330,13 @@ function CloseMock() {
         <strong>Delivery documents</strong>
         <span className="mock__badge mock__badge--green">Posted same day</span>
       </div>
-      <p className="mocka__meta">Proof of delivery &middot; signed at receiver</p>
+      <p className="mocka__meta">PEER-51427 &middot; Delivered Aug 7, 3:04 PM PT</p>
       <div className="mocka__rule" />
       <ul className="mocka__rows">
+        <li>
+          <b>Signed POD</b>
+          <span>Signed at receiver &middot; posted 3:22 PM</span>
+        </li>
         <li>
           <b>Invoice INV-2041</b>
           <span>$1,840.00 &middot; matches the quote</span>
@@ -328,7 +345,14 @@ function CloseMock() {
           <b>Accessorials</b>
           <span>In writing, none this load</span>
         </li>
+        <li>
+          <b>Rate confirmation</b>
+          <span>On file, signed before pickup</span>
+        </li>
       </ul>
+      <div className="mocka__foot">
+        <span className="mocka__note">Everything in your inbox the day the load delivers.</span>
+      </div>
     </div>
   );
 }
