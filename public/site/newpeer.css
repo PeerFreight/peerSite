@@ -32,7 +32,7 @@
 
   --maxw: 1240px;
   --pad-x: clamp(1.1rem, 4vw, 3.25rem);
-  --section-y: clamp(3.5rem, 7vw, 6.5rem);
+  --section-y: clamp(3rem, 5.5vw, 5rem);
   --header-h: 72px;
 }
 
@@ -697,7 +697,9 @@ p { margin: 0; }
   align-items: center;
   align-self: center;
   height: fit-content;
-  padding: clamp(0.8rem, 1.3vw, 1.2rem);
+  /* Generous padding so the colored scene reads as a thick mat around the
+     snapshot, not a thin sliver. */
+  padding: clamp(1.5rem, 2.6vw, 2.4rem);
   pointer-events: none;
   user-select: none;
 }
@@ -715,59 +717,83 @@ p { margin: 0; }
 .tile--img { position: relative; min-height: 220px; padding: 0; }
 .tile--img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
-/* The one product-mock cell every mosaic carries: a frozen snapshot filling
-   its cell on the portal's paper canvas. */
+/* The one product-mock cell every mosaic carries: a frozen snapshot over its
+   own blurred photo (the same scene recipe as the split panes) — generated
+   assets never sit on bare white. */
 .tile--asset {
+  position: relative; isolation: isolate; overflow: hidden;
   background: #f5f6f8;
   display: flex; flex-direction: column; justify-content: center;
-  padding: clamp(0.9rem, 1.4vw, 1.2rem);
+  padding: clamp(1.1rem, 1.8vw, 1.6rem);
 }
 .tile--asset .mockshot { width: 100%; }
 
+/* Scene backdrop shared by asset cells and the accordion snapshots: a blurred
+   cover photo behind the frost tint, mock above it. The img oversizes past
+   the clip so the blur never fades at the bitmap edges. */
+.tile--asset .scene, .svc__shot .scene {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  transform: scale(1.12);
+  filter: blur(10px) saturate(1.1);
+  z-index: -1;
+}
+.tile--asset::after, .svc__shot::after {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background:
+    linear-gradient(rgba(255,255,255,0.10), rgba(255,255,255,0.10)),
+    linear-gradient(rgba(10,22,48,0.45), rgba(10,22,48,0.45));
+}
+.tile--asset .mockshot, .svc__shot .mockshot {
+  position: relative; z-index: 1;
+  border: 1px solid var(--line-strong);
+}
+
 /* ---------- Who we serve (copy cells and photos fused into one mosaic) ---------- */
-.serve__mosaic { margin-top: clamp(2.2rem, 4vw, 3.2rem); grid-template-columns: repeat(4, 1fr); }
-.serve__mosaic .tile--img { grid-column: span 2; min-height: clamp(220px, 26vw, 340px); }
+/* Equal rows: 1fr auto-rows keep the photo row and the asset row the same
+   height, and the photo's min-height matches what the asset cell needs, so
+   neither row towers over the other (photos just crop tighter). */
+.serve__mosaic { margin-top: clamp(2.2rem, 4vw, 3.2rem); grid-template-columns: repeat(4, 1fr); grid-auto-rows: 1fr; }
+.serve__mosaic .tile--img { grid-column: span 2; min-height: clamp(200px, 21vw, 270px); }
 .serve__mosaic .tile--asset { grid-column: span 2; }
 .card {
   background: #fff; padding: clamp(1.5rem, 2.4vw, 2rem);
 }
 .card__icon { width: 46px; height: 46px; color: var(--navy); margin-bottom: 1.6rem; }
 .card__icon svg { width: 100%; height: 100%; }
-.card h3 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
-.card p { margin-top: 0.6rem; color: var(--muted); font-size: 0.95rem; }
+.card h3 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+.card p { margin-top: 0.6rem; color: var(--muted); font-size: 1.02rem; }
 
-/* ---------- Services accordion (bordered summary buttons, framed panels) ---------- */
+/* ---------- Services accordion (hairline summary buttons, framed panels) ---------- */
 .svc { margin-top: clamp(1.8rem, 3.5vw, 2.6rem); display: grid; gap: 0.9rem; }
 .svc summary {
   list-style: none; cursor: pointer;
   display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: clamp(1rem, 2vw, 1.5rem);
   padding: clamp(1.1rem, 2vw, 1.6rem) clamp(1rem, 1.8vw, 1.4rem);
   background: #fff;
-  border: 2px solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: var(--r-lg);
   transition: border-color 0.18s ease;
 }
-.svc summary:hover { border-color: rgba(14, 29, 58, 0.32); }
-.svc details[open] summary { border-color: var(--accent); }
+.svc summary:hover, .svc details[open] summary { border-color: rgba(14, 29, 58, 0.32); }
 .svc summary::-webkit-details-marker { display: none; }
+/* The Get-a-Quote recipe at step scale: a navy disc with a gold glyph, so the
+   icon pops instead of gold-on-white washing out. */
 .svc__icon {
   width: 52px; height: 52px; flex: none;
   display: grid; place-items: center;
-  border-radius: var(--r-md);
-  background: var(--gold-grad); box-shadow: var(--gold-edge);
-  color: var(--navy);
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--accent);
 }
-.svc__icon svg { width: 26px; height: 26px; }
+.svc__icon svg { width: 24px; height: 24px; }
 .svc__titles { display: flex; flex-direction: column; gap: 0.2rem; }
 .svc__title { font-size: clamp(1.25rem, 2.4vw, 1.75rem); font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; }
 .svc__sub { display: block; font-size: 0.95rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); }
-/* The Get-a-Quote disc at summary scale: gold circle, navy arrow, a touch
-   smaller than .btn__icon so the row reads as a button without competing. */
+/* Quiet grey disclosure disc on the right; the navy icon carries the color. */
 .svc__arrow {
   display: grid; place-items: center; flex: none;
   width: 32px; height: 32px; border-radius: 50%;
-  background: var(--accent); color: var(--navy);
-  box-shadow: var(--gold-edge);
+  background: #eceef2; color: var(--navy);
   transition: transform 0.2s ease;
 }
 .svc__arrow svg { width: 15px; height: 15px; }
@@ -776,12 +802,12 @@ p { margin: 0; }
    snapshot bare on the right (its shadow is the frame). The img has explicit
    dims, so opening a step never reflows the surrounding sections. */
 .svc__panel {
-  /* The snapshot column is a definite 400px track (not auto): the img inside
+  /* The snapshot column is a definite 440px track (not auto): the img inside
      sizes with percentages, which collapse to 0 in an auto track. */
-  display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: clamp(1.2rem, 3vw, 2.6rem);
+  display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: clamp(1.2rem, 3vw, 2.6rem);
   align-items: center;
   background: var(--paper);
-  border: var(--frame-w) solid var(--line-strong);
+  border: 1px solid var(--line-strong);
   border-radius: calc(var(--r-xl) + 10px);
   padding: clamp(1.2rem, 2.4vw, 1.8rem); margin: 0.9rem 0 0;
   animation: reveal 0.32s ease;
@@ -791,8 +817,13 @@ p { margin: 0; }
 .svc__stat b { font-size: clamp(1.8rem, 3.4vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
 .svc__stat span { color: var(--muted); font-size: 0.95rem; max-width: 18ch; }
 .svc__desc { color: var(--muted); }
+/* The snapshot rides its own scene pane (shared .scene rules above), matching
+   the split panels: blurred photo mat, mock card on top. */
 .svc__shot {
-  width: min(100%, 400px);
+  position: relative; isolation: isolate; overflow: hidden;
+  width: min(100%, 440px);
+  border-radius: var(--r-xl);
+  padding: clamp(1rem, 1.6vw, 1.4rem);
   pointer-events: none;
   user-select: none;
 }
@@ -815,8 +846,11 @@ p { margin: 0; }
 }
 
 /* ---------- How it works (step list beside the quote snapshot) ---------- */
+/* Zero the ol's default indent so the icons sit flush with the heading. */
 .steplist {
-  margin-top: clamp(1.8rem, 3vw, 2.4rem);
+  list-style: none;
+  margin: clamp(1.8rem, 3vw, 2.4rem) 0 0;
+  padding: 0;
   display: grid;
   gap: clamp(1.2rem, 2vw, 1.7rem);
 }
@@ -831,7 +865,9 @@ p { margin: 0; }
   margin-top: clamp(2.5rem, 5vw, 3.5rem);
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: minmax(220px, 1fr);
-  border-color: rgba(255, 255, 255, 0.30);
+  /* The hero pane's thin glass line, not a heavy frame. */
+  border-width: 1px;
+  border-color: rgba(255, 255, 255, 0.28);
 }
 .bento .tile--img img { object-position: center 35%; }
 .bento .tile__icon { width: 56px; height: 56px; }
@@ -839,7 +875,7 @@ p { margin: 0; }
 .tile--white { background: #fff; color: var(--navy); }
 .tile__label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
 .tile__stat { font-size: clamp(2rem, 3.6vw, 2.9rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
-.tile__desc { font-size: 0.92rem; opacity: 0.85; }
+.tile__desc { font-size: 0.98rem; opacity: 0.85; }
 .tile__icon { width: 40px; height: 40px; }
 .tile--wide { grid-column: span 2; }
 
@@ -882,8 +918,8 @@ p { margin: 0; }
 .perk { background: #fff; padding: clamp(1.4rem, 2.2vw, 1.9rem); }
 .perk__icon { width: 42px; height: 42px; color: var(--navy); margin-bottom: 1.2rem; }
 .perk__icon svg { width: 100%; height: 100%; }
-.perk h3 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
-.perk p { color: var(--muted); margin-top: 0.6rem; font-size: 0.95rem; }
+.perk h3 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+.perk p { color: var(--muted); margin-top: 0.6rem; font-size: 1.02rem; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 960px) {

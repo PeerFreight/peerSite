@@ -107,8 +107,10 @@ export default function HomePage() {
               <div className="tile--img">
                 <img src="/site/freight-hero-terminal-morning.jpg" alt="Placarded chemical tanker truck at a terminal at sunrise" loading="lazy" />
               </div>
-              {/* Frozen load-details snapshot (tools/freeze-mocks.mjs) */}
+              {/* Frozen load-details snapshot (tools/freeze-mocks.mjs) over
+                  its own blurred scene, so the mock never sits on bare white */}
               <div className="tile--asset" aria-hidden="true">
+                <img className="scene" src="/site/freight-tanker-day.jpg" alt="" loading="lazy" />
                 <img className="mockshot" src="/site/mock-freight@2x.png" alt="" width={560} height={200} loading="lazy" />
               </div>
               <article className="card">
@@ -149,6 +151,7 @@ export default function HomePage() {
                     <p className="svc__desc">Every quote comes with the current spot and contract comps for your lane. If the market moves between quotes, you see the new data, and the invoice always matches the rate you approved.</p>
                   </div>
                   <div className="svc__shot" aria-hidden="true">
+                    <img className="scene" src="/site/freight-dock-dusk.jpg" alt="" loading="lazy" />
                     <img className="mockshot" src="/site/mock-comps@2x.png" alt="" width={560} height={257} loading="lazy" />
                   </div>
                 </div>
@@ -168,6 +171,7 @@ export default function HomePage() {
                     <p className="svc__desc">We recheck identity, authority, insurance, and safety history on every load, not only once at signup, because that is where fraud slips in. If anything looks off, the load goes to a different truck.</p>
                   </div>
                   <div className="svc__shot" aria-hidden="true">
+                    <img className="scene" src="/site/freight-yard-aerial-night.jpg" alt="" loading="lazy" />
                     <img className="mockshot" src="/site/mock-vetting@2x.png" alt="" width={560} height={229} loading="lazy" />
                   </div>
                 </div>
@@ -187,6 +191,7 @@ export default function HomePage() {
                     <p className="svc__desc">We surface problems early, while there is still time to fix them. If something goes sideways at 2 a.m., you reach one of the owners on the phone, not a call center.</p>
                   </div>
                   <div className="svc__shot" aria-hidden="true">
+                    <img className="scene" src="/site/freight-highway-cornfield.jpg" alt="" loading="lazy" />
                     <img className="mockshot" src="/site/mock-updates@2x.png" alt="" width={560} height={210} loading="lazy" />
                   </div>
                 </div>
@@ -206,6 +211,7 @@ export default function HomePage() {
                     <p className="svc__desc">The signed proof of delivery lands in your inbox the day the load delivers, so your own billing never waits on us. Accessorials are spelled out in writing, with no surprise charges weeks later.</p>
                   </div>
                   <div className="svc__shot" aria-hidden="true">
+                    <img className="scene" src="/site/freight-bol-daylight.jpg" alt="" loading="lazy" />
                     <img className="mockshot" src="/site/mock-close@2x.png" alt="" width={560} height={171} loading="lazy" />
                   </div>
                 </div>
@@ -247,7 +253,7 @@ export default function HomePage() {
                   through the frost ring on this light section. */}
               <div className="split__panel split__panel--scene" aria-hidden="true">
                 <img className="scene" src="/site/freight-dock-dusk.jpg" alt="" loading="lazy" />
-                <img className="mockshot" src="/site/mock-quote@2x.png" alt="" width={640} height={707} loading="lazy" />
+                <img className="mockshot" src="/site/mock-quote@2x.png" alt="" width={640} height={429} loading="lazy" />
               </div>
             </div>
           </div>
@@ -285,8 +291,10 @@ export default function HomePage() {
                 <span className="tile__stat">Same day</span>
                 <span className="tile__desc">Same-day pay when carriers need it, 24 to 48 hours standard &mdash; why the best trucks take our loads first.</span>
               </div>
-              {/* Frozen tracking snapshot (tools/freeze-mocks.mjs) */}
+              {/* Frozen tracking snapshot (tools/freeze-mocks.mjs) over its
+                  own blurred scene */}
               <div className="tile--asset tile--wide" aria-hidden="true">
+                <img className="scene" src="/site/freight-drayage-port.jpg" alt="" loading="lazy" />
                 <img className="mockshot" src="/site/mock-track@2x.png" alt="" width={640} height={281} loading="lazy" />
               </div>
             </div>

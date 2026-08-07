@@ -100,31 +100,25 @@ function LoadsMock() {
   );
 }
 
-/** Static miniature of the portal quote request wizard, step 3 (Services &
- * extras). Faithful to components/portal/rfq/rfq-form.tsx + lib/portal/rfq.ts. */
+/** Static miniature of the portal quote request wizard, step 1 (Lane & dates)
+ * — the shortest step, so the split section beside it stays balanced.
+ * Faithful to components/portal/rfq/rfq-form.tsx + lib/portal/rfq.ts. */
 function QuoteMock() {
-  const tick = (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-  );
   return (
     <div className="mockq">
       <div className="mockq__head">
         <strong>Request a quote</strong>
       </div>
       <ol className="mockq__steps">
-        <li className="is-done">
-          <span className="mockq__dot">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-          </span>
+        <li className="is-current">
+          <span className="mockq__dot">1</span>
           Lane &amp; dates
         </li>
-        <li className="is-done">
-          <span className="mockq__dot">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-          </span>
+        <li>
+          <span className="mockq__dot">2</span>
           Freight
         </li>
-        <li className="is-current">
+        <li>
           <span className="mockq__dot">3</span>
           Services &amp; extras
         </li>
@@ -134,53 +128,45 @@ function QuoteMock() {
         </li>
       </ol>
       <div className="mockq__card">
-        <span className="mockq__hint">All optional &mdash; skip anything that doesn&apos;t apply.</span>
-        <div className="mockq__field">
-          <span className="mockq__legend">Special services at pickup or delivery</span>
-          <div className="mockq__checks">
-            <span className="mockq__check"><span className="mockq__box mockq__box--off">{tick}</span>Liftgate at pickup</span>
-            <span className="mockq__check"><span className="mockq__box">{tick}</span>Liftgate at delivery</span>
-            <span className="mockq__check"><span className="mockq__box">{tick}</span>Driver assist / count</span>
-            <span className="mockq__check"><span className="mockq__box mockq__box--off">{tick}</span>Pallet jack</span>
-            <span className="mockq__check"><span className="mockq__box mockq__box--off">{tick}</span>Lumper</span>
-            <span className="mockq__check"><span className="mockq__box mockq__box--off">{tick}</span>Pallet exchange</span>
-            <span className="mockq__check"><span className="mockq__box mockq__box--off">{tick}</span>Straps</span>
-            <span className="mockq__check"><span className="mockq__box mockq__box--off">{tick}</span>Tarps</span>
-            <span className="mockq__check"><span className="mockq__box">{tick}</span>Seal required</span>
+        <div className="mockq__grid">
+          <div className="mockq__field">
+            <label>Pickup city</label>
+            <span className="mockq__input">Sacramento, CA</span>
           </div>
-        </div>
-        <div className="mockq__field">
-          <span className="mockq__legend">Reference numbers</span>
-          <span className="mockq__hint">PO, BOL, or pickup numbers your receiver requires.</span>
-          <div className="mockq__refrow">
-            <span className="mockq__input">PO #</span>
-            <span className="mockq__input">PO-88214</span>
-          </div>
-          <div className="mockq__refrow">
-            <span className="mockq__input">Pickup #</span>
-            <span className="mockq__input">WHS-2207</span>
+          <div className="mockq__field">
+            <label>Delivery city</label>
+            <span className="mockq__input">Reno, NV</span>
           </div>
         </div>
         <div className="mockq__grid">
           <div className="mockq__field">
-            <label>Target rate (USD)</label>
-            <span className="mockq__input">$1,850</span>
+            <label>Pickup date</label>
+            <span className="mockq__input mockq__input--select">
+              Fri, Aug 8
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </span>
           </div>
           <div className="mockq__field">
-            <label>How often does this ship?</label>
+            <label>Delivery date</label>
             <span className="mockq__input mockq__input--select">
-              Recurring lane
+              Sat, Aug 9
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </span>
           </div>
         </div>
-        <div className="mockq__field">
-          <label>Anything else we should know?</label>
-          <span className="mockq__area">Dock closes at 3 pm. Call the warehouse 30 minutes out.</span>
+        <div className="mockq__grid">
+          <div className="mockq__field">
+            <label>Pickup window</label>
+            <span className="mockq__input">8 AM &ndash; 12 PM</span>
+          </div>
+          <div className="mockq__field">
+            <label>Delivery window</label>
+            <span className="mockq__input">By 3 PM</span>
+          </div>
         </div>
       </div>
       <div className="mockq__foot">
-        <span className="mockq__btn mockq__btn--ghost">Back</span>
+        <span className="mockq__note">Takes about two minutes.</span>
         <span className="mockq__btn">Continue</span>
       </div>
     </div>
