@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { ChromeScript } from "@/components/site/ChromeScript";
+import { RevealScript } from "@/components/site/RevealScript";
 
 export const metadata: Metadata = {
   title: "Haul for Peer Freight - Get paid in 24 to 48 hours",
@@ -69,10 +70,11 @@ export default function CarriersPage() {
             itself is like. The broker-side perks live in the navy bento below. */}
         <section className="section section--paper" aria-labelledby="perks-title">
           <div className="wrap">
-            <div className="section__head">
+            <div className="section__head" data-reveal>
               <h2 className="heading" id="perks-title">The loads you come back for</h2>
               <p className="lead">Real weights, real appointment times, and accessorials in writing before you roll.</p>
             </div>
+            <div className="pane" data-reveal>
             <div className="perks mosaic">
               <article className="perk">
                 <div className="perk__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
@@ -99,6 +101,7 @@ export default function CarriersPage() {
                 <img className="mockshot" src="/site/mock-freight@2x.png" alt="" width={560} height={200} loading="lazy" />
               </div>
             </div>
+            </div>
           </div>
         </section>
 
@@ -106,29 +109,32 @@ export default function CarriersPage() {
             proof tiles around the photos. */}
         <section className="section section--navy" aria-labelledby="broker-title">
           <div className="wrap">
-            <div className="section__head on-dark">
+            <div className="section__head on-dark" data-reveal>
               <h2 className="heading" id="broker-title">A broker that does not ghost</h2>
               <p className="lead">Active authority, a full bond, and money that shows up when we say it will.</p>
             </div>
+            {/* Proof cells reuse the specialties .card recipe (icon on top,
+                uppercase title, muted copy), matching the home bento. */}
+            <div className="pane" data-reveal>
             <div className="bento mosaic">
               <div className="tile--img tile--wide">
                 <img src="/site/freight-drayage-port.jpg" alt="Container trucks working a port terminal" loading="lazy" />
               </div>
-              <div className="tile tile--white">
-                <span className="tile__label">Carrier pay</span>
-                <span className="tile__stat">24&ndash;48h</span>
-                <span className="tile__desc">Standard on a clean POD, same day when you need it. Skip your factor&apos;s fee.</span>
-              </div>
-              <div className="tile tile--white">
-                <span className="tile__label">Easy paperwork</span>
-                <div className="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M17 3l4 4-9 9H8v-4Z"/></svg></div>
-                <span className="tile__desc">Upload your POD from your phone. No endless check calls.</span>
-              </div>
-              <div className="tile tile--white">
-                <span className="tile__label">Bonded and insured</span>
-                <div className="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 5 6v5c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
-                <span className="tile__desc">Active broker authority, a full surety bond, and we pay on time.</span>
-              </div>
+              <article className="card">
+                <div className="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.2"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg></div>
+                <h3>Paid in 24 to 48 hours</h3>
+                <p>Standard on a clean POD, same day when you need it. Skip your factor&apos;s fee.</p>
+              </article>
+              <article className="card">
+                <div className="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M17 3l4 4-9 9H8v-4Z"/></svg></div>
+                <h3>Easy paperwork</h3>
+                <p>Upload your POD from your phone. No endless check calls.</p>
+              </article>
+              <article className="card">
+                <div className="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 5 6v5c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+                <h3>Bonded and insured</h3>
+                <p>Active broker authority, a full surety bond, and we pay on time.</p>
+              </article>
               <div className="tile--img">
                 <img src="/site/freight-reefer-evening.jpg" alt="Refrigerated trailer at a dock in the evening" loading="lazy" />
               </div>
@@ -139,6 +145,7 @@ export default function CarriersPage() {
                 <img className="mockshot" src="/site/mock-close@2x.png" alt="" width={560} height={171} loading="lazy" />
               </div>
             </div>
+            </div>
           </div>
         </section>
 
@@ -146,7 +153,7 @@ export default function CarriersPage() {
             bottom of home. */}
         <section className="cta-band" aria-label="Get set up">
           <img className="cta-band__bg" src="/site/freight-dock-dusk.jpg" alt="" />
-          <div className="wrap">
+          <div className="wrap" data-reveal>
             <div className="cta-band__top">
               <div>
                 <h2>One packet, then you are cleared</h2>
@@ -166,6 +173,7 @@ export default function CarriersPage() {
 
       <SiteFooter />
       <ChromeScript />
+      <RevealScript />
     </>
   );
 }

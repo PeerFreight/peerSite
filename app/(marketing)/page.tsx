@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { ChromeScript } from "@/components/site/ChromeScript";
+import { HowWeRun } from "@/components/site/HowWeRun";
+import { HowTimeline } from "@/components/site/HowTimeline";
+import { RevealScript } from "@/components/site/RevealScript";
 
 export const metadata: Metadata = {
   title: "Peer Freight - Truckload Freight Brokerage",
@@ -88,11 +91,12 @@ export default function HomePage() {
         {/* WHO WE SERVE (one fused mosaic: copy cells + photo cells) */}
         <section className="section section--paper" id="freight" aria-labelledby="serve-title">
           <div className="wrap">
-            <div className="section__head">
+            <div className="section__head" data-reveal>
               <h2 className="heading" id="serve-title">Freight we specialize in</h2>
               <p className="lead">We specialize in hazmat, and we cover reefer, dry van, flatbed, and port drayage just as well. Whatever the load, the carriers, the placards, and the paperwork are our problem, not yours.</p>
             </div>
 
+            <div className="pane" data-reveal>
             <div className="serve__mosaic mosaic">
               <article className="card">
                 <div className="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg></div>
@@ -124,99 +128,21 @@ export default function HomePage() {
                 <p>Containers in and out of ports and rail ramps, hazmat endorsed when needed.</p>
               </article>
             </div>
+            </div>
           </div>
         </section>
 
-        {/* HOW WE RUN A LOAD (accordion; each step opens to stat + copy + a frozen product snapshot) */}
-        <section className="section section--white" aria-labelledby="svc-title">
+        {/* HOW WE RUN A LOAD (photo-backed split-screen tabs: glass step rows
+            on the left, the active step's frozen snapshot cross-fading in one
+            glass pane on the right) */}
+        <section className="section section--photo" aria-labelledby="svc-title">
+          <img className="section__bg" src="/site/freight-reefer-evening.jpg" alt="" loading="lazy" />
           <div className="wrap">
-            <div className="section__head">
+            <div className="section__head on-dark" data-reveal>
               <h2 className="heading" id="svc-title">We run every load the same way</h2>
               <p className="lead">Every load runs through the same four steps, no matter the freight.</p>
             </div>
-
-            <div className="svc">
-              <details name="svc">
-                <summary>
-                  <span className="svc__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg></span>
-                  <span className="svc__titles">
-                    <span className="svc__title">Transparent quoting</span>
-                    <span className="svc__sub">Market comps sent with every rate, so you see why the number is the number.</span>
-                  </span>
-                  <span className="svc__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
-                </summary>
-                <div className="svc__panel">
-                  <div className="svc__body">
-                    <div className="svc__stat"><b>Real</b><span>market comps behind every rate</span></div>
-                    <p className="svc__desc">Every quote comes with the current spot and contract comps for your lane. If the market moves between quotes, you see the new data, and the invoice always matches the rate you approved.</p>
-                  </div>
-                  <div className="svc__shot" aria-hidden="true">
-                    <img className="scene" src="/site/freight-dock-dusk.jpg" alt="" loading="lazy" />
-                    <img className="mockshot" src="/site/mock-comps@2x.png" alt="" width={560} height={257} loading="lazy" />
-                  </div>
-                </div>
-              </details>
-              <details name="svc">
-                <summary>
-                  <span className="svc__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 5 6v5c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></span>
-                  <span className="svc__titles">
-                    <span className="svc__title">Fraud screened coverage</span>
-                    <span className="svc__sub">Every carrier verified through Carrier411 and FMCSA before they touch your freight.</span>
-                  </span>
-                  <span className="svc__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
-                </summary>
-                <div className="svc__panel">
-                  <div className="svc__body">
-                    <div className="svc__stat"><b>100%</b><span>of carriers verified before dispatch</span></div>
-                    <p className="svc__desc">We recheck identity, authority, insurance, and safety history on every load, not only once at signup, because that is where fraud slips in. If anything looks off, the load goes to a different truck.</p>
-                  </div>
-                  <div className="svc__shot" aria-hidden="true">
-                    <img className="scene" src="/site/freight-yard-aerial-night.jpg" alt="" loading="lazy" />
-                    <img className="mockshot" src="/site/mock-vetting@2x.png" alt="" width={560} height={229} loading="lazy" />
-                  </div>
-                </div>
-              </details>
-              <details name="svc">
-                <summary>
-                  <span className="svc__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
-                  <span className="svc__titles">
-                    <span className="svc__title">Proactive tracking</span>
-                    <span className="svc__sub">Updates at pickup, in transit, and at delivery, before you think to ask.</span>
-                  </span>
-                  <span className="svc__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
-                </summary>
-                <div className="svc__panel">
-                  <div className="svc__body">
-                    <div className="svc__stat"><b>24/7</b><span>owner access on every load</span></div>
-                    <p className="svc__desc">We surface problems early, while there is still time to fix them. If something goes sideways at 2 a.m., you reach one of the owners on the phone, not a call center.</p>
-                  </div>
-                  <div className="svc__shot" aria-hidden="true">
-                    <img className="scene" src="/site/freight-highway-cornfield.jpg" alt="" loading="lazy" />
-                    <img className="mockshot" src="/site/mock-updates@2x.png" alt="" width={560} height={210} loading="lazy" />
-                  </div>
-                </div>
-              </details>
-              <details name="svc">
-                <summary>
-                  <span className="svc__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m9 15 2 2 4-4"/></svg></span>
-                  <span className="svc__titles">
-                    <span className="svc__title">A clean close</span>
-                    <span className="svc__sub">A signed POD the same day it delivers, and an invoice that matches the quote.</span>
-                  </span>
-                  <span className="svc__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
-                </summary>
-                <div className="svc__panel">
-                  <div className="svc__body">
-                    <div className="svc__stat"><b>Same day</b><span>signed proof of delivery</span></div>
-                    <p className="svc__desc">The signed proof of delivery lands in your inbox the day the load delivers, so your own billing never waits on us. Accessorials are spelled out in writing, with no surprise charges weeks later.</p>
-                  </div>
-                  <div className="svc__shot" aria-hidden="true">
-                    <img className="scene" src="/site/freight-bol-daylight.jpg" alt="" loading="lazy" />
-                    <img className="mockshot" src="/site/mock-close@2x.png" alt="" width={560} height={171} loading="lazy" />
-                  </div>
-                </div>
-              </details>
-            </div>
+            <HowWeRun />
           </div>
         </section>
 
@@ -224,73 +150,61 @@ export default function HomePage() {
         <section className="section section--paper" id="how" aria-labelledby="how-title">
           <div className="wrap">
             <div className="split">
-              <div className="split__copy">
+              <div className="split__copy" data-reveal>
                 <div className="section__head">
                   <h2 className="heading" id="how-title">Covering a load with us is simple</h2>
                   <p className="lead">We always get back to you with a rate within one hour. Send the load, approve the number, and we take it from there.</p>
                 </div>
-                <ol className="steplist">
-                  <li className="steplist__row">
-                    <span className="steplist__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></span>
-                    <h3>Send us the load</h3>
-                  </li>
-                  <li className="steplist__row">
-                    <span className="steplist__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 6.5c0-2-2.2-3-5-3s-5 1-5 3.2c0 4.8 10 2.8 10 7.6 0 2.2-2.2 3.2-5 3.2s-5-1.2-5-3.2"/></svg></span>
-                    <h3>Get your rate</h3>
-                  </li>
-                  <li className="steplist__row">
-                    <span className="steplist__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
-                    <h3>We cover and track it</h3>
-                  </li>
-                  <li className="steplist__row">
-                    <span className="steplist__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m9 15 2 2 4-4"/></svg></span>
-                    <h3>We close it out clean</h3>
-                  </li>
-                </ol>
               </div>
               {/* Frozen snapshot of the portal quote wizard (tools/freeze-mocks.mjs)
                   in the scene-backed glass pane: its own blurred photo bleeds
                   through the frost ring on this light section. */}
-              <div className="split__panel split__panel--scene" aria-hidden="true">
+              <div className="split__panel split__panel--scene" aria-hidden="true" data-reveal="120">
                 <img className="scene" src="/site/freight-dock-dusk.jpg" alt="" loading="lazy" />
                 <img className="mockshot" src="/site/mock-quote@2x.png" alt="" width={640} height={429} loading="lazy" />
               </div>
             </div>
+            {/* The four steps as a scroll-checked timeline under the split
+                (HowTimeline fills the track as it scrolls into view). */}
+            <HowTimeline />
           </div>
         </section>
 
         {/* WHY PEER (navy bento: photo, white proof tiles, and the tracking mock) */}
         <section className="section section--navy" aria-labelledby="why-title">
           <div className="wrap">
-            <div className="section__head on-dark">
+            <div className="section__head on-dark" data-reveal>
               <h2 className="heading" id="why-title">Built to be reliable, not just cheap</h2>
               <p className="lead">We take the loads other brokers turn down: oversize freight, hazmat, and the lanes nobody wants to run. If it absolutely has to move, we are built to move it.</p>
             </div>
 
+            {/* Proof cells reuse the specialties .card recipe (icon on top,
+                uppercase title, muted copy) so both mosaics read as one system. */}
+            <div className="pane" data-reveal>
             <div className="bento mosaic">
               <div className="tile--img tile--wide">
                 <img src="/site/freight-yard-aerial-night.jpg" alt="Intermodal container yard at night" loading="lazy" />
               </div>
-              <div className="tile tile--white">
-                <span className="tile__label">Owner access</span>
-                <span className="tile__stat">24/7</span>
-                <span className="tile__desc">Reach an owner directly on any load, at any hour.</span>
-              </div>
-              <div className="tile tile--white">
-                <span className="tile__label">TIA member</span>
-                <div className="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="9" r="6"/><path d="m8.5 13.5-1.5 7 5-3 5 3-1.5-7"/></svg></div>
-                <span className="tile__desc">Held to the Transportation Intermediaries Association anti-fraud standard.</span>
-              </div>
-              <div className="tile tile--white">
-                <span className="tile__label">Fully insured</span>
-                <div className="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v1.5"/><path d="M3.5 12a8.5 8.5 0 0 1 17 0Z"/><path d="M12 12v6a2.5 2.5 0 0 0 5 0"/></svg></div>
-                <span className="tile__desc">Contingent cargo and auto, general liability, E&amp;O, and cyber.</span>
-              </div>
-              <div className="tile tile--white">
-                <span className="tile__label">Carrier pay</span>
-                <span className="tile__stat">Same day</span>
-                <span className="tile__desc">Same-day pay when carriers need it, 24 to 48 hours standard &mdash; why the best trucks take our loads first.</span>
-              </div>
+              <article className="card">
+                <div className="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z"/></svg></div>
+                <h3>24/7 owner access</h3>
+                <p>Reach an owner directly on any load, at any hour.</p>
+              </article>
+              <article className="card">
+                <div className="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="9" r="6"/><path d="m8.5 13.5-1.5 7 5-3 5 3-1.5-7"/></svg></div>
+                <h3>TIA member</h3>
+                <p>Held to the Transportation Intermediaries Association anti-fraud standard.</p>
+              </article>
+              <article className="card">
+                <div className="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v1.5"/><path d="M3.5 12a8.5 8.5 0 0 1 17 0Z"/><path d="M12 12v6a2.5 2.5 0 0 0 5 0"/></svg></div>
+                <h3>Fully insured</h3>
+                <p>Contingent cargo and auto, general liability, E&amp;O, and cyber.</p>
+              </article>
+              <article className="card">
+                <div className="card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.2"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg></div>
+                <h3>Same-day carrier pay</h3>
+                <p>Same-day pay when carriers need it, 24 to 48 hours standard &mdash; why the best trucks take our loads first.</p>
+              </article>
               {/* Frozen tracking snapshot (tools/freeze-mocks.mjs) over its
                   own blurred scene */}
               <div className="tile--asset tile--wide" aria-hidden="true">
@@ -298,13 +212,14 @@ export default function HomePage() {
                 <img className="mockshot" src="/site/mock-track@2x.png" alt="" width={640} height={281} loading="lazy" />
               </div>
             </div>
+            </div>
           </div>
         </section>
 
         {/* FINAL CTA (full-bleed photo band) */}
         <section className="cta-band" aria-label="Get started">
           <img className="cta-band__bg" src="/site/freight-highway-cornfield.jpg" alt="" />
-          <div className="wrap">
+          <div className="wrap" data-reveal>
             <div className="cta-band__top">
               <div>
                 <h2>Freight that moves around your schedule</h2>
@@ -324,6 +239,7 @@ export default function HomePage() {
 
       <SiteFooter />
       <ChromeScript />
+      <RevealScript />
     </>
   );
 }

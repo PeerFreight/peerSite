@@ -678,7 +678,30 @@ p { margin: 0; }
 .section--paper { background: var(--paper); }
 .section--white { background: #fff; }
 .section--navy { background: var(--navy); color: #fff; }
+/* Photo-backed section (the hero recipe at section scale): full-bleed image
+   under a navy scrim, content on top. Glass surfaces inside it always have
+   real texture to sample. */
+.section--photo { position: relative; overflow: hidden; background: var(--navy); color: #fff; }
+.section__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.section--photo::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, rgba(6,15,32,0.90) 0%, rgba(6,15,32,0.70) 50%, rgba(6,15,32,0.52) 100%),
+    linear-gradient(0deg, rgba(6,15,32,0.55), rgba(6,15,32,0.25) 60%);
+}
+.section--photo .wrap { position: relative; z-index: 2; }
 .section__head .lead { margin-top: 1rem; max-width: none; }
+
+/* ---------- Scroll reveal (RevealScript) ----------
+   Hidden state comes from JS only, after hydration and only below the fold,
+   so no-JS visitors never see blank sections. Calm and paced: a short rise,
+   one long ease-out, no whizzing. */
+[data-reveal].will-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s cubic-bezier(0.22, 0.61, 0.36, 1), transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+[data-reveal].will-reveal.is-in { opacity: 1; transform: none; }
 
 /* The hero's two-column recipe for text + glass panel sections. The panel
    centers and hugs its snapshot (fit-content) so the frosted border sits
@@ -704,16 +727,28 @@ p { margin: 0; }
   user-select: none;
 }
 
-/* ---------- Fused mosaic (one framed card, straight hairline seams) ----------
-   A single rounded card behind a heavy frame — the same stroke as the scene
-   pane — whose cells are separated by 3px seams: white copy cells and
-   full-bleed photo cells (never text over photos). */
+/* ---------- Fused mosaic (one card in a glass mat, straight hairline seams) ----------
+   The mosaic itself keeps only a hairline; the Apple-esque surround is the
+   .pane mat — the hero pane's thin line and soft fill at section scale, on
+   light and navy sections alike. */
+.pane {
+  margin-top: clamp(2.2rem, 4vw, 3.2rem);
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--r-xl) + 16px);
+  padding: clamp(0.7rem, 1.4vw, 1.1rem);
+  background: rgba(255, 255, 255, 0.5);
+}
+.section--navy .pane, .section--photo .pane {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.07);
+}
 .mosaic {
   display: grid; gap: 3px;
-  border: var(--frame-w) solid var(--line-strong);
-  border-radius: calc(var(--r-xl) + 10px);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--r-xl) + 2px);
   overflow: hidden;
 }
+.section--navy .mosaic { border-color: rgba(255, 255, 255, 0.16); }
 .tile--img { position: relative; min-height: 220px; padding: 0; }
 .tile--img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
@@ -728,22 +763,22 @@ p { margin: 0; }
 }
 .tile--asset .mockshot { width: 100%; }
 
-/* Scene backdrop shared by asset cells and the accordion snapshots: a blurred
-   cover photo behind the frost tint, mock above it. The img oversizes past
-   the clip so the blur never fades at the bitmap edges. */
-.tile--asset .scene, .svc__shot .scene {
+/* Scene backdrop for asset cells: a blurred cover photo behind the frost
+   tint, mock above it. The img oversizes past the clip so the blur never
+   fades at the bitmap edges. */
+.tile--asset .scene {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
   transform: scale(1.12);
   filter: blur(10px) saturate(1.1);
   z-index: -1;
 }
-.tile--asset::after, .svc__shot::after {
+.tile--asset::after {
   content: ""; position: absolute; inset: 0; z-index: 0;
   background:
     linear-gradient(rgba(255,255,255,0.10), rgba(255,255,255,0.10)),
     linear-gradient(rgba(10,22,48,0.45), rgba(10,22,48,0.45));
 }
-.tile--asset .mockshot, .svc__shot .mockshot {
+.tile--asset .mockshot {
   position: relative; z-index: 1;
   border: 1px solid var(--line-strong);
 }
@@ -752,131 +787,162 @@ p { margin: 0; }
 /* Equal rows: 1fr auto-rows keep the photo row and the asset row the same
    height, and the photo's min-height matches what the asset cell needs, so
    neither row towers over the other (photos just crop tighter). */
-.serve__mosaic { margin-top: clamp(2.2rem, 4vw, 3.2rem); grid-template-columns: repeat(4, 1fr); grid-auto-rows: 1fr; }
+.serve__mosaic { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 1fr; }
 .serve__mosaic .tile--img { grid-column: span 2; min-height: clamp(200px, 21vw, 270px); }
 .serve__mosaic .tile--asset { grid-column: span 2; }
 .card {
-  background: #fff; padding: clamp(1.5rem, 2.4vw, 2rem);
+  background: #fff; color: var(--ink); padding: clamp(1.5rem, 2.4vw, 2rem);
 }
 .card__icon { width: 46px; height: 46px; color: var(--navy); margin-bottom: 1.6rem; }
 .card__icon svg { width: 100%; height: 100%; }
 .card h3 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
 .card p { margin-top: 0.6rem; color: var(--muted); font-size: 1.02rem; }
 
-/* ---------- Services accordion (hairline summary buttons, framed panels) ---------- */
-.svc { margin-top: clamp(1.8rem, 3.5vw, 2.6rem); display: grid; gap: 0.9rem; }
-.svc summary {
-  list-style: none; cursor: pointer;
-  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: clamp(1rem, 2vw, 1.5rem);
-  padding: clamp(1.1rem, 2vw, 1.6rem) clamp(1rem, 1.8vw, 1.4rem);
-  background: #fff;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--r-lg);
-  transition: border-color 0.18s ease;
+/* ---------- How we run a load (split-screen tabs over the section photo) ----------
+   Steps on the left as glass rows, one glass pane on the right where the
+   active step's snapshot cross-fades. The active row expands its stat + copy
+   in place via the 0fr→1fr grid-row transition, so open and close are one
+   smooth motion with no layout pop. */
+.howrun {
+  margin-top: clamp(1.8rem, 3.5vw, 2.6rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(1.6rem, 3.5vw, 3rem);
+  align-items: center;
 }
-.svc summary:hover, .svc details[open] summary { border-color: rgba(14, 29, 58, 0.32); }
-.svc summary::-webkit-details-marker { display: none; }
-/* The Get-a-Quote recipe at step scale: a navy disc with a gold glyph, so the
-   icon pops instead of gold-on-white washing out. */
-.svc__icon {
+.howrun__tabs { display: grid; gap: 0.9rem; align-content: center; min-width: 0; }
+.howtab {
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--r-xl);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.howtab:hover { border-color: rgba(255, 255, 255, 0.3); }
+.howtab.is-active { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.34); }
+.howtab__btn {
+  width: 100%;
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+  gap: clamp(1rem, 2vw, 1.4rem);
+  padding: clamp(1rem, 1.8vw, 1.4rem) clamp(1rem, 1.8vw, 1.4rem);
+  background: none; border: 0; cursor: pointer;
+  font: inherit; text-align: left; color: #fff;
+}
+/* The Get-a-Quote recipe: gold disc, navy glyph — it pops over the photo. */
+.howtab__icon {
   width: 52px; height: 52px; flex: none;
   display: grid; place-items: center;
   border-radius: 50%;
-  background: var(--navy);
-  color: var(--accent);
+  background: var(--gold-grad);
+  box-shadow: var(--gold-edge);
+  color: var(--navy);
 }
-.svc__icon svg { width: 24px; height: 24px; }
-.svc__titles { display: flex; flex-direction: column; gap: 0.2rem; }
-.svc__title { font-size: clamp(1.25rem, 2.4vw, 1.75rem); font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; }
-.svc__sub { display: block; font-size: 0.95rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); }
-/* Quiet grey disclosure disc on the right; the navy icon carries the color. */
-.svc__arrow {
+.howtab__icon svg { width: 24px; height: 24px; }
+.howtab__titles { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+.howtab__title { font-size: clamp(1.15rem, 2vw, 1.5rem); font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; }
+.howtab__sub { display: block; font-size: 0.92rem; font-weight: 500; color: rgba(233, 238, 245, 0.72); }
+.howtab__arrow {
   display: grid; place-items: center; flex: none;
   width: 32px; height: 32px; border-radius: 50%;
-  background: #eceef2; color: var(--navy);
-  transition: transform 0.2s ease;
+  background: rgba(255, 255, 255, 0.14); color: #fff;
+  transition: transform 0.35s ease;
 }
-.svc__arrow svg { width: 15px; height: 15px; }
-.svc details[open] .svc__arrow { transform: rotate(90deg); }
-/* Open panel: stat + description on the left, the step's frozen product
-   snapshot bare on the right (its shadow is the frame). The img has explicit
-   dims, so opening a step never reflows the surrounding sections. */
-.svc__panel {
-  /* The snapshot column is a definite 440px track (not auto): the img inside
-     sizes with percentages, which collapse to 0 in an auto track. */
-  display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: clamp(1.2rem, 3vw, 2.6rem);
+.howtab__arrow svg { width: 15px; height: 15px; }
+.howtab.is-active .howtab__arrow { transform: rotate(90deg); }
+.howtab__body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.45s cubic-bezier(0.33, 1, 0.68, 1); }
+.howtab.is-active .howtab__body { grid-template-rows: 1fr; }
+.howtab__clip { min-height: 0; overflow: hidden; }
+.howtab__content {
+  padding: 0 clamp(1rem, 1.8vw, 1.4rem) clamp(1.1rem, 1.8vw, 1.4rem);
+  display: flex; flex-direction: column; gap: 0.7rem;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.howtab.is-active .howtab__content { opacity: 1; transform: none; transition-delay: 0.12s; }
+.howtab__stat { display: flex; align-items: center; gap: 0.7rem; }
+.howtab__stat b { font-size: clamp(1.7rem, 3vw, 2.3rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+.howtab__stat span { color: rgba(233, 238, 245, 0.72); font-size: 0.95rem; max-width: 20ch; }
+.howtab__desc { color: rgba(233, 238, 245, 0.78); font-size: 0.98rem; }
+/* The swap pane: every snapshot occupies the same grid cell, sized by the
+   tallest one, and cross-fades — the pane itself never moves. */
+.howrun__panel {
+  align-self: center;
+  display: grid;
   align-items: center;
-  background: var(--paper);
-  border: 1px solid var(--line-strong);
-  border-radius: calc(var(--r-xl) + 10px);
-  padding: clamp(1.2rem, 2.4vw, 1.8rem); margin: 0.9rem 0 0;
-  animation: reveal 0.32s ease;
-}
-.svc__body { display: flex; flex-direction: column; gap: 0.9rem; min-width: 0; }
-.svc__stat { display: flex; align-items: center; gap: 0.7rem; }
-.svc__stat b { font-size: clamp(1.8rem, 3.4vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
-.svc__stat span { color: var(--muted); font-size: 0.95rem; max-width: 18ch; }
-.svc__desc { color: var(--muted); }
-/* The snapshot rides its own scene pane (shared .scene rules above), matching
-   the split panels: blurred photo mat, mock card on top. */
-.svc__shot {
-  position: relative; isolation: isolate; overflow: hidden;
-  width: min(100%, 440px);
-  border-radius: var(--r-xl);
-  padding: clamp(1rem, 1.6vw, 1.4rem);
+  padding: clamp(1.2rem, 2.2vw, 2rem);
   pointer-events: none;
   user-select: none;
 }
-
-/* Smooth accordion reveal: opacity-only fade as the fallback; where the
-   browser can animate height (interpolate-size) the fade rides the same
-   ::details-content timeline instead, so open and close are one motion. The
-   summary→panel gap moves into the transitioned padding so nothing (border,
-   margin, hairline) pops outside the animated box. */
-@keyframes reveal { from { opacity: 0; } to { opacity: 1; } }
-@supports (interpolate-size: allow-keywords) {
-  :root { interpolate-size: allow-keywords; }
-  .svc__panel { animation: none; margin-top: 0; }
-  .svc details::details-content {
-    height: 0; overflow: clip; opacity: 0; padding-top: 0;
-    transition: height 0.32s ease, padding-top 0.32s ease, opacity 0.32s ease,
-      content-visibility 0.32s allow-discrete;
-  }
-  .svc details[open]::details-content { height: auto; opacity: 1; padding-top: 0.9rem; }
+.howrun__mock {
+  grid-area: 1 / 1;
+  opacity: 0; transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
+.howrun__mock.is-active { opacity: 1; transform: none; }
 
-/* ---------- How it works (step list beside the quote snapshot) ---------- */
-/* Zero the ol's default indent so the icons sit flush with the heading. */
-.steplist {
+/* ---------- How it works (scroll-checked timeline under the split) ----------
+   Four nodes on one hairline track. HowTimeline sets --p (0..1) from the
+   row's own scroll position; the track fills navy and passed steps flip to
+   the gold Get-a-Quote disc. Scroll-linked, never scroll-hijacked. */
+.timeline {
   list-style: none;
-  margin: clamp(1.8rem, 3vw, 2.4rem) 0 0;
+  margin: clamp(2.2rem, 4vw, 3.2rem) 0 0;
   padding: 0;
+  position: relative;
   display: grid;
-  gap: clamp(1.2rem, 2vw, 1.7rem);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
 }
-.steplist { justify-items: start; }
-.steplist__row { display: grid; grid-template-columns: auto 1fr; gap: 1.1rem; align-items: center; }
-.steplist__icon { width: 26px; height: 26px; flex: none; color: var(--navy); }
-.steplist__icon svg { width: 100%; height: 100%; }
-.steplist h3 { font-size: 1.15rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink); }
+/* The track spans between the first and last disc centers (half a column in
+   from each edge) and fills with --p. */
+.timeline::before, .timeline::after {
+  content: "";
+  position: absolute;
+  left: calc(12.5% + 26px); right: calc(12.5% + 26px);
+  top: 25px;
+  height: 2px;
+  border-radius: 1px;
+}
+.timeline::before { background: var(--line-strong); }
+.timeline::after {
+  background: var(--navy);
+  transform-origin: left center;
+  transform: scaleX(var(--p, 0));
+}
+.timeline__step {
+  display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+  text-align: center;
+  position: relative; z-index: 1;
+}
+.timeline__dot {
+  display: grid; place-items: center;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--line-strong);
+  color: var(--navy);
+  transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+}
+.timeline__dot svg { width: 22px; height: 22px; }
+.timeline__step.is-done .timeline__dot {
+  background: var(--gold-grad);
+  border-color: transparent;
+  box-shadow: var(--gold-edge);
+  transform: scale(1.06);
+}
+.timeline__label { font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); transition: color 0.4s ease; }
+.timeline__step.is-done .timeline__label { color: var(--ink); }
 
-/* ---------- Why Peer (navy bento: photos and white proof tiles in one mosaic) ---------- */
+/* ---------- Why Peer (navy bento: photos and white proof cards in one mosaic) ----------
+   The proof cells reuse the specialties .card recipe verbatim — flat navy
+   glyph on top, uppercase title, muted copy — so both mosaics read as one
+   system. */
 .bento {
-  margin-top: clamp(2.5rem, 5vw, 3.5rem);
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: minmax(220px, 1fr);
-  /* The hero pane's thin glass line, not a heavy frame. */
-  border-width: 1px;
-  border-color: rgba(255, 255, 255, 0.28);
 }
 .bento .tile--img img { object-position: center 35%; }
-.bento .tile__icon { width: 56px; height: 56px; }
-.tile { padding: clamp(1.3rem, 2vw, 1.7rem); display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; overflow: hidden; }
-.tile--white { background: #fff; color: var(--navy); }
-.tile__label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
-.tile__stat { font-size: clamp(2rem, 3.6vw, 2.9rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
-.tile__desc { font-size: 0.98rem; opacity: 0.85; }
-.tile__icon { width: 40px; height: 40px; }
 .tile--wide { grid-column: span 2; }
 
 
@@ -912,7 +978,7 @@ p { margin: 0; }
 /* Perks: the same fused mosaic as the specialties grid — white copy cells
    with flat navy glyphs, plus a photo cell and the product-mock cell filling
    the last 3-across row. */
-.perks { grid-template-columns: repeat(3, 1fr); margin-top: clamp(2.2rem, 4vw, 3.2rem); }
+.perks { grid-template-columns: repeat(3, 1fr); }
 .perks .tile--img { min-height: clamp(200px, 20vw, 280px); }
 .perks .tile--asset { grid-column: span 2; }
 .perk { background: #fff; padding: clamp(1.4rem, 2.2vw, 1.9rem); }
@@ -943,9 +1009,9 @@ p { margin: 0; }
   .split__panel { order: 2; width: 100%; max-width: 560px; margin-inline: auto; }
   .split__copy { order: 1; }
   .serve__mosaic { grid-template-columns: repeat(2, 1fr); }
-  /* Open accordion panels stack: stat + copy first, snapshot centered below. */
-  .svc__panel { grid-template-columns: 1fr; gap: 1.2rem; }
-  .svc__shot { margin-inline: auto; }
+  /* The how-we-run split stacks: tabs first, swap pane centered below. */
+  .howrun { grid-template-columns: 1fr; gap: 2rem; }
+  .howrun__panel { width: 100%; max-width: 560px; margin-inline: auto; }
   .bento { grid-template-columns: repeat(2, 1fr); }
   .perks { grid-template-columns: repeat(2, 1fr); }
   /* Photo and mock cells take a full row each on the 2-col perks grid. */
@@ -968,9 +1034,16 @@ p { margin: 0; }
   .brand__mark { width: 26px; height: 26px; }
   .logo-band__row { justify-content: center; gap: 1.5rem 2.2rem; }
 
-  .svc__icon { width: 42px; height: 42px; border-radius: 8px; }
-  .svc__icon svg { width: 21px; height: 21px; }
-  .svc__sub { font-size: 0.88rem; }
+  .howtab__icon { width: 42px; height: 42px; }
+  .howtab__icon svg { width: 21px; height: 21px; }
+  .howtab__sub { font-size: 0.88rem; }
+  /* The timeline wraps to a 2x2 grid; the track only makes sense on one
+     row, so it hides. */
+  .timeline { grid-template-columns: repeat(2, 1fr); gap: 1.4rem 1rem; }
+  .timeline::before, .timeline::after { display: none; }
+  .timeline__dot { width: 44px; height: 44px; }
+  .timeline__dot svg { width: 19px; height: 19px; }
+  .timeline__label { font-size: 0.82rem; }
 
   .card { padding: 1rem; }
   .card__icon { width: 34px; height: 34px; margin-bottom: 0.9rem; }
@@ -983,12 +1056,8 @@ p { margin: 0; }
   .perk h3 { font-size: 0.92rem; }
   .perk p { font-size: 0.88rem; margin-top: 0.5rem; }
 
-  .tile { padding: 1rem; gap: 0.6rem; }
   .tile--img { min-height: 150px; }
   .tile--wide { grid-column: span 2; }
-  .tile__stat { font-size: 1.7rem; }
-  .tile__desc { font-size: 0.88rem; }
-  .tile__icon { width: 30px; height: 30px; }
 
   .hero__cta { gap: 0.8rem; }
   .footer__word { font-size: clamp(4.5rem, 33vw, 9rem); }
