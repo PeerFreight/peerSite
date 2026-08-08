@@ -1023,14 +1023,16 @@ p { margin: 0; }
      (For Carriers stays reachable from the footer); everything that remains
      must fit a 360px screen without the pills shrinking into each other. */
   .nav { display: none; }
-  .site-header__inner { gap: 0.75rem; padding-inline: 1.1rem; }
-  .btn--white { padding: 0.5rem 0.9rem; font-size: 0.85rem; }
-  .site-header__actions { gap: 0.5rem; }
-  .site-header__actions .btn { padding: 0.5rem 0.9rem; font-size: 0.85rem; }
+  /* With the nav gone the 1fr|auto|1fr grid still splits the row evenly and
+     the wordmark ran under the pills; flex lets each side hug its content. */
+  .site-header__inner { display: flex; justify-content: space-between; gap: 0.6rem; padding-inline: 1rem; }
+  .btn--white { padding: 0.48rem 0.8rem; font-size: 0.82rem; }
+  .site-header__actions { gap: 0.45rem; }
+  .site-header__actions .btn { padding: 0.48rem 0.8rem; font-size: 0.82rem; }
   .site-header__actions .btn__icon { display: none; }
-  .brand { gap: 0.45rem; }
-  .brand__word { font-size: 1.02rem; }
-  .brand__mark { width: 26px; height: 26px; }
+  .brand { gap: 0.4rem; flex: none; }
+  .brand__word { font-size: 0.98rem; }
+  .brand__mark { width: 24px; height: 24px; }
   .logo-band__row { justify-content: center; gap: 1.5rem 2.2rem; }
 
   .howcell { padding: 1rem; }
@@ -1062,10 +1064,18 @@ p { margin: 0; }
 
   .hero__cta { gap: 0.8rem; }
   .footer__word { font-size: clamp(4.5rem, 33vw, 9rem); }
+  /* Stack the legal line over the links; keep each link on one line so
+     "Log in" and the copyright never break mid-phrase. */
+  .footer__legal { flex-direction: column; align-items: flex-start; gap: 1.1rem; }
+  .footer__links { flex-wrap: wrap; gap: 0.9rem 1.1rem; }
+  .footer__links a, .footer__links span { white-space: nowrap; }
 }
 /* All mosaics go single column on phones; spans collapse with them. */
 @media (max-width: 480px) {
   .serve__mosaic, .perks, .bento { grid-template-columns: 1fr; }
+  /* Single-column cells hug their own content; the equal-row rule only
+     makes sense when copy cells sit beside photo cells. */
+  .serve__mosaic, .bento { grid-auto-rows: auto; }
   .howrun__grid { grid-template-columns: 1fr; gap: 1.6rem; }
   .serve__mosaic .tile--img, .serve__mosaic .tile--asset,
   .perks .tile--img, .perks .tile--asset, .tile--wide { grid-column: auto; }
